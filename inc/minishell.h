@@ -2,7 +2,7 @@
 #define MINISHELL_H
 
 
-// define a comman table for execttion 
+// define a comman table as a result of parsing and as a execution plan for execution 
 
 typedef struct s_redir {
     int type; // <, >, >>, << (HEREDOC)
