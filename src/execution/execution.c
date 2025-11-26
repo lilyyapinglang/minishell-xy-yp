@@ -27,12 +27,33 @@ char	*resolve_cmd_path(char *cmd, char **env)
 {
 	char	*path;
 	char	**dirs;
+	char	*full_path;
 
-	path = getenv("PATH");
-	dirs = ft_split(path, ":");
-	while (*paths)
+	// while (*envp)
+	// {
+	// 	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+	// 	if (strncmp(*envp, "PATH", 4) == 0)
+	// 	{
+	// 		// printf("%s\n", *envp);
+	// 		path_ptr = strchr(*envp, '=') + 1;
+	// 		printf("%s\n", path_ptr);
+	// 	}
+	// 	envp++;
+	// }
+	while (*env)
 	{
+		if (ft_strncmp(*env, "PATH", 4))
+			ft_str();
 	}
+	dirs = ft_split(path, ':');
+	while (*dirs)
+	{
+		full_path = ft_strjoin(ft_strjoin(*dirs, "/"), cmd);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		dirs++;
+	}
+	return (NULL);
 }
 // build executable path from PATH
 // check access
@@ -45,8 +66,8 @@ void	execve_ext(t_cmd *cmd, char **env)
 	path = resolve_cmd_path(cmd->argv[0], env);
 	if (!path)
 	{
-		printf("command not find in paths\n", cmd->argv[0]);
-		exit(127);
+		printf("command %s not find in paths\n", cmd->argv[0]);
+		exit(1);
 	}
 	execve(path, cmd->argv, env);
 	// perror("execve");
@@ -65,7 +86,7 @@ void	exec_child(t_cmd *cmd, char **env)
 	if (!ft_strncmp(cmd->argv[0], "env", 3))
 		exit(builtin_env(env));
 	// otherwise exec external command
-	callexecve(cmd, env);
+	execve_ext(cmd, env);
 }
 
 int	exec_single_cmd(t_cmd *cmd, char **env)
@@ -77,8 +98,8 @@ int	exec_single_cmd(t_cmd *cmd, char **env)
 	if (is_buildtin(cmd->argv[0]))
 		exec_builtin_in_parent(cmd);
 	// need to run in child
-	pid = folk();
-	if (pid = 0)
+	pid = fork();
+	if (pid == 0)
 	{
 		exec_child(cmd, env);
 	}
@@ -88,40 +109,9 @@ int	exec_single_cmd(t_cmd *cmd, char **env)
 
 int	main(int argc, char *argv[], char *envp[])
 {
-	t_cmd	single_cmd;
+	t_cmd	*single_cmd;
 
 	g_t_exec.numOfCmds = 1;
-	g_t_exec.envp = envp;
-	// char	*envp
-	// char	*path_ptr;
-	// int		pid_1;
-	// int		pid_2;
-	// int		i;
-	// int		status;
-	// while (*envp)
-	// {
-	// 	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-	// 	if (strncmp(*envp, "PATH", 4) == 0)
-	// 	{
-	// 		// printf("%s\n", *envp);
-	// 		path_ptr = strchr(*envp, '=') + 1;
-	// 		printf("%s\n", path_ptr);
-	// 	}
-	// 	envp++;
-	// }
-	// single_cmd = (t_cmd)malloc(sizeof(t_cmd));
-	// single_cmd.argv = argv[1];
-	// t_exec.envp = envp;
-	// // identify if it's a builtin
-	// if (is_buildtin(single_cmd.argv[0]))
-	// 	return (exec_builtin_in_parent(single_cmd.argv[0]));
-	// // if not a builtion -> fork ,handle in child process
-	// pid_1 = getpid();
-	// pid_2 = fork();
-	// if (pid_2 == 0) // child
-	// {
-	// 	exec_child(single_cmd.argv[0]);
-	// }
-	// else // parent
-	// 	waitpid(pid_2, &status, 0);
+	g_t_exec.envp = dup_env(envp);
+	exec_single_cmd(single_cmd, g_t_exec.envp);
 }
