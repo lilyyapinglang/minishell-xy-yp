@@ -3,7 +3,9 @@
 
 // define a comman table as a result of parsing and as a execution plan for execution
 # include "../lib/ft_printf/ft_printf.h"
+# include <errno.h>
 # include <stdio.h>
+# include <stdlib.h>
 # include <string.h>
 # include <sys/types.h>
 # include <sys/wait.h>

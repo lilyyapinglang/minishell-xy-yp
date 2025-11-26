@@ -15,7 +15,7 @@ INCS := -I$(INC_DIR)
 EXECUTION_DIR := $(SRC_DIR)/execution
 
 #PARSING_SRC := $(EXECUTION_DIR)/parsing.c 
-EXECUTION_SRC := $(EXECUTION_DIR)/execution.c
+EXECUTION_SRC := $(EXECUTION_DIR)/execution.c $(EXECUTION_DIR)/builtin_cmd.c
 
 EXECUTION_OBJ := $(EXECUTION_SRC:.c =.o)
 
