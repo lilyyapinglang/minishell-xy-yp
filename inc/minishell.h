@@ -2,6 +2,12 @@
 # define MINISHELL_H
 
 // define a comman table as a result of parsing and as a execution plan for execution
+# include "../../inc/minishell.h"
+# include "../lib/ft_printf/ft_printf.h"
+# include <stdio.h>
+# include <string.h>
+# include <sys/types.h>
+# include <unistd.h>
 
 typedef enum e_redir_type
 {
@@ -37,5 +43,13 @@ typedef struct s_exec
 	char	**envp;
 
 }			t_exec;
+
+int			builtin_cd(char **argv);
+int			builtin_export(char **argv);
+int			builtin_unset(char **argv);
+int			builtin_exit(char **argv);
+int			builtin_echo(char **argv);
+int			builtin_pwd(char **argv);
+int			builtin_env(char **argv);
 
 #endif

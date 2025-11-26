@@ -1,8 +1,4 @@
-#include "../../inc/minishell.h"
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
+
 
 int	is_buildtin(char *cmd)
 {
@@ -75,11 +71,11 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	char	**paths;
 	char	*path_ptr;
+	t_cmd	single_cmd;
 
 	// int		pid_1;
 	// int		pid_2;
 	// int		i;
-	// t_cmd	single_cmd;
 	// int		status;
 	while (*envp)
 	{
