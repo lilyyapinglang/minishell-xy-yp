@@ -2,7 +2,6 @@
 # define MINISHELL_H
 
 // define a comman table as a result of parsing and as a execution plan for execution
-# include "../../inc/minishell.h"
 # include "../lib/ft_printf/ft_printf.h"
 # include <stdio.h>
 # include <string.h>
