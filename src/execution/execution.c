@@ -10,19 +10,6 @@ int	is_buildtin(char *cmd)
 		|| !ft_strncmp(cmd, "exit", 4));
 }
 
-int	exec_builtin_in_parent(t_cmd *cmd)
-{
-	// cd  // export // unset //exit
-	if (!ft_strncmp(cmd->argv[0], "cd", 2))
-		return (builtin_cd(cmd->argv));
-	if (!ft_strncmp(cmd->argv[0], "export", 6))
-		return (builtin_export(cmd->argv));
-	if (!ft_strncmp(cmd->argv[0], "unset", 5))
-		return (builtin_unset(cmd->argv));
-	if (!ft_strncmp(cmd->argv[0], "exit", 4))
-		return (builtin_exit(cmd->argv));
-	return (0);
-}
 char	*resolve_cmd_path(char *cmd, char **env)
 {
 	char	**dirs;
@@ -37,7 +24,7 @@ char	*resolve_cmd_path(char *cmd, char **env)
 		{
 			// printf("%s\n", *envp);
 			path_ptr = strchr(*env, '=') + 1;
-			printf("%s\n", path_ptr);
+			// printf("%s\n", path_ptr);
 			break ;
 		}
 		env++;
@@ -56,10 +43,6 @@ char	*resolve_cmd_path(char *cmd, char **env)
 	}
 	return (NULL);
 }
-// build executable path from PATH
-// check access
-// execve
-
 void	execve_ext(t_cmd *cmd, char **env)
 {
 	char	*path;
@@ -73,6 +56,26 @@ void	execve_ext(t_cmd *cmd, char **env)
 	execve(path, cmd->argv, env);
 	// perror("execve");
 	exit(1);
+}
+// need to guard the length with \0
+int	exec_builtin_in_parent(t_cmd *cmd, char **env)
+{
+	// cd  // export // unset //exit
+	if (!ft_strncmp(cmd->argv[0], "cd", 2))
+		return (builtin_cd(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "export", 6))
+		return (builtin_export(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "unset", 5))
+		return (builtin_unset(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "exit", 4))
+		return (builtin_exit(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "echo", 4))
+		exit(builtin_echo(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "pwd", 3))
+		exit(builtin_pwd(cmd->argv));
+	if (!ft_strncmp(cmd->argv[0], "env", 3))
+		exit(builtin_env(env));
+	return (0);
 }
 
 void	exec_child(t_cmd *cmd, char **env)
@@ -89,6 +92,10 @@ void	exec_child(t_cmd *cmd, char **env)
 	// otherwise exec external command
 	execve_ext(cmd, env);
 }
+
+// build executable path from PATH
+// check access
+// execve
 
 int	exec_single_cmd(t_cmd *cmd, char **env)
 {
