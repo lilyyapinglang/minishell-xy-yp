@@ -5,6 +5,13 @@
 
 // change directories
 
+/* ✔ Uses getcwd() to track current directory
+✔ Falls back to HOME when no args
+✔ Uses chdir()
+✔ Updates PWD and OLDPWD
+✔ Prints errors like bash
+✔ Returns success/failure code
+*/
 int	builtin_cd(char **argv)
 {
 	(void)argv;
@@ -69,27 +76,36 @@ int	builtin_echo(char **argv)
 
 int	builtin_pwd(char **argv)
 {
-	char	*cwd;
+	char	*ptr;
+	long	size;
+	char	*buf;
 
+	if (ft_strncmp(argv[0], "pwd", 3) != 0)
+		return (1);
 	// argv pwd
 	// char *getcwd(char *buf, size_t size);
 	// These functions return a null-terminated string containing an absolute pathname that
 	// is the current working directory of the calling process.
-	cwd = getcwd();
-	ft_putstr_fd(cwd, STDOUT_FILENO);
+	// getcwd() 会把当前工作目录（当前路径）的 绝对路径 写入 buf 指向的内存中，并返回 buf。
+	size = pathconf(".", _PC_PATH_MAX); // get the longest possible path length
+	if ((buf = malloc(size)) != NULL)
+	{
+		ptr = getcwd(buf, size);
+		ft_putstr_fd(ptr, STDOUT_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
+	}
 	return (0);
 }
-int	builtin_env(char **env)
+int	builtin_env(t_env *env)
 {
-	// getenv
-	// how to get a listo f envinrable names to search value for
-	// get an environment variable
-	// char *getenv(const char *name);
-	char *env;
-	char *name;
-
-	while (*env)
+	// how to get a list of envinrable names to search value for
+	// env is the pointer to the head node ;
+	while (env)
 	{
+		ft_putstr_fd(env->key, STDOUT_FILENO);
+		ft_putchar_fd('=', STDOUT_FILENO);
+		ft_putstr_fd(env->value, STDOUT_FILENO);
+		env = env->next;
 	}
-	char return (0);
+	return (0);
 }
