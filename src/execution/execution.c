@@ -104,13 +104,13 @@ int	exec_builtin_in_parent(t_cmd *cmd, t_env *env)
 {
 	// cd  // export // unset //exit
 	if (!ft_strncmp(cmd->argv[0], "cd", 2))
-		return (builtin_cd(cmd->argv));
+		return (builtin_cd(cmd->argv, env));
 	if (!ft_strncmp(cmd->argv[0], "export", 6))
-		return (builtin_export(cmd->argv));
+		return (builtin_export(cmd->argv, env));
 	if (!ft_strncmp(cmd->argv[0], "unset", 5))
-		return (builtin_unset(cmd->argv));
+		return (builtin_unset(cmd->argv, env));
 	if (!ft_strncmp(cmd->argv[0], "exit", 4))
-		return (builtin_exit(cmd->argv));
+		return (builtin_exit(cmd->argv, env));
 	if (!ft_strncmp(cmd->argv[0], "echo", 4))
 		exit(builtin_echo(cmd->argv));
 	if (!ft_strncmp(cmd->argv[0], "pwd", 3))

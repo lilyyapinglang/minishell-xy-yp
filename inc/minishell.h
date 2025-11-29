@@ -54,10 +54,10 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-int					builtin_cd(char **argv);
-int					builtin_export(char **argv);
-int					builtin_unset(char **argv);
-int					builtin_exit(char **argv);
+int					builtin_cd(char **argv, t_env *env);
+int					builtin_export(char **argv, t_env *env);
+int					builtin_unset(char **argv, t_env *env);
+int					builtin_exit(char **argv, t_env *env);
 int					builtin_echo(char **argv);
 int					builtin_pwd(char **argv);
 int					builtin_env(t_env *env);
