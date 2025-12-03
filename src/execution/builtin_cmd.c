@@ -15,6 +15,8 @@
 // PWD=/home/ylang/code/minishell-github
 // OLDPWD=/home/ylang/code/minishell-github
 
+unsigned int	g_lastcmd_exit_code = 0;
+;
 t_env	*find_env_var(char *key, t_env *env)
 {
 	while (env)
@@ -64,6 +66,7 @@ int	builtin_cd(char **argv, t_env *env)
 	else
 		return (-1);
 }
+
 // actually need to insert at alphabetic order
 t_env	*insertAtEnd(t_env *head, char *key, char *value)
 {
@@ -83,15 +86,17 @@ t_env	*insertAtEnd(t_env *head, char *key, char *value)
 	return (head);
 }
 //
-t_env	*deleteEnvNode(t_env *env, char *key);
-{ // delete the node with the key and return the head pointer
-	t_env *head;
+t_env	*deleteEnvNode(t_env *env, char *key)
+{
+	t_env	*head;
 
+	head = env;
+	// delete the node with the key and return the head pointer
 	while (env)
 	{
 		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
 		{ // delete the node no matter inthe , shoud be a doubed list ,
-			i need to change tmre
+			// i need to change tmre
 		}
 		env = env->next;
 	}
@@ -159,6 +164,7 @@ int	check_str_alpnum(char *str)
 	}
 	return (1);
 }
+
 // unset an environement variabe
 int	builtin_unset(char **argv, t_env *env)
 {
@@ -190,12 +196,43 @@ int	builtin_unset(char **argv, t_env *env)
 	return (0);
 }
 
+int	check_all_digit(char *str)
+{
+	while (*str)
+	{
+		if (!ft_isdigit(*str))
+			return (0);
+		str++;
+	}
+	return (1);
+}
+
 // exit, but exit which process ???
 int	builtin_exit(char **argv, t_env *env)
 {
-	(void)argv;
 	(void)env;
-	return (1);
+	// exit without argument
+	if (!argv[1])
+		exit(g_lastcmd_exit_code);
+	if (argv[2])
+	{
+		ft_printf("exit: too many arguments\n");
+		return (1);
+	}
+	if (!check_all_digit(argv[1]))
+	{
+		// bash-5.1$ exit hello
+		// exit
+		// bash: exit: hello: numeric argument required
+		ft_putendl_fd(argv[0], STDOUT_FILENO);
+		ft_printf("minishell: %s : %s : numeric argument required \n ", argv[0],
+			argv[1]);
+		return (1);
+	}
+	// designated code
+	ft_putendl_fd(argv[0], STDOUT_FILENO);
+	exit(ft_atoi(argv[1]));
+	return (0);
 }
 // buildin, execute in child or pipeline
 int	builtin_echo(char **argv)
@@ -206,8 +243,8 @@ int	builtin_echo(char **argv)
 	// -n means don't add newline charactor at the output
 	// argv[0] = echo
 	// argv[1] = xxx ?
-	printf("i'm here\n");
-	printf("av[1] is %s\n", argv[1]);
+	// printf("i'm here\n");
+	// printf("av[1] is %s\n", argv[1]);
 	if (ft_strncmp(argv[1], "-n", 2) == 0)
 	{
 		// write each char to stardard ouput

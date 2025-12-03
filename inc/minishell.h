@@ -11,6 +11,8 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
+extern unsigned int	g_lastcmd_exit_code;
+
 typedef enum e_redir_type
 {
 	REDIR_IN,      // <
@@ -53,6 +55,11 @@ typedef struct s_env
 	struct s_env	*prev;
 	struct s_env	*next;
 }					t_env;
+
+typedef struct g_var
+{
+	int				singal;
+}					t_g_var;
 
 int					builtin_cd(char **argv, t_env *env);
 int					builtin_export(char **argv, t_env *env);

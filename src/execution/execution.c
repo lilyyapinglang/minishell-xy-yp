@@ -17,18 +17,7 @@ char	*resolve_cmd_path(char *cmd, t_env *env)
 	char	*path_ptr;
 
 	path_ptr = NULL;
-	// while (env)
-	// {
-	// 	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-	// 	if (ft_strncmp(*env, "PATH=", 5) == 0)
-	// 	{
-	// 		// printf("%s\n", *envp);
-	// 		path_ptr = strchr(*env, '=') + 1;
-	// 		// printf("%s\n", path_ptr);
-	// 		break ;
-	// 	}
-	// 	env++;
-	// }
+	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 	while (env)
 	{
 		if (ft_strncmp(env->key, "PATH=", 5) == 0)
@@ -87,7 +76,10 @@ void	execve_ext(t_cmd *cmd, t_env *env)
 	char	*path;
 	char	**env_str;
 
-	path = resolve_cmd_path(cmd->argv[0], env);
+	if (ft_strchr(cmd->argv[0], '/'))
+		path = cmd->argv[0];
+	else
+		path = resolve_cmd_path(cmd->argv[0], env);
 	if (!path)
 	{
 		printf("command %s not find in paths\n", cmd->argv[0]);
@@ -99,6 +91,7 @@ void	execve_ext(t_cmd *cmd, t_env *env)
 	// perror("execve");
 	exit(1);
 }
+
 // need to guard the length with \0
 int	exec_builtin_in_parent(t_cmd *cmd, t_env *env)
 {
@@ -201,6 +194,7 @@ t_env	*dup_env(char **envp)
 	}
 	return (head);
 }
+
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_cmd	single_cmd;
@@ -212,7 +206,7 @@ int	main(int argc, char *argv[], char *envp[])
 	g_t_exec.numOfCmds = 1;
 	g_t_exec.envp = envp;
 	cpy_env = dup_env(envp); // return pointer to the head node
-	printf("i'm here \n");
+	// printf("i'm here \n");
 	single_cmd.argv = &argv[1];
 	// exit_status = exec_single_cmd(&single_cmd, g_t_exec.envp);
 	// while (cpy_env)
@@ -222,5 +216,5 @@ int	main(int argc, char *argv[], char *envp[])
 	// 	cpy_env = cpy_env->next;
 	// }
 	exit_status = exec_single_cmd(&single_cmd, cpy_env);
-	ft_printf("exit status : %d", exit_status);
+	ft_printf("exec_single_cmd exit status : %d\n", exit_status);
 }
