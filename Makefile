@@ -2,7 +2,7 @@ NAME_PARSING:= parsing
 NAME_EXECUTION := execution
 
 CC := cc 
-CFLAGS := -Wall -Wextra -Werror
+CFLAGS := -Wall -Wextra -Werror -lreadline
 
 INC_DIR := inc
 SRC_DIR := src

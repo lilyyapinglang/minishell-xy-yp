@@ -1,4 +1,3 @@
-
 #include "../inc/minishell.h"
 
 // buildin, execute in parent
@@ -271,8 +270,8 @@ int	builtin_echo(char **argv)
 	}
 	return (0);
 }
-// print working directory
 
+// print working directory
 int	builtin_pwd(char **argv)
 {
 	char	*ptr;

@@ -20,7 +20,7 @@ char	*resolve_cmd_path(char *cmd, t_env *env)
 	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 	while (env)
 	{
-		if (ft_strncmp(env->key, "PATH=", 5) == 0)
+		if (ft_strncmp(env->key, "PATH", 4) == 0)
 			path_ptr = env->value;
 		env = env->next;
 	}
@@ -71,19 +71,73 @@ char	**env_list_to_envp(t_env *env)
 	return (envp);
 }
 
-void	execve_ext(t_cmd *cmd, t_env *env)
+// Function to resolve relative paths to absolute paths
+char	*get_full_path_from_relative(char *relative_path)
+{
+	char	*cwd;
+	char	*full_path;
+
+	// Step 1: Get the current working directory
+	cwd = getcwd(NULL, 0);
+	// Allocate memory for the current working directory
+	if (cwd == NULL)
+	{
+		perror("getcwd failed");
+		return (NULL);
+	}
+	// Step 2: Calculate the full path by combining cwd with the relative path
+	// For example, if cwd is
+	//	/home/user and the relative path is ./my_script.sh,
+	// the result should be /home/user/my_script.sh
+	full_path = malloc(strlen(cwd) + strlen(relative_path) + 2);
+	// +2 for '/' and '\0'
+	if (full_path == NULL)
+	{
+		perror("malloc failed");
+		free(cwd);
+		return (NULL);
+	}
+	// Step 3: Combine current working directory and relative path
+	// If relative path starts with './',
+	// append only after removing the './'
+	if (relative_path[0] == '.' && relative_path[1] == '/')
+	{
+		snprintf(full_path, strlen(cwd) + strlen(relative_path), "%s%s", cwd,
+			relative_path + 2);
+	}
+	else
+	{
+		snprintf(full_path, strlen(cwd) + strlen(relative_path) + 2, "%s/%s",
+			cwd, relative_path);
+	}
+	// Step 4: Clean up and return the full path
+	free(cwd); // No longer need the cwd
+	return (full_path);
+}
+void	execute_external(t_cmd *cmd, t_env *env)
 {
 	char	*path;
 	char	**env_str;
 
-	if (ft_strchr(cmd->argv[0], '/'))
+	// if it is realtive path
+	if (cmd->argv[0][0] == '.')
+	{
+		ft_printf("here\n");
+		path = get_full_path_from_relative(cmd->argv[0]);
+	}
+	// if it is a absolute path
+	else if (cmd->argv[0][0] == '/')
 		path = cmd->argv[0];
+	// external via PATH
 	else
+	{
+		ft_printf("argv[0]\n", cmd->argv[0]);
 		path = resolve_cmd_path(cmd->argv[0], env);
+	}
 	if (!path)
 	{
 		printf("command %s not find in paths\n", cmd->argv[0]);
-		exit(1);
+		exit(127);
 	}
 	// turn t_env into char **
 	env_str = env_list_to_envp(env);
@@ -112,21 +166,83 @@ int	exec_builtin_in_parent(t_cmd *cmd, t_env *env)
 		exit(builtin_env(env));
 	return (0);
 }
+// }
+// else
+// {
+// 	// Handle external command (search in PATH)
+// 	char *executable = find_executable(args[0]);
+// 	if (executable)
+// 	{
+// 		execv(executable, args); // Execute external command
+// 	}
+// 	else
+// 	{
+// 		fprintf(stderr, "%s: command not found\n", args[0]);
+// 	}
+// }
+// }
+
+// void	execute_external(char **args)
+// {
+// 	pid_t pid = fork(); // Create a child process
+// 	if (pid == 0)
+// 	{ // Child process
+// 		// Use execvp to run the command in the child process
+// 		if (execvp(args[0], args) == -1)
+// 		{
+// 			perror("execvp failed");
+// 		}
+// 		exit(EXIT_FAILURE); // If execvp fails, exit the child process
+// 	}
+// 	else if (pid > 0)
+// 	{                          // Parent process
+// 		waitpid(pid, NULL, 0); // Wait for the child to finish
+// 	}
+// 	else
+// 	{
+// 		perror("fork failed");
+// 	}
+// }
 
 void	exec_child(t_cmd *cmd, t_env *env)
 {
 	// apply_all_redirs(cmd); to be done later
 	// echo , pwd, env
 	// run builtin that is allowed in child (echo, pwd, env)
-	if (!ft_strncmp(cmd->argv[0], "echo", 4))
-		exit(builtin_echo(cmd->argv));
-	if (!ft_strncmp(cmd->argv[0], "pwd", 3))
-		exit(builtin_pwd(cmd->argv));
-	if (!ft_strncmp(cmd->argv[0], "env", 3))
-		exit(builtin_env(env));
+	// if (!ft_strncmp(cmd->argv[0], "echo", 4))
+	// 	exit(builtin_echo(cmd->argv));
+	// if (!ft_strncmp(cmd->argv[0], "pwd", 3))
+	// 	exit(builtin_pwd(cmd->argv));
+	// if (!ft_strncmp(cmd->argv[0], "env", 3))
+	// 	exit(builtin_env(env));
 	// otherwise exec external command
-	execve_ext(cmd, env);
+	execute_external(cmd, env);
 }
+
+// void	shell_loop(void)
+// {
+// 	char	*input;
+// 	char	**args;
+
+// 	while (1)
+// 	{
+// 		printf("minishell> ");
+// 		input = read_input();      // Read user input
+// 		args = parse_input(input); // Parse input into command + arguments
+// 		// Check if it's a built-in command
+// 		if (is_builtin(args[0]))
+// 		{
+// 			execute_builtin(args); // Execute in the parent process
+// 		}
+// 		else
+// 		{
+// 			execute_external(args);
+// 			// Fork a child process to execute external command
+// 		}
+// 		free(input);
+// 		free(args);
+// 	}
+// }
 
 // build executable path from PATH
 // check access
@@ -142,10 +258,8 @@ int	exec_single_cmd(t_cmd *cmd, t_env *env)
 		return (exec_builtin_in_parent(cmd, env));
 	// need to run in child
 	pid = fork();
-	if (pid == 0)
-	{
+	if (pid == 0) // child process
 		exec_child(cmd, env);
-	}
 	waitpid(pid, &status, 0);
 	return (WEXITSTATUS(status));
 }
@@ -200,9 +314,20 @@ int	main(int argc, char *argv[], char *envp[])
 	t_cmd	single_cmd;
 	int		exit_status;
 	t_env	*cpy_env;
+	int		i;
 
-	if (argc < 2)
-		return (1);
+	// char	*inpt;
+	(void)argc;
+	i = 0;
+	// while (i < 10)
+	// {
+	// 	inpt = readline("Minishell> ");
+	// 	add_history(inpt);
+	// 	printf("%s", inpt);
+	// 	printf("\n");
+	// 	++i;
+	// }
+	// return (0);
 	g_t_exec.numOfCmds = 1;
 	g_t_exec.envp = envp;
 	cpy_env = dup_env(envp); // return pointer to the head node
