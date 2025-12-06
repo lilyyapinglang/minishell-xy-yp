@@ -22,19 +22,20 @@ typedef enum e_redir_type
 	REDIR_APPEND,  //>>
 	REDIR_HEREDOC, //<<
 }					t_redir_type;
-
 typedef struct s_redir
 {
-	int				type;
-	char *filename; // delimiter for heredoc
+	t_redir_type type; // <, >, >>, << (<< EOF → target = "EOF")
+	char *file;        // filename or separate heredoc
+	// int             heredoc_fd; // for << ，其它类型设 -1
+	struct s_redir	*next;
 }					t_redir;
 
 typedef struct s_cmd
 {
-	char			**argv;
-	t_redir			*redirs;
-	int				pipe_in;
-	int				pipe_out;
+	char **argv; // is a list , we put every cmd in it
+	t_redir			*redirects;
+	struct s_cmd *next; // cmd1 -> cmd2 -> cmd3 -> NULL
+						// int pipe[2]
 }					t_cmd;
 
 typedef struct s_cmd_table
