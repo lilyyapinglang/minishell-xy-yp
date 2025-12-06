@@ -44,25 +44,14 @@ typedef struct s_cmd_table
 	int				nb_nums;
 }					t_cmd_table;
 
-typedef struct s_exec
-{
-	int				numOfCmds;
-	char			**envp;
-
-}					t_exec;
-
 typedef struct s_env
 {
 	char			*key;
 	char			*value;
+	char			*key_value;
 	struct s_env	*prev;
 	struct s_env	*next;
 }					t_env;
-
-typedef struct g_var
-{
-	int				singal;
-}					t_g_var;
 
 int					builtin_cd(char **argv, t_env *env);
 int					builtin_export(char **argv, t_env *env);
