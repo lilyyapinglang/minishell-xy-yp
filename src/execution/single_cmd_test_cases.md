@@ -26,7 +26,7 @@ nonexistent: command not found
 ./execution cat /etc/hosts
 ./execution whoami
 
-2.2 PATH empty
+2.2 PATH empty ?
 PATH=""
 ./execution ls
 Expected: cannot find ls.
@@ -89,7 +89,7 @@ Bash accepts this:
 
 Bash stops parsing after invalid option:
 
-./execution echo -nX hello
+./execution echo -nX hello❌
 
 Expected output:
 
@@ -114,10 +114,8 @@ Expected output:
 touch file
 chmod -x file
 ./execution ./file
+Expected: exit code 126 (bash behavior) ❌
 
-Expected: exit code 126 (bash behavior)
-
-8.2 Directory instead of executable
+8.2 Directory instead of executable ❌
 ./execution /bin
-
 Expected: also 126 ("is a directory")

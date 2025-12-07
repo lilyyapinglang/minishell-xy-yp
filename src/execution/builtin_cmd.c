@@ -122,12 +122,12 @@ int	builtin_export(char **argv, t_env *env)
 	{
 		if (ft_isdigit(**ptr))
 		{
-			printf(" export: not an identifier: 1\n");
+			ft_printf(" export: not an identifier: 1\n");
 			return (-1);
 		}
 		if (**ptr == '=')
 		{
-			printf("bad assingnment \n");
+			ft_putstr_fd("bad assingnment \n", STDOUT_FILENO);
 			return (-1);
 		}
 		if (ft_strchr(*ptr, '='))
@@ -173,7 +173,7 @@ int	builtin_unset(char **argv, t_env *env)
 
 	if (!argv[1])
 	{
-		printf("unset: not enough arguments\n");
+		ft_printf("unset: not enough arguments\n");
 		return (-1);
 	}
 	// need to add other error handling
@@ -183,7 +183,7 @@ int	builtin_unset(char **argv, t_env *env)
 		// check if *arg_prtr is alpha
 		if (!check_str_alpnum(*arg_ptr))
 		{
-			printf("unset: %s : invalid parameter name \n ", *arg_ptr);
+			ft_printf("unset: %s : invalid parameter name \n ", *arg_ptr);
 			return (-1);
 		}
 		// try to find var in env
@@ -233,6 +233,17 @@ int	builtin_exit(char **argv, t_env *env)
 	exit(ft_atoi(argv[1]));
 	return (0);
 }
+
+int	is_only_n(char *str)
+{
+	while (*str)
+	{
+		if (*str != 'n')
+			return (0);
+		str++;
+	}
+	return (1);
+}
 // buildin, execute in child or pipeline
 int	builtin_echo(char **argv)
 {
@@ -242,12 +253,15 @@ int	builtin_echo(char **argv)
 	// -n means don't add newline charactor at the output
 	// argv[0] = echo
 	// argv[1] = xxx ?
-	// printf("i'm here\n");
-	// printf("av[1] is %s\n", argv[1]);
-	if (ft_strncmp(argv[1], "-n", 2) == 0)
+	if (!argv[1])
+	{
+		ft_putchar_fd('\n', STDOUT_FILENO);
+		return (0);
+	}
+	if (ft_strncmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
 	{
 		// write each char to stardard ouput
-		printf("with -n options \n");
+		// printf("with -n options \n");
 		strs = &argv[2];
 		while (*strs)
 		{
@@ -292,6 +306,7 @@ int	builtin_pwd(char **argv)
 		ft_putstr_fd(ptr, STDOUT_FILENO);
 		ft_putchar_fd('\n', STDOUT_FILENO);
 	}
+	free(buf);
 	return (0);
 }
 int	builtin_env(t_env *env)
