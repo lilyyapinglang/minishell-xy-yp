@@ -274,6 +274,37 @@ t_env	*dup_env(char **envp)
 	return (head);
 }
 
+// cat a | grep hi | wc -l
+/*
+nb_cmds = 3
+
+cmd[0]:
+  argv = ["cat", "a", NULL]
+  redirs = []
+
+cmd[1]:
+  argv = ["grep", "hi", NULL]
+  redirs = []
+
+cmd[2]:
+  argv = ["wc", "-l", NULL]
+  redirs = []
+
+*/
+
+void	create_test_cmd_table(void)
+{
+	t_cmd_table	*cmd_table;
+	t_cmd		*cmd_1;
+	t_cmd		*head;
+	t_cmd		*cmd_2;
+	t_cmd		*cmd_3;
+
+	cmd_1 = malloc(sizeof(t_cmd));
+	head = cmd_1;
+	cmds->argv = {"cat", "a", NULL};
+	t_cmd_table->nb_nums = 3;
+}
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_cmd		single_cmd;
@@ -281,13 +312,72 @@ int	main(int argc, char *argv[], char *envp[])
 	t_env		*cpy_env_list;
 	t_cmd_table	*cmd_table;
 	int			i;
+	int			fildes[2];
+	int			READ_END;
+	int			WRITE_END;
+	pid_t		pid;
 
+	READ_END = 0;
+	WRITE_END = 1;
 	cmd_table = NULL;
 	(void)argc;
 	i = 0;
 	cpy_env_list = dup_env(envp); // return pointer to the head node
 	if (!cpy_env_list)
 		return (1);
+	if (cmd_table->nb_nums) // nb_nums =0;
+		return (1);
+	// eg: cat a.txt | grep hi | wc -l
+	if (cmd_table->cmds)
+	{
+		// it exist the head of the commands nb_nums=3
+		while (i < cmd_table->nb_nums)
+		{
+			if (i != cmd_table->nb_nums - 1) // not the last cmd,
+												// i will create pipe
+			{
+				// Data can be written to the file descriptor fildes[1] and read from  the
+				// file  descriptor  fildes[0]
+				// fildes[1] write, fildes[0] read, first in first out
+				pipe(fildes); // empty pipe, got 2 fd
+				pid = fork();
+				// create a chile process to execute current command
+				if (pid == 0) // child process
+				{
+					if (cmd_table->cmds[i - 1])
+						// it has previous cmd,
+						// read from last fd_read instead of standard input
+						dup2(fildes[READ_END], STDIN_FILENO);
+					// read from the previoud read end
+					dup2(fildes[WRITE_END], STDOUT_FILENO);
+					// close(fildes[READ_END]);
+					// no thing to read from  so close?
+					// close(fildes[WRITE_END]);
+					exec_child(cmd_table->cmds[i], fildes, cpy_env_list);
+					ft_printf("Failed to execute %s \n", cmd_table->cmds[i]);
+					exit(1);
+				}
+				else // parent process
+				{
+					close(fd[READ_END]);
+					close(fd[WRITE_END]);
+					waitpid(pid, &status, 0);
+				}
+			}
+			// last command what to do ?
+			// i just need to read from the last fd read_end and standard output
+			else if (i == cmd_table->nb_nums - 1) // last command
+			{
+				dup2(fildes[READ_END], STDIN_FILENO);
+				close(fd[WRITE_END]);
+				close(fd[READ_END]);
+				exec_child(cmd_table->cmds[i], fildes, cpy_env_list);
+				ft_printf("Failed to execute last cmd %s \n",
+					cmd_table->cmds[i]);
+				exit(1);
+			}
+		}
+	}
 	single_cmd.argv = &argv[1];
 	exit_status = exec_single_cmd(&single_cmd, cpy_env_list);
 	ft_printf("exec_single_cmd exit status : %d\n", exit_status);

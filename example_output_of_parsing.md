@@ -14,20 +14,16 @@ nb_cmds = 3
 cmd[0]:
   argv = ["cat", "a", NULL]
   redirs = []
-  pipe_in = 0
-  pipe_out = 1
 
 cmd[1]:
   argv = ["grep", "hi", NULL]
   redirs = []
-  pipe_in = 1
-  pipe_out = 1
+
 
 cmd[2]:
   argv = ["wc", "-l", NULL]
   redirs = []
-  pipe_in = 1
-  pipe_out = 0
+
 ```
 
 example 2
