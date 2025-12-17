@@ -42,7 +42,7 @@ typedef struct s_cmd
 typedef struct s_cmd_table
 {
 	t_cmd			*cmds;
-	int				nb_nums;
+	int				cmds_count;
 }					t_cmd_table;
 
 typedef struct s_env

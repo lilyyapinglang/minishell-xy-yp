@@ -316,6 +316,7 @@ int	main(int argc, char *argv[], char *envp[])
 	int			READ_END;
 	int			WRITE_END;
 	pid_t		pid;
+	int			prev_read;
 
 	READ_END = 0;
 	WRITE_END = 1;
@@ -325,15 +326,18 @@ int	main(int argc, char *argv[], char *envp[])
 	cpy_env_list = dup_env(envp); // return pointer to the head node
 	if (!cpy_env_list)
 		return (1);
-	if (cmd_table->nb_nums) // nb_nums =0;
+	if (cmd_table->cmds_count) // nb_nums =0;
 		return (1);
+	if (cmd_table->cmds_count == 1)
+		exec_single_cmd(cmd_table->cmds, cpy_env_list);
+	// cmd_counts >=2
 	// eg: cat a.txt | grep hi | wc -l
 	if (cmd_table->cmds)
 	{
 		// it exist the head of the commands nb_nums=3
-		while (i < cmd_table->nb_nums)
+		while (i < cmd_table->cmds_count)
 		{
-			if (i != cmd_table->nb_nums - 1) // not the last cmd,
+			if (i != cmd_table->cmds_count - 1) // not the last cmd,
 												// i will create pipe
 			{
 				// Data can be written to the file descriptor fildes[1] and read from  the
@@ -344,37 +348,50 @@ int	main(int argc, char *argv[], char *envp[])
 				// create a chile process to execute current command
 				if (pid == 0) // child process
 				{
-					if (cmd_table->cmds[i - 1])
-						// it has previous cmd,
+					if (i != 0)
+						// if it is not the first command, it has previous cmd,
 						// read from last fd_read instead of standard input
-						dup2(fildes[READ_END], STDIN_FILENO);
+						dup2(prev_read, STDIN_FILENO);
 					// read from the previoud read end
 					dup2(fildes[WRITE_END], STDOUT_FILENO);
-					// close(fildes[READ_END]);
-					// no thing to read from  so close?
-					// close(fildes[WRITE_END]);
+					// should close read end of new pipe as we don't read from the newly created pipe in this child process
+					close(fildes[READ_END]);
 					exec_child(cmd_table->cmds[i], fildes, cpy_env_list);
+					// close write so that the next reader can read. either close below or in the exec_child
+					close(fildes[WRITE_END]);
+					close(prev_read); // closes original prev_read after dup
 					ft_printf("Failed to execute %s \n", cmd_table->cmds[i]);
 					exit(1);
 				}
-				else // parent process
+				else // parent process after creating a pipe
 				{
-					close(fd[READ_END]);
-					close(fd[WRITE_END]);
-					waitpid(pid, &status, 0);
+					close(prev_read);
+					// closes old prev_read (it’s no longer needed once the next stage is set up)
+					close(fildes[WRITE_END]); // parent isn't writing data
+					prev_read = dup(fildes[READ_END]);
+					close(fildes[READ_END]);
+					// close the read_end of current pipe
 				}
 			}
 			// last command what to do ?
 			// i just need to read from the last fd read_end and standard output
-			else if (i == cmd_table->nb_nums - 1) // last command
+			else // last command
 			{
-				dup2(fildes[READ_END], STDIN_FILENO);
-				close(fd[WRITE_END]);
-				close(fd[READ_END]);
-				exec_child(cmd_table->cmds[i], fildes, cpy_env_list);
-				ft_printf("Failed to execute last cmd %s \n",
-					cmd_table->cmds[i]);
-				exit(1);
+				pid = fork();
+				if (pid == 0) // child process
+				{
+					dup2(prev_read, STDIN_FILENO);
+					exec_child(cmd_table->cmds[i], prev_read, cpy_env_list);
+					close(prev_read);
+					ft_printf("Failed to execute last cmd %s \n",
+						cmd_table->cmds[i]);
+					exit(1);
+				}
+				else // parent process
+				{
+					close(prev_read);
+					waitpid(pid, &status, 0);
+				}
 			}
 		}
 	}
