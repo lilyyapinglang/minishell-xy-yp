@@ -1,6 +1,6 @@
 #include "../inc/minishell.h"
 
-void	free_env_list(t_env *head);
+void		free_env_list(t_env *head);
 
 int	is_buildtin(char *cmd)
 {
@@ -274,62 +274,29 @@ t_env	*dup_env(char **envp)
 	return (head);
 }
 
-// cat a | grep hi | wc -l
-/*
-nb_cmds = 3
-
-cmd[0]:
-  argv = ["cat", "a", NULL]
-  redirs = []
-
-cmd[1]:
-  argv = ["grep", "hi", NULL]
-  redirs = []
-
-cmd[2]:
-  argv = ["wc", "-l", NULL]
-  redirs = []
-
-*/
-
-void	create_test_cmd_table(void)
+int	exec_child_pipeline(t_cmd *cmd, int prev_read, int fd_write_end,
+		t_env *cpy_env)
 {
-	t_cmd_table	*cmd_table;
-	t_cmd		*cmd_1;
-	t_cmd		*head;
-	t_cmd		*cmd_2;
-	t_cmd		*cmd_3;
-
-	cmd_1 = malloc(sizeof(t_cmd));
-	head = cmd_1;
-	cmds->argv = {"cat", "a", NULL};
-	t_cmd_table->nb_nums = 3;
+	exec_child(cmd);
 }
-int	main(int argc, char *argv[], char *envp[])
+int	exec_multiple_cmds(t_cmd_table *cmd_table, t_env *cpy_env)
 {
-	t_cmd		single_cmd;
-	int			exit_status;
-	t_env		*cpy_env_list;
-	t_cmd_table	*cmd_table;
-	int			i;
-	int			fildes[2];
-	int			READ_END;
-	int			WRITE_END;
-	pid_t		pid;
-	int			prev_read;
+	int		i;
+	int		fildes[2];
+	int		READ_END;
+	int		WRITE_END;
+	pid_t	pid;
+	int		prev_read;
+	int		status;
 
 	READ_END = 0;
 	WRITE_END = 1;
-	cmd_table = NULL;
-	(void)argc;
 	i = 0;
-	cpy_env_list = dup_env(envp); // return pointer to the head node
-	if (!cpy_env_list)
-		return (1);
-	if (cmd_table->cmds_count) // nb_nums =0;
+	prev_read = -1;            // means no previos pipe
+	if (cmd_table->cmds_count) // cmds_count =0;
 		return (1);
 	if (cmd_table->cmds_count == 1)
-		exec_single_cmd(cmd_table->cmds, cpy_env_list);
+		exec_single_cmd(cmd_table->cmds, cpy_env);
 	// cmd_counts >=2
 	// eg: cat a.txt | grep hi | wc -l
 	if (cmd_table->cmds)
@@ -352,23 +319,26 @@ int	main(int argc, char *argv[], char *envp[])
 						// if it is not the first command, it has previous cmd,
 						// read from last fd_read instead of standard input
 						dup2(prev_read, STDIN_FILENO);
-					// read from the previoud read end
+					// read from the previous read end
 					dup2(fildes[WRITE_END], STDOUT_FILENO);
 					// should close read end of new pipe as we don't read from the newly created pipe in this child process
 					close(fildes[READ_END]);
-					exec_child(cmd_table->cmds[i], fildes, cpy_env_list);
-					// close write so that the next reader can read. either close below or in the exec_child
+					exec_child(cmd_table->cmds[i], prev_read, fildes[WRITE_END],
+						cpy_env);
+					// close write so that the next reader can read. either close below or in the exec_child???
 					close(fildes[WRITE_END]);
-					close(prev_read); // closes original prev_read after dup
+					if (prev_read != -1)
+						close(prev_read); // closes original prev_read after dup
 					ft_printf("Failed to execute %s \n", cmd_table->cmds[i]);
 					exit(1);
 				}
 				else // parent process after creating a pipe
 				{
-					close(prev_read);
+					if (prev_read != -1)
+						close(prev_read);
 					// closes old prev_read (it’s no longer needed once the next stage is set up)
 					close(fildes[WRITE_END]); // parent isn't writing data
-					prev_read = dup(fildes[READ_END]);
+					prev_read = fildes[READ_END];
 					close(fildes[READ_END]);
 					// close the read_end of current pipe
 				}
@@ -381,7 +351,7 @@ int	main(int argc, char *argv[], char *envp[])
 				if (pid == 0) // child process
 				{
 					dup2(prev_read, STDIN_FILENO);
-					exec_child(cmd_table->cmds[i], prev_read, cpy_env_list);
+					exec_child(cmd_table->cmds[i], prev_read, cpy_env);
 					close(prev_read);
 					ft_printf("Failed to execute last cmd %s \n",
 						cmd_table->cmds[i]);
@@ -390,14 +360,35 @@ int	main(int argc, char *argv[], char *envp[])
 				else // parent process
 				{
 					close(prev_read);
-					waitpid(pid, &status, 0);
 				}
 			}
+			i++;
 		}
 	}
+}
+
+int	main(int argc, char *argv[], char *envp[])
+{
+	t_cmd		single_cmd;
+	int			exit_status;
+	t_env		*cpy_env_list;
+	t_cmd_table	*t;
+
+	(void)argc;
+	cpy_env_list = dup_env(envp); // return pointer to the head node
+	if (!cpy_env_list)
+		return (1);
+	t = build_fake_cmd_table_for_tests();
+	exec_multiple_cmds(t, cpy_env_list);
 	single_cmd.argv = &argv[1];
 	exit_status = exec_single_cmd(&single_cmd, cpy_env_list);
 	ft_printf("exec_single_cmd exit status : %d\n", exit_status);
 	free_env_list(cpy_env_list);
 	return (exit_status);
 }
+
+/*
+t_cmd_table	*t = build_fake_cmd_table_for_tests();
+exec_multiple_cmds(t, cpy_env);
+free_cmd_table(t);
+*/
