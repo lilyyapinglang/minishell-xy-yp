@@ -23,27 +23,41 @@ typedef enum e_redir_type
 	REDIR_APPEND,  //>>
 	REDIR_HEREDOC, //<<
 }					t_redir_type;
+
 typedef struct s_redir
 {
 	t_redir_type type; // <, >, >>, << (<< EOF → target = "EOF")
-	char *file;        // filename or separate heredoc
-	// int             heredoc_fd; // for << ，其它类型设 -1
+	char *target;      // filename or separate heredoc
+	int heredoc_fd;    // for << ，其它类型设 -1
 	struct s_redir	*next;
 }					t_redir;
 
-typedef struct s_cmd
+typedef struct s_simple_cmd
 {
 	char **argv; // is a list , we put every cmd in it
 	t_redir			*redirects;
-	struct s_cmd *next; // cmd1 -> cmd2 -> cmd3 -> NULL
-						// int pipe[2]
-}					t_cmd;
+}					t_simple_cmd;
 
-typedef struct s_cmd_table
+typedef struct s_pipeline
 {
-	t_cmd			*cmds;
+	t_simple_cmd **cmds; // cmds_count 个 simple_cmd*
 	int				cmds_count;
-}					t_cmd_table;
+}					t_pipeline;
+
+typedef enum e_ast_type
+{
+	AST_PIPELINE, // leaf
+	AST_AND,      // &&
+	AST_OR,       // ||
+}					t_ast_type;
+
+typedef struct s_ast
+{
+	t_ast_type		type;
+	struct s_ast	*left;
+	struct s_ast	*right;
+	t_pipeline		*pipeline;
+}					t_ast;
 
 typedef struct s_env
 {
