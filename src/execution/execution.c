@@ -123,7 +123,7 @@ int	get_file_type(char *path)
 	}
 	return (-1);
 }
-void	execute_external(t_cmd *cmd, t_env *env)
+void	execute_external(t_simple_cmd *cmd, t_env *env)
 {
 	char	*path;
 	char	**env_str;
@@ -175,7 +175,7 @@ void	execute_external(t_cmd *cmd, t_env *env)
 }
 
 // need to guard the length with \0
-int	exec_builtin_in_parent(t_cmd *cmd, t_env *env)
+int	exec_builtin_in_parent(t_simple_cmd *cmd, t_env *env)
 {
 	// cd  // export // unset //exit
 	if (!ft_strncmp(cmd->argv[0], "cd", 2))
@@ -195,12 +195,12 @@ int	exec_builtin_in_parent(t_cmd *cmd, t_env *env)
 	return (0);
 }
 
-void	exec_child(t_cmd *cmd, t_env *env)
+void	exec_child(t_simple_cmd *cmd, t_env *env)
 {
 	execute_external(cmd, env);
 }
 
-int	exec_single_cmd(t_cmd *cmd, t_env *env)
+int	exec_single_cmd(t_simple_cmd *cmd, t_env *env)
 {
 	pid_t	pid;
 	int		status;
@@ -274,105 +274,119 @@ t_env	*dup_env(char **envp)
 	return (head);
 }
 
-int	exec_child_pipeline(t_cmd *cmd, int prev_read, int fd_write_end,
+void	exec_child_pipeline(t_simple_cmd *cmd, int prev_read, int fd_write_end,
 		t_env *cpy_env)
 {
-	exec_child(cmd);
+	(void)prev_read;
+	(void)fd_write_end;
+	exec_child(cmd, cpy_env);
 }
-int	exec_multiple_cmds(t_cmd_table *cmd_table, t_env *cpy_env)
+int	exec_pipeline(t_pipeline *pipeline, t_env *cpy_env)
 {
 	int		i;
 	int		fildes[2];
 	int		READ_END;
 	int		WRITE_END;
-	pid_t	pid;
+	pid_t	*pids;
 	int		prev_read;
 	int		status;
+	int		w;
 
 	READ_END = 0;
 	WRITE_END = 1;
 	i = 0;
-	prev_read = -1;            // means no previos pipe
-	if (cmd_table->cmds_count) // cmds_count =0;
+	prev_read = -1;
+	status = 0;                                 // means no previos pipe
+	if (!pipeline || pipeline->cmds_count == 0) // cmds_count =0;
 		return (1);
-	if (cmd_table->cmds_count == 1)
-		exec_single_cmd(cmd_table->cmds, cpy_env);
+	if (pipeline->cmds_count == 1)
+		return (exec_single_cmd(pipeline->cmds[0], cpy_env));
 	// cmd_counts >=2
 	// eg: cat a.txt | grep hi | wc -l
-	if (cmd_table->cmds)
+	pids = malloc(sizeof(pid_t) * pipeline->cmds_count);
+	if (!pids)
+		return (1);
+	// it exist the head of the commands nb_nums=3
+	while (i < pipeline->cmds_count)
 	{
-		// it exist the head of the commands nb_nums=3
-		while (i < cmd_table->cmds_count)
+		if (i != pipeline->cmds_count - 1) // not last cmd, create pipe
 		{
-			if (i != cmd_table->cmds_count - 1) // not the last cmd,
-												// i will create pipe
+			// Data can be written to the file descriptor fildes[1] and read from  the
+			// file  descriptor  fildes[0]
+			// fildes[1] write, fildes[0] read, first in first out
+			pipe(fildes); // empty pipe, got 2 fd
+			pids[i] = fork();
+			// create a chile process to execute current command
+			if (pids[i] == 0) // child process
 			{
-				// Data can be written to the file descriptor fildes[1] and read from  the
-				// file  descriptor  fildes[0]
-				// fildes[1] write, fildes[0] read, first in first out
-				pipe(fildes); // empty pipe, got 2 fd
-				pid = fork();
-				// create a chile process to execute current command
-				if (pid == 0) // child process
-				{
-					if (i != 0)
-						// if it is not the first command, it has previous cmd,
-						// read from last fd_read instead of standard input
-						dup2(prev_read, STDIN_FILENO);
-					// read from the previous read end
-					dup2(fildes[WRITE_END], STDOUT_FILENO);
-					// should close read end of new pipe as we don't read from the newly created pipe in this child process
-					close(fildes[READ_END]);
-					exec_child(cmd_table->cmds[i], prev_read, fildes[WRITE_END],
-						cpy_env);
-					// close write so that the next reader can read. either close below or in the exec_child???
-					close(fildes[WRITE_END]);
-					if (prev_read != -1)
-						close(prev_read); // closes original prev_read after dup
-					ft_printf("Failed to execute %s \n", cmd_table->cmds[i]);
-					exit(1);
-				}
-				else // parent process after creating a pipe
-				{
-					if (prev_read != -1)
-						close(prev_read);
-					// closes old prev_read (it’s no longer needed once the next stage is set up)
-					close(fildes[WRITE_END]); // parent isn't writing data
-					prev_read = fildes[READ_END];
-					close(fildes[READ_END]);
-					// close the read_end of current pipe
-				}
-			}
-			// last command what to do ?
-			// i just need to read from the last fd read_end and standard output
-			else // last command
-			{
-				pid = fork();
-				if (pid == 0) // child process
-				{
+				if (i != 0)
+					// if it is not the first command, it has previous cmd,
+					// read from last fd_read instead of standard input
 					dup2(prev_read, STDIN_FILENO);
-					exec_child(cmd_table->cmds[i], prev_read, cpy_env);
-					close(prev_read);
-					ft_printf("Failed to execute last cmd %s \n",
-						cmd_table->cmds[i]);
-					exit(1);
-				}
-				else // parent process
-				{
-					close(prev_read);
-				}
+				// read from the previous read end
+				if (prev_read != -1)
+					close(prev_read); // closes original prev_read after dup
+				dup2(fildes[WRITE_END], STDOUT_FILENO);
+				// should close read end of new pipe as we don't read from the newly created pipe in this child process
+				close(fildes[READ_END]);
+				close(fildes[WRITE_END]);
+				exec_in_child(pipeline->cmds[i], cpy_env);
+				// close write so that the next reader can read. either close below or in the exec_child???
+				ft_printf("Failed to execute %s \n",
+					pipeline->cmds[i]->argv[0]);
+				exit(127);
 			}
-			i++;
+			else // parent process after creating a pipe
+			{
+				if (prev_read != -1)
+					close(prev_read);
+				// closes old prev_read (it’s no longer needed once the next stage is set up)
+				close(fildes[WRITE_END]); // parent isn't writing data
+				prev_read = fildes[READ_END];
+				// close the read_end of current pipe
+			}
 		}
+		// last command what to do ?
+		// i just need to read from the last fd read_end and standard output
+		else // last command
+		{
+			pids[i] = fork();
+			if (pids[i] == 0) // child process
+			{
+				if (prev_read != -1)
+					dup2(prev_read, STDIN_FILENO);
+				close(prev_read);
+				exec_in_child(pipeline->cmds[i], cpy_env);
+				ft_printf("Failed to execute last cmd %s \n",
+					pipeline->cmds[i]->argv[0]);
+				exit(127);
+			}
+			else // parent process
+			{
+				close(prev_read);
+				prev_read = -1;
+			}
+		}
+		i++;
 	}
+	// wait all pids, get  last cmd status
+	i = 0;
+	while (i < pipeline->cmds_count)
+	{
+		waitpid(pids[i], &w, 0);
+		if (i == pipeline->cmds_count - 1)
+			status = status_from_wait(w);
+		i++;
+	}
+	return (status);
 }
 
 int	main(int argc, char *argv[], char *envp[])
 {
-	t_cmd		single_cmd;
-	int			exit_status;
-	t_env		*cpy_env_list;
-	t_cmd_table	*t;
+	t_simple_cmd	single_cmd;
+	int				exit_status;
+	t_env			*cpy_env_list;
+	t_pipeline		*t;
 
 	(void)argc;
 	cpy_env_list = dup_env(envp); // return pointer to the head node
@@ -388,7 +402,7 @@ int	main(int argc, char *argv[], char *envp[])
 }
 
 /*
-t_cmd_table	*t = build_fake_cmd_table_for_tests();
+t_pipeline	*t = build_fake_cmd_table_for_tests();
 exec_multiple_cmds(t, cpy_env);
 free_cmd_table(t);
 */

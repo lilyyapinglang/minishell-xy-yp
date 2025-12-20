@@ -75,5 +75,5 @@ int					builtin_exit(char **argv, t_env *env);
 int					builtin_echo(char **argv);
 int					builtin_pwd(char **argv);
 int					builtin_env(t_env *env);
-t_cmd_table			*build_fake_cmd_table_for_tests(void);
+t_pipeline			*build_fake_cmd_table_for_tests(void);
 #endif
