@@ -10,7 +10,7 @@
 
 int	execute_logical(t_ast_logical *node, t_shell shell)
 {
-	if (node.operator= 'AND')
+	if (node.operator= '&&')
 	{
 		// execute left first
 		if (execute(node->left, shell) != 0)
@@ -21,7 +21,7 @@ int	execute_logical(t_ast_logical *node, t_shell shell)
 		else
 			return (0); //
 	}
-	else if (node.operator= 'OR')
+	else if (node.operator= '||')
 	{
 		// execute left first
 		if (execute(node->left, shell) == 0)

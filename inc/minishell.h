@@ -95,12 +95,11 @@ typedef struct s_ast
 }							t_ast;
 
 // exection
-
-typedef enum e_execute_end
+typedef enum e_exitORreturnAfterCurExe
 {
-	O_RETURN,
-	O_EXIT
-}							t_execute_end;
+	RETURN2PARENT,
+	EXITAFTEREXE
+}							t_exitORreturnAfterCurExe;
 
 # define READ_END 0
 # define WRITE_END 1
@@ -123,8 +122,7 @@ int							builtin_echo(char **argv);
 int							builtin_pwd(char **argv);
 int							builtin_env(t_env *env);
 
-// execute 
-
+// execute
 
 t_ast_command				*build_fake_cmd_table_for_tests(void);
 #endif
