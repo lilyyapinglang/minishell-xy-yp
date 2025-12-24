@@ -33,22 +33,30 @@ ctrl-c : g_signal_value = SIGINT , readline is interrrupted,
 ctrl-d : nothing happens, so ignore
 
 */
-volatile sig_atomic_t	g_lastest_signal_status = 0;
 
-void	set_signal_handler(int sig_num, void (*signal_handler)(int))
+// write and read to this variable is atomatic, it won't be interrupted
+//
+volatile sig_atomic_t	g_latest_signal_status = 0;
+
+// Provide a general handler for each mode to call and use
+int	set_signal_handler(int sig_num, void (*signal_handler)(int), int flags)
 {
 	struct sigaction	sig_act;
 
-	sigemptyset(&sig_act.sa_mask);
-	sig_act.sa_flags = SA_SIGINFO; // or 0 ?
+	memset(&sig_act, 0, sizeof(sig_act)); // clean garbage value
 	sig_act.handler = signal_handler;
-	sigaction(sig_num, &sig_act, NULL);
+	sig_act.sa_flags = flags; // let calling function to decide if SA_RESTART
+	sigemptyset(&sig_act.sa_mask);
+	if (sigaction(sig_num, &sig_act, NULL) == -1)
+		return (-1);
+	return (0);
 }
 
 void	handle_sigint_in_prompt_mode(int sig_num)
 {
-	// record that sigint happened
-	g_lastest_signal_status = sig_num;
+	// record that sigint happened， this change is to be consumed by main process
+	// which is actaully quite current cmd and return to shell.
+	g_latest_signal_status = sig_num;
 	// change to new line because it's ugly to start new prompt on the same line
 	// write is signal safe
 	if (write(1, "\n", 1) == -1)
@@ -57,21 +65,34 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 	// clear current readline buffer, not adding to history
 	rl_replace_line("", 0);
 	// fix readline inernal status, location of cursur, line start info,
-		need to redisplay prompt or not
+	//	need to redisplay prompt or not
 	rl_on_new_line();
 	// redraw clean prompt
 	rl_redisplay();
 }
-
+/*
+should stop collecting heredoc immediately, drop content of current heredoc,
+entire cmd will not be executed anymore, shell return to main prompt,
+	set exitcode to 130
+*/
 void	handle_sigint_in_heredoc_mode(int sig_num)
 {
+	// 1/ record signal
+	g_latest_signal_status = sig_num;
+	// 2. output newline, to make it visually clean
+	if (write(1, "\n", 1) == -1)
+		return ;
+	// 3. let readline exit/finish
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
 }
 
 void	handle_signal_in_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
 	// i can not kill shell, i need to clear line and return to prompt
-	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode);
+	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode，0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN);
@@ -80,7 +101,7 @@ void	handle_signal_in_prompt_mode(void)
 void	handle_signal_in_heredoc_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
-	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode);
+	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode，0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN);
@@ -107,10 +128,10 @@ void	handle_signal_in_exe_main_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process
-	set_signal_handler(SIGINT, SIG_IGN);
+	set_signal_handler(SIGINT, SIG_IGN，0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_IGN);
+	set_signal_handler(SIGQUIT, SIG_IGN，0);
 }
 
 // after fork child process copied the signal handler from parent as well,
@@ -120,8 +141,8 @@ void	handle_signal_in_exe_child_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process
-	set_signal_handler(SIGINT, SIG_DFL);
+	set_signal_handler(SIGINT, SIG_DFL，0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_DFL);
+	set_signal_handler(SIGQUIT, SIG_DFL，0);
 }
