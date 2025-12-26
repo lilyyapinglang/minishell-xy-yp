@@ -15,7 +15,7 @@ int	collect_all_heredocs_from_this_node(t_ast *node, t_shell *shell)
 	int		current_temp_files_counts;
 	char	*current_file_num_suffix;
 	char	*tmp_file_name;
-	int		tmp_file_id;
+	int		tmp_file_des;
 
 	if (!is_heredoc(node))
 	{
@@ -133,7 +133,7 @@ int	search_for_heredocs_from_this_node(t_ast *node, t_shell *shell)
 
 char	*trim_delimiter(char *delimiter, t_shell *shell)
 {
-	char first_char;
+	char	first_char;
 
 	first_char = *delimiter;
 	// 'EOF' "EOF"
@@ -142,3 +142,45 @@ char	*trim_delimiter(char *delimiter, t_shell *shell)
 														//	need to free
 	return (delimiter);
 }
+
+/*a function to readline read input from terminal heredoc line by line to terminal
+finish read, close the tmp file desciption
+*/
+
+int	collect_heredocs_linebylibe(int tmp_file_des, char *delimiter, t_shell *shell)
+{
+	char *user_input;
+	user_input = NULL;
+	g_latest_signal_status =0;
+
+	while(true)
+	{
+		// i need to know if it is main prompt or if is heredoc prompt, how to know??
+		if(isatty(fileno(stdin)))
+		{
+			rl_replace_line("",0);
+			rl_on_new_line();
+			handle_signal_in_heredoc_prompt_mode();
+			user_input=readline("> ");
+			handle_signal_in_exe_main_process();
+		}
+		if(g_latest_signal_status == SIGINT)
+			return (130);
+		if(!user_input)
+		{
+			errno("error");
+			return 0;
+		}
+		if(ft_strncmp(user_input,delimiter)==0)
+		{
+			free(user_input);
+			return 0;
+		}
+		write(user_input,tmp_file_des,shell);
+		write("\n",tmp_file_des,shell);
+		free(user_input);
+
+	}
+	return 0;
+}
+

@@ -126,4 +126,12 @@ int							builtin_env(t_env *env);
 // execute
 
 t_ast_command				*build_fake_cmd_table_for_tests(void);
+
+
+//signal
+
+volatile sig_atomic_t	g_latest_signal_status = 0;
+void	handle_sigint_in_heredoc_mode(int sig_num);
+void	handle_sigint_in_prompt_mode(int sig_num);
+void	handle_signal_in_exe_main_process(void);
 #endif
