@@ -89,8 +89,9 @@ typedef struct s_ast_logical
 typedef struct s_ast_redirection
 {
 	t_token_type			redir_type;
-	struct s_ast			*child;
-	char					*right_hand_side;
+	// child: the AST executed under this redirection's file-descriptor environment
+	struct s_ast			*exe_child;
+	char					*file_path;
 }							t_ast_redirection;
 
 typedef struct s_ast_subshell

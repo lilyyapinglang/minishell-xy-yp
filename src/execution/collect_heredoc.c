@@ -34,7 +34,7 @@ int	collect_all_heredocs_from_this_node(t_ast *node, t_shell *shell)
 	tmp_file_des = open(tmp_file_name, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	// read input to this fd;
 	raw_delimiter = node->u_data.redirection.right_hand_side;
-	clean_delimiter = *get_clean_heredoc_delimiter(raw_delimiter, shell);
+	clean_delimiter = get_clean_heredoc_delimiter(raw_delimiter, shell);
 	status = collect_heredocs_from_terminal(tmp_file_des, clean_delimiter,
 			shell);
 	// a function to readline read input from terminal heredoc line by line to terminal
