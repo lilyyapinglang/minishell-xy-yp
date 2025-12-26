@@ -28,6 +28,28 @@ typedef enum e_redir_type
 							*/
 // core
 
+// ----- LEXER ----- //
+typedef enum e_token_type
+{
+	TK_ERROR,
+	TK_WORD,
+	TK_PIPE,
+	TK_AND,
+	TK_OR,
+	TK_REDIRECT_IN,
+	TK_REDIRECT_OUT,
+	TK_APPEND_OUT,
+	TK_HEREDOC,
+	TK_SUBSHELL_OPEN,
+	TK_SUBSHELL_CLOSE
+}							t_token_type;
+
+typedef struct s_token
+{
+	t_token_type			type;
+	char					*value;
+}							t_token;
+
 typedef struct s_shell
 {
 	t_env					*env;
@@ -66,9 +88,9 @@ typedef struct s_ast_logical
 
 typedef struct s_ast_redirection
 {
-	t_token_type			direction;
+	t_token_type			redir_type;
 	struct s_ast			*child;
-	char					*file;
+	char					*right_hand_side;
 }							t_ast_redirection;
 
 typedef struct s_ast_subshell
@@ -127,11 +149,10 @@ int							builtin_env(t_env *env);
 
 t_ast_command				*build_fake_cmd_table_for_tests(void);
 
+// signal
 
-//signal
-
-volatile sig_atomic_t	g_latest_signal_status = 0;
-void	handle_sigint_in_heredoc_mode(int sig_num);
-void	handle_sigint_in_prompt_mode(int sig_num);
-void	handle_signal_in_exe_main_process(void);
+volatile sig_atomic_t		g_latest_signal_status = 0;
+void						handle_sigint_in_heredoc_mode(int sig_num);
+void						handle_sigint_in_prompt_mode(int sig_num);
+void						handle_signal_in_exe_main_process(void);
 #endif
