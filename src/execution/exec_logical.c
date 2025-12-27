@@ -8,27 +8,40 @@
 
 */
 
-int	execute_logical(t_ast_logical *node, t_shell shell)
+int	execute_logical(t_ast_logical *logical_node, t_shell shell)
 {
-	if (node.operator= '&&')
+	int	left_status;
+	int	right_status;
+
+	left_status = execute(logical_node->left, O_RETURN, shell);
+	shell.last_status = left_status;
+	if (logical_node->operator= TK_AND)
 	{
 		// execute left first
-		if (execute(node->left, shell) != 0)
+		if (left_status != 0)
 			return (1);
 		// left exit with 0; try execute right too
-		if (execute(node->right, shell) == 0)
-			return (1);
-		else
-			return (0); //
+		if (left_status == 0)
+		{
+			right_status = execute(logical_node->right, O_RETURN, shell);
+			if (right_status == 0)
+				return (0);
+			else
+				return (1);
+		}
 	}
-	else if (node.operator= '||')
+	else if (logical_node.operator= TK_OR)
 	{
 		// execute left first
-		if (execute(node->left, shell) == 0)
+		if (left_status == 0)
 			return (0); // no need to execute right
-		if (execute(node->right) == 0)
-			return (0);
-		else
-			return (1);
+		if (left_status != 0)
+		{
+			right_status = execute(logical_node->right, O_RETURN, shell);
+			if (right_status == 0)
+				return (0);
+			else
+				return (1);
+		}
 	}
 }

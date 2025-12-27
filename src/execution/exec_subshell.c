@@ -15,7 +15,24 @@ waitpid(pid, &st)
 
 // run a smaller ast tree in subshell.
 
-int	execute_subshell(t_ast_subshell *subshell, t_shell *shell)
+int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 {
 	execute(subshell, shell);
+	pid_t pid;
+	int status;
+
+	pid = fork(shell); // fork parent process
+	// child porcess execute
+	if (pid == 0)
+	{
+		shell.in_main_process = false;
+		// as long as i am in a forked chiled process,
+		//	i need to consider signal.
+		handle_signal_in_exe_child_process();
+		execute(subshell_node->child, O_EXIT, shell);
+	}
+	// parent process ,wait
+	wait(&status);
+	status;
+	return (status);
 }
