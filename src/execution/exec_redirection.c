@@ -82,6 +82,7 @@ int	exe_redirect_output(t_ast_redirection *redir_node, t_shell *shell)
 	close(original_stdout);
 	return (status);
 }
+
 int	execute_redirect_append_output(t_ast_redirection *redir_node,
 		t_shell *shell)
 {
