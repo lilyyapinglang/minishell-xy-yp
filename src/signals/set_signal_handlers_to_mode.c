@@ -88,7 +88,7 @@ void	handle_sigint_in_heredoc_mode(int sig_num)
 	rl_redisplay();
 }
 
-void	handle_signal_in_prompt_mode(void)
+void	set_signal_in_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
 	// i can not kill shell, i need to clear line and return to prompt
@@ -98,7 +98,7 @@ void	handle_signal_in_prompt_mode(void)
 	set_signal_handler(SIGQUIT, SIG_IGN);
 }
 
-void	handle_signal_in_heredoc_prompt_mode(void)
+void	set_signal_in_heredoc_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
 	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode，0);
@@ -124,7 +124,7 @@ so for shell/main process itself, correct behavior is i don't respond,
 update status, return to prompt  , shell is the manager but not the executor
 */
 
-void	handle_signal_in_exe_main_process(void)
+void	set_signal_in_exe_main_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process
@@ -137,7 +137,7 @@ void	handle_signal_in_exe_main_process(void)
 // after fork child process copied the signal handler from parent as well,
 //	so it is necessary to change the behavior for child process
 // it will perform as default to terminate process like SIG_DFL
-void	handle_signal_in_exe_child_process(void)
+void	set_signal_in_exe_child_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process

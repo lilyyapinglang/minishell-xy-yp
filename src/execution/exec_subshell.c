@@ -17,9 +17,9 @@ waitpid(pid, &st)
 
 int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 {
-	execute(subshell, shell);
-	pid_t pid;
-	int status;
+	pid_t	pid;
+	int		status;
+	bool	*new_line;
 
 	pid = fork(shell); // fork parent process
 	// child porcess execute
@@ -33,6 +33,31 @@ int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 	}
 	// parent process ,wait
 	wait(&status);
-	status;
+	status = check_process_child_exit(status, new_line, shell);
 	return (status);
+}
+
+int	check_process_child_exit(int status, book *new_line, t_shell *shell)
+{
+	int signal;
+
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(statuts));
+	else if (WIFSIGNALED(status))
+	{
+		signal = WTERMSIG(status);
+		if (signal == SIGQUIT)
+			write("Quit : 3", STDERR_FILENO, 6);
+		// make sure in any cases there is only one new line
+		if (signal == SIGQUIT || signal = SIGINT)
+		{
+			if (!new_line || (new_line && *new_line == false))
+				write("\n", STDERR_FILENO.shell);
+			if (new_line &&*new_line = false)
+				*new_line = true;
+		}
+		return (128 + signal);
+	}
+	else
+		return (1);
 }
