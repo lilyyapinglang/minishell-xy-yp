@@ -13,7 +13,7 @@ int	execute_logical(t_ast_logical *logical_node, t_shell shell)
 	int	left_status;
 	int	right_status;
 
-	left_status = execute(logical_node->left, O_RETURN, shell);
+	left_status = execute(logical_node->left, RUN_IN_SHELL, shell);
 	shell.last_status = left_status;
 	if (logical_node->operator= TK_AND)
 	{
@@ -23,7 +23,7 @@ int	execute_logical(t_ast_logical *logical_node, t_shell shell)
 		// left exit with 0; try execute right too
 		if (left_status == 0)
 		{
-			right_status = execute(logical_node->right, O_RETURN, shell);
+			right_status = execute(logical_node->right, RUN_IN_SHELL, shell);
 			if (right_status == 0)
 				return (0);
 			else
@@ -37,7 +37,7 @@ int	execute_logical(t_ast_logical *logical_node, t_shell shell)
 			return (0); // no need to execute right
 		if (left_status != 0)
 		{
-			right_status = execute(logical_node->right, O_RETURN, shell);
+			right_status = execute(logical_node->right, RUN_IN_SHELL, shell);
 			if (right_status == 0)
 				return (0);
 			else

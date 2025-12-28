@@ -21,11 +21,11 @@ int	execute_pipeline(t_ast *pipeline_node, t_shell *shell)
 	t_ast_pipeline	*pipeline;
 
 	pipeline = build_cmd_list(pipeline_node, shell);
-	execute_pipeline_commands(pipeline, shell);
+	return (execute_pipeline_commands(pipeline, shell));
 }
 
 // add a note to the front of a list
-t_list			**ft_listadd_front(t_list **lst, t_list new_node);
+t_list			*ft_listadd_front(t_list **lst, t_list *new_node);
 {
 }
 
@@ -59,6 +59,7 @@ int	execute_pipeline_commands(t_list *pipeline, t_shell *shell)
 	pid_t	last_pid;
 	int		last_cmd_status;
 	int		pipeline_count;
+	bool	has_next;
 
 	pipeline_count = ft_lstsize(pipeline);
 	//
@@ -66,15 +67,31 @@ int	execute_pipeline_commands(t_list *pipeline, t_shell *shell)
 	prev_read_end = -1;
 	while (pipeline)
 	{
-		pipe(fd);
-		last_pid = execute_one_command(pipeline, prev_read_end, pipe, shell);
+		has_next = (pipeline->next != NULL);
+		if (has_next && pipe(fd) < 0)
+			return (1);
+		// last cmd
+		if (!has_next)
+		{
+			fd[READ_END] = -1;
+			fd[WRITE_END] = -1;
+		}
+		last_pid = execute_one_command(pipeline, prev_read_end, fd, shell);
+		// parent closes
 		if (prev_read_end != -1)
 			close(prev_read_end);
-		close(pipe[WRITE_END]);
-		prev_read_end = pipe[READ_END];
+		if (has_next)
+			close(fd[WRITE_END]); // close write end in parent
+		if (has_next)
+			prev_read_end = fd[READ_END];
+		else
+			prev_read_end = -1;
 		pipeline = pipeline->next;
 	}
+	if (prev_read_end != -1)
+		close(prev_read_end);
 	last_cmd_status = wait_for_children(last_pid, pipeline_count, shell);
+	return (last_cmd_status);
 }
 
 int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
@@ -84,8 +101,11 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 	int		status;
 
 	pid = fork();
-	if (pid != 0)
+	if (pid < 0)
+		return (-1);
+	if (pid > 0)
 		return (pid); // return parent pid
+	// child
 	shell->in_main_process = false;
 	set_signal_exe_child_process();
 	// if not the first cmd
@@ -97,10 +117,13 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 	// if not the last
 	if (pipeline->next != NULL)
 		dup2_s(pipe[WRITE_END], STDOUT_FILENO, shell);
-	close(pipe[READ_END]);
-	close(pipe[WRITE_END]);
+	if (pipe[READ_END] != -1)
+		close(pipe[READ_END]);
+	if (pipe[WRITE_END] != -1)
+		close(pipe[WRITE_END]);
 	//执行这个 stage 的 AST，然后退出（O_EXIT）
-	execute((t_ast *)pipeline->content, O_EXIT, shell);
+	status = execute((t_ast *)pipeline->content, RUN_IN_CHILD, shell);
+	exit(status);
 	return (pid);
 }
 

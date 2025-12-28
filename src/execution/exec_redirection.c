@@ -56,7 +56,7 @@ int	exe_redirect_input(t_ast_redirection *redir_node, t_shell *shell)
 	dup2(input_fd, 0);
 	// after dup2, fd=0 already point to file, input_fd becomes a useless alias
 	close(input_fd);
-	status = execute(redir_node->exe_child, O_RETURN, shell);
+	status = execute(redir_node->exe_child, EXEC_PARENT, shell);
 	// after executing child, need to change stdin back to terminal
 	// use backup orignal_stdio to link stdin(0) to original places
 	dup2(orignal_stdin, STDIN_FILENO);
@@ -77,7 +77,7 @@ int	exe_redirect_output(t_ast_redirection *redir_node, t_shell *shell)
 	original_stdout = dup(STDOUT_FILENO);
 	dup2(output_fd, 0);
 	close(output_fd);
-	status = execute(redir_node->exe_child, O_RETURN, shell);
+	status = execute(redir_node->exe_child, EXEC_PARENT, shell);
 	dup2(original_stdout, STDOUT_FILENO);
 	close(original_stdout);
 	return (status);
@@ -97,7 +97,7 @@ int	execute_redirect_append_output(t_ast_redirection *redir_node,
 	original_stdout = dup(STDOUT_FILENO);
 	dup2(append_fd, 0);
 	close(append_fd);
-	status = execute(redir_node->child, O_RETURN, shell);
+	status = execute(redir_node->child, EXEC_PARENT, shell);
 	dup2(original_stdout, STDOUT_FILENO);
 	close(original_stdout);
 	return (status);

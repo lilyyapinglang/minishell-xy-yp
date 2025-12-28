@@ -119,11 +119,17 @@ typedef struct s_ast
 }							t_ast;
 
 // exection
-typedef enum e_exitORreturnAfterCurExe
+typedef enum e_exec_context
+
 {
-	RETURN2PARENT,
-	EXITAFTEREXE
-}							t_exitORreturnAfterCurExe;
+	// EXEC_PARENT: must run in current shell process, do NOT fork, do NOT exit
+	// EXEC_FORK  : current shell should fork and wait
+	// EXEC_CHILD : already in child process, must not return, must exit
+
+	RUN_IN_SHELL,
+	RUN_FORK_WAIT,
+	RUN_IN_CHILD
+}							t_exec_context;
 
 # define READ_END 0
 # define WRITE_END 1

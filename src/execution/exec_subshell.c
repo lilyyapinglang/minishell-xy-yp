@@ -21,7 +21,7 @@ int	check_process_child_exit(int status, bool *new_line, t_shell *shell)
 
 	if (WIFEXITED(status))
 		// child process exited normally
-		return (WEXITSTATUS(statuts));
+		return (WEXITSTATUS(status));
 	else if (WIFSIGNALED(status))
 	{
 		// child process ended/interrupted by signal
@@ -29,11 +29,11 @@ int	check_process_child_exit(int status, bool *new_line, t_shell *shell)
 		if (signal == SIGQUIT)
 			write("Quit (core dumped)", STDERR_FILENO, 18);
 		// make sure in any cases there is only one new line
-		if (signal == SIGQUIT || signal = SIGINT)
+		if (signal == SIGQUIT || signal == SIGINT)
 		{
 			if (!new_line || (new_line && *new_line == false))
-				write("\n", STDERR_FILENO, shell);
-			if (new_line &&*new_line = false)
+				write("\n", STDERR_FILENO, 1);
+			if (new_line && *new_line == false)
 				*new_line = true;
 		}
 		return (128 + signal);
@@ -46,9 +46,8 @@ int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 {
 	pid_t	pid;
 	int		status;
-	bool	*new_line;
 
-	pid = fork(shell); // fork parent process
+	pid = fork(); // fork parent process
 	// child porcess execute
 	if (pid < 0)
 		return (1);
@@ -59,8 +58,8 @@ int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 		//	i need to consider signal.
 		set_signal_in_exe_child_process();
 		// child process need to exit otherwise we continue to run till waitpid
-		execute(subshell_node->child, O_EXIT, shell);
-		//_exit(EXIT_FAILURE);
+		status = execute(subshell_node->child, RUN_IN_CHILD, shell);
+		exit(status);
 	}
 	// even if sigint and sigout is ignored during exection process,
 	// waitpid could be
