@@ -25,7 +25,7 @@ int	execute_pipeline(t_ast *pipeline_node, t_shell *shell)
 }
 
 // add a note to the front of a list
-t_list			*ft_listadd_front(t_list **lst, t_list *new_node);
+t_list			*ft_listadd_front(t_list **lst, t_list new_node);
 {
 }
 
@@ -140,10 +140,15 @@ int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell *shell)
 	{
 		child_pid = wait(&status);
 		if (child_pid == last_pid)
-			last_cmd_status = check_process_child_exit(status, &new_line,
-					shell);
+		{
+			report_child_signal(status, &new_line, shell);
+			last_cmd_status = wait_status_to_shell_status(status);
+		}
 		else
-			check_process_child_ecot(status, &new_line, shell);
+		{
+			report_child_signal(status, &new_line, shell);
+			wait_status_to_shell_status(status);
+		}
 	}
 	return (last_cmd_status);
 }

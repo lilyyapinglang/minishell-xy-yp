@@ -13,33 +13,44 @@ waitpid(pid, &st)
 
 */
 
-// run a smaller ast tree in subshell.
+// run a smaller ast tree in subshell.i
 
-int	check_process_child_exit(int status, bool *new_line, t_shell *shell)
+int	wait_status_to_exit_code(int wait_status)
 {
-	int	signal;
+	int	signal_num;
 
-	if (WIFEXITED(status))
-		// child process exited normally
+	// turn waitstatus to $?
+	// if child process exit normally
+	if (WIFEXITED(wait_status))
 		return (WEXITSTATUS(status));
-	else if (WIFSIGNALED(status))
+	// child process ended/interrupeted by signal
+	else if (WIFSIGNALED(wait_status))
 	{
-		// child process ended/interrupted by signal
-		signal = WTERMSIG(status);
-		if (signal == SIGQUIT)
-			write("Quit (core dumped)", STDERR_FILENO, 18);
-		// make sure in any cases there is only one new line
-		if (signal == SIGQUIT || signal == SIGINT)
-		{
-			if (!new_line || (new_line && *new_line == false))
-				write("\n", STDERR_FILENO, 1);
-			if (new_line && *new_line == false)
-				*new_line = true;
-		}
-		return (128 + signal);
+		signal_num = WTERMSIG(wait_status);
+		return (128 + signal_num);
 	}
 	else
 		return (1);
+}
+
+void	report_child_signal(int wait_status, bool *new_line_existed,
+		t_shell *shell)
+{
+	int	signal_num;
+
+	if (WIFSIGNALED(wait_status))
+	{
+		if (signal_num = SIGQUIT)
+			write("Quit (core dumped)", STDERR_FILENO, 18);
+		if (signal_num == SIGQUIT || signal_num == SIGINT)
+		{
+			if (!new_line_existed || (new_line_existed
+					&& *new_line_existed == false))
+				write("\n", STDERR_FILENO, 1);
+			if (new_line_existed && *new_line_existed == false)
+				*new_line_existed = true;
+		}
+	}
 }
 
 int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
@@ -73,6 +84,7 @@ int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
 			continue ;
 		return (1);
 	}
-	status = check_process_child_exit(status, NULL, shell);
+	report_child_signal(status, &new_line, shell);
+	status = wait_status_to_shell_status(status);
 	return (status);
 }

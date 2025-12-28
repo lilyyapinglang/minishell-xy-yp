@@ -56,10 +56,11 @@ int	execute_cmd(t_ast_command *cmd, t_exec_context exectuion_context,
 		exectuion_context = RUN_FORK_WAIT;
 	}
 	// need to fork , parent fork, child exe as run in child, parent wait
-	return (fork_and_run_cmd(cmd, shell, isbuiltin));
+	return (fork_and_run_cmd_in_child(cmd, shell, isbuiltin));
 }
 
-int	fork_and_run_cmd(t_ast_command *cmd, t_shell *shell, t_built_in_func bi)
+int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell *shell,
+		t_built_in_func bi)
 {
 	pid_t pid;
 	int wait_status;
@@ -77,5 +78,6 @@ int	fork_and_run_cmd(t_ast_command *cmd, t_shell *shell, t_built_in_func bi)
 		exit(status);
 	}
 	waitpid(pid, &status, 0);
-	return (check_process_child_exit(wait_status, NULL, shell));
+	report_child_signal(status, &new_line, shell);
+	return (wait_status_to_shell_status(status));
 }
