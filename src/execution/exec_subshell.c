@@ -32,25 +32,37 @@ int	wait_status_to_exit_code(int wait_status)
 	else
 		return (1);
 }
-
-void	report_child_signal(int wait_status, bool *new_line_existed,
+// when child process is terminated by signal, print user realted prompr ,
+//	for exmaple new line ,quit etc
+void	report_child_termination_signal(int wait_status, bool *new_line_existed,
 		t_shell *shell)
 {
 	int	signal_num;
 
-	if (WIFSIGNALED(wait_status))
+	if (!WIFSIGNALED(wait_status))
+		return ;
+	signal_num = WTERMSIG(wait_status);
+	//如果是 SIGQUIT，打印一条 Quit 信息
+	/*
+	对 SIGINT / SIGQUIT 补一个换行，并确保只补一次
+	SIGINT（Ctrl-C）和 SIGQUIT（Ctrl-\）经常会让终端光标停在一行中间，为了让 prompt 下一行显示干净，shell 通常会补一个 \n。
+但是 pipeline 里可能有多个子进程都因同一个信号结束，如果每个都补换行，就会出现多行空行。
+	*/
+	/* option 2
+		if (sig == SIGQUIT)
+		write(STDERR_FILENO, "Quit: 3", 7);
+	if (sig == SIGQUIT || sig == SIGINT)
 	{
-		if (signal_num = SIGQUIT)
-			write("Quit (core dumped)", STDERR_FILENO, 18);
-		if (signal_num == SIGQUIT || signal_num == SIGINT)
-		{
-			if (!new_line_existed || (new_line_existed
-					&& *new_line_existed == false))
-				write("\n", STDERR_FILENO, 1);
-			if (new_line_existed && *new_line_existed == false)
-				*new_line_existed = true;
-		}
+		if (!new_line_existed || *new_line_existed == false)
+			write(STDERR_FILENO, "\n", 1);
+		if (new_line_existed)
+			*new_line_existed = true;
 	}
+	*/
+	if (sig == SIGQUIT)
+		write(STDERR_FILENO, "Quit: 3\n", 8);
+	else if (sig == SIGINT)
+		write(STDERR_FILENO, "\n", 1);
 }
 
 int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)

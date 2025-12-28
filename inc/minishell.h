@@ -17,6 +17,75 @@
 
 extern unsigned int			g_lastcmd_exit_code;
 
+/**
+ * Doubly linked list node.
+ *
+ * Generic container used throughout the shell to store:
+ * - environment variables
+ * - pipeline command lists
+ * - allocated resource tracking
+ *
+ * `content` ownership depends on the usage context.
+ */
+typedef struct s_list
+{
+	void *content;       // user-owned data
+	struct s_list *next; // next node
+	struct s_list *prev; // previous node
+}							t_list;
+// ----- CORE ----- //
+/**
+ * Shell runtime context.
+ *
+ * Holds all mutable state required during the shell execution:
+ * - environment variables
+ * - execution context (parent / child process)
+ * - last command exit status
+ * - resource tracking for safe cleanup
+ *
+ * This structure is shared across parsing, execution, and signal handling.
+ */
+
+typedef struct s_shell_context
+{
+	/* ---------- Environment ---------- */
+	t_list *env; // environment variables (KEY=VALUE)
+	char *home;  // cached $HOME value
+	/* ---------- Memory / Resource Tracking ---------- */
+	t_list					*allocated_pointers[3];
+	//// categorized allocation tracking (lifetime-based cleanup)
+	t_list					*temporary_files;
+	// heredoc files or other temp resources to unlink on exit
+	/* ---------- Parsing / Execution State ---------- */
+	char *parsing_error; // error message produced during parsing
+	bool					in_main_process;
+	// true: interactive shell process
+	// false: forked child (pipeline stage / subshell)
+	int						last_status;
+	// exit status of the last executed command ($?)
+}							t_shell_context;
+
+/**
+ * Allocation tracking group.
+ *
+ * TRACK_NONE:
+ *   Allocation is NOT added to allocated_pointers[]. owned elsewhere
+ *   Caller (or another owner container like env list) must free it manually.
+ *
+ * TRACK_SHELL:
+ *   Freed once on quit_shell().
+ *
+ * TRACK_CYCLE:
+ *   Freed at the end of each prompt/command loop (clear_prompt()).
+ */
+
+typedef enum e_tracking_scope
+{
+	TRACK_NONE,  // not tracked; freed manually
+	TRACK_SHELL, // lifetime: whole shell
+	TRACK_CYCLE  // lifetime: one REPL iteration / one command line
+}							t_tracking_scope;
+
 /*
 typedef enum e_redir_type
 {

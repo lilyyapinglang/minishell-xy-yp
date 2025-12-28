@@ -77,7 +77,13 @@ int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell *shell,
 		status = execute_cmd(cmd, RUN_IN_CHILD, shell);
 		exit(status);
 	}
-	waitpid(pid, &status, 0);
-	report_child_signal(status, &new_line, shell);
-	return (wait_status_to_shell_status(status));
+	while (waitpid(pid, &wait_status, 0) == -1)
+	{
+		if (errno == EINTR)
+			continue ;
+		return (1);
+	}
+
+	report_child_termination_signal(wait_status, NULL, shell);
+	return (wait_status_to_shell_status(wait_status));
 }

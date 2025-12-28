@@ -136,18 +136,27 @@ int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell *shell)
 
 	new_line = false;
 	last_cmd_status = 0;
-	while (count_pipeline--)
+	while (count_pipeline > 0)
 	{
 		child_pid = wait(&status);
+		/*
+		wait(&status) 可能返回 -1 并设置 errno = EINTR。
+在你项目里（父进程在执行阶段可能 ignore SIGINT/SIGQUIT，但仍可能被其它信号打断），这是实际会发生的。
+		*/
+		if (child_pid == -1)
+		{
+			if (errno == EINTR)
+				continue ;
+			break ;
+		}
+		count_pipeline--;
 		if (child_pid == last_pid)
 		{
-			report_child_signal(status, &new_line, shell);
+			// only do ui output to the last cmd
+			report_child_termination_signal(status, &new_line, shell);
+			// pipeline &? last cmd exit code
 			last_cmd_status = wait_status_to_shell_status(status);
-		}
-		else
-		{
-			report_child_signal(status, &new_line, shell);
-			wait_status_to_shell_status(status);
+			// ui output ()
 		}
 	}
 	return (last_cmd_status);
