@@ -232,3 +232,9 @@ void						handle_sigint_in_heredoc_mode(int sig_num);
 void						handle_sigint_in_prompt_mode(int sig_num);
 void						handle_signal_in_exe_main_process(void);
 #endif
+
+//// ----- ENVIRONMENT ----- //
+#define DEFAULT_PATH
+
+"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
+:/usr/local/sbin:/opt/bin:/opt/sbin"
