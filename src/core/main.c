@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../inc/minishell.h"
 
 void	init_shell(t_shell_context *shell_context, char **envp)
 {
@@ -12,10 +12,6 @@ void	init_shell(t_shell_context *shell_context, char **envp)
 	shell_context->env = init_env(envp, shell_context);
 	increment_shlvl(shell_context);
 	shell_context->parsing_error = NULL;
-}
-
-t_list	*int_env(char **envp, t_shell_context *shell_context)
-{
 }
 
 void	increment_shlvl(t_shell_context *shell_context)

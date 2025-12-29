@@ -86,6 +86,11 @@ typedef enum e_tracking_scope
 	TRACK_CYCLE  // lifetime: one REPL iteration / one command line
 }							t_tracking_scope;
 
+typedef struct s_prompt_mode
+{
+	MAIN_PROMPT, HEREDOC_PROMPT
+}							t_prompt_mode;
+
 /*
 typedef enum e_redir_type
 {
@@ -95,7 +100,18 @@ typedef enum e_redir_type
 	REDIR_HEREDOC, //<<
 }							t_redir_type;
 							*/
-// core
+// -----core , main-----
+
+void						init_shell(t_shell_context *shell_context,
+								char **envp);
+int							shell_repl_loop(t_shell_context *shell_context);
+char						*prompt_listener(t_prompt_mode mode);
+int							prompt_execution(char *line,
+								t_shell_context *shell_context);
+
+void						clear_cycle(t_shell_context *shell_context);
+void						quit_shell(int exit_status,
+								t_shell_context *shell_context);
 
 // ----- LEXER ----- //
 typedef enum e_token_type
@@ -126,7 +142,7 @@ typedef struct s_shell
 	bool					in_main_process;
 }							t_shell;
 
-// parser //
+//-----parser----- //
 typedef enum e_ast_type
 {
 	AST_COMMAND,
@@ -187,7 +203,7 @@ typedef struct s_ast
 	} u_data;
 }							t_ast;
 
-// exection
+// -----Execution-----
 typedef enum e_exec_context
 
 {
@@ -203,26 +219,11 @@ typedef enum e_exec_context
 # define READ_END 0
 # define WRITE_END 1
 
-// old
-typedef struct s_env
-{
-	char					*key;
-	char					*value;
-	char					*key_value;
-	struct s_env			*prev;
-	struct s_env			*next;
-}							t_env;
-
-// new
-typedef struct s_env_var
-{
-	char					*name;
-	char					*value;
-	bool					exported;
-}							t_env_var;
+// -----built-in
 
 typedef int					(*t_builtin_func)(t_ast_command *,
 						t_shell_context *);
+
 typedef struct s_builtin
 {
 	char					*name;
@@ -232,7 +233,6 @@ typedef struct s_builtin
 
 t_builtin_func				get_builtin_func(const char *name);
 
-// built-in
 int							builtin_cd(char **argv, t_env *env);
 int							builtin_export(char **argv, t_env *env);
 int							builtin_unset(char **argv, t_env *env);
@@ -241,19 +241,66 @@ int							builtin_echo(char **argv);
 int							builtin_pwd(char **argv);
 int							builtin_env(t_env *env);
 
-// execute
-
-t_ast_command				*build_fake_cmd_table_for_tests(void);
-
-// signal
+//-----  signal-----
 
 volatile sig_atomic_t		g_latest_signal_status = 0;
+int							set_signal_handler(int sig_num,
+								void (*signal_handler)(int), int flags);
 void						handle_sigint_in_heredoc_mode(int sig_num);
 void						handle_sigint_in_prompt_mode(int sig_num);
-void						handle_signal_in_exe_main_process(void);
+void						set_signal_in_prompt_mode(void);
+void						set_signal_in_heredoc_prompt_mode(void);
+void						set_signal_in_exe_main_process(void);
+void						set_signal_in_exe_child_process(void);
+
 #endif
 
 //// ----- ENVIRONMENT ----- //
+typedef struct s_env_var
+{
+	char					*name;
+	char					*value;
+	bool					exported;
+}							t_env_var;
+
+t_list						*init_env(char **envp,
+								t_shell_context *shell_context);
+void						print_env(bool export_format,
+								t_shell_context *shell_context);
+char						**build_envp_from_env_list(t_shell_context *shell_context);
+
+int							add_new_env_var(t_list **env, const char *name,
+								const char *value, bool exported);
+t_list						*env_node_find(t_list *env, const char *name);
+char						*env_get_value(t_list *env, const char *name);
+int							env_set_value(t_shell_context *shell_context,
+								const char *name, const char *value,
+								bool exported);
+int							env_append_value(t_shell_context *shell_context,
+								const char *name, const char *append_str,
+								bool exported);
+int							env_unset(t_shell_context *shell_context,
+								const char *name);
+int							env_mark_exported(t_shell_context *ctx,
+								const char *name);
+
+// -----Error
+
+static void					print_error(const char *cmd, const char *arg,
+								const char *msg);
+int							print__errno_n_return(const char *cmd,
+								const char *arg, int errnum);
+void						fatal_errno_quit(t_shell_context *shell_context,
+								int exit_status, const char *cmd,
+								const char *arg, int errnum);
+
+void						fatal_err_msg_quit(t_shell_context *shell_context,
+								int exit_status, const char *cmd,
+								const char *arg, const char *msg);
+
+//---test
+
+t_ast_command				*build_fake_cmd_table_for_tests(void);
 #define DEFAULT_PATH
 
 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
