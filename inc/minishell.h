@@ -203,6 +203,7 @@ typedef enum e_exec_context
 # define READ_END 0
 # define WRITE_END 1
 
+// old
 typedef struct s_env
 {
 	char					*key;
@@ -211,6 +212,14 @@ typedef struct s_env
 	struct s_env			*prev;
 	struct s_env			*next;
 }							t_env;
+
+// new
+typedef struct s_env_var
+{
+	char					*name;
+	char					*value;
+	bool					exported;
+}							t_env_var;
 
 // built-in
 int							builtin_cd(char **argv, t_env *env);
