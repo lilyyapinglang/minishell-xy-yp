@@ -221,6 +221,17 @@ typedef struct s_env_var
 	bool					exported;
 }							t_env_var;
 
+typedef int					(*t_builtin_func)(t_ast_command *,
+						t_shell_context *);
+typedef struct s_builtin
+{
+	char					*name;
+	t_builtin_func			func;
+	bool					stateful;
+}							t_builtin;
+
+t_builtin_func				get_builtin_func(const char *name);
+
 // built-in
 int							builtin_cd(char **argv, t_env *env);
 int							builtin_export(char **argv, t_env *env);

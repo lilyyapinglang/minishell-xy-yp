@@ -15,235 +15,188 @@
 // OLDPWD=/home/ylang/code/minishell-github
 
 unsigned int	g_lastcmd_exit_code = 0;
-;
-t_env	*find_env_var(char *key, t_env *env)
+
+int	bi_cd(t_ast_command *cmd, t_shell_context *ctx)
 {
-	while (env)
-	{
-		// printf("env.key :  %s, key : %s, \n", env->key, key);
-		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
-			return (env);
-		env = env->next;
-	}
-	return (NULL);
+	return (builtin_cd(cmd->args, ctx));
 }
-
-int	builtin_cd(char **argv, t_env *env)
+int	builtin_cd(char **argv, t_shell_context *ctx)
 {
-	char	*buf;
-	long	size;
-	char	*ptr;
+	const char	*target;
+	char		*oldpwd;
+	char		*newpwd;
+	int			rc;
 
-	// argv[0] == cd
-	// argv[1] = ../  folder name etc
 	if (!argv[1])
 	{
-		// get env HOME
-		printf("%s\n", find_env_var("HOME", env)->value);
-		return (chdir(find_env_var("HOME", env)->value));
-	}
-	size = pathconf(".", _PC_PATH_MAX);
-	if ((buf = malloc(size)) != NULL)
-	{
-		// get current working directory
-		ptr = getcwd(buf, size);
-		printf("before chdir getcwd result ptr : %s \n", ptr);
-		// update OLDPWD env variable
-		find_env_var("OLDPWD", env)->value = ptr;
-		// change current working directory to new one
-		chdir(argv[1]);
-		ptr = getcwd(buf, size);
-		// update PWD env varaible
-		find_env_var("PWD", env)->value = getcwd(buf, size);
-		printf("after chdir getcwd result ptr : %s \n", ptr);
-		// output to stdout just for test purpose
-		ft_putstr_fd(ptr, STDOUT_FILENO);
-		ft_putchar_fd('\n', STDOUT_FILENO);
-		// access check
-		return (0);
+		target = env_get_value(ctx->env, "HOME");
+		if (!target)
+			return (print_err_msg_n_return("cd", NULL, "HOME not set"));
 	}
 	else
-		return (-1);
-}
-
-// actually need to insert at alphabetic order
-t_env	*insertAtEnd(t_env *head, char *key, char *value)
-{
-	t_env	*new_env_node;
-	t_env	*last;
-
-	new_env_node = malloc(sizeof(t_env));
-	new_env_node->key = key;
-	new_env_node->value = value;
-	if (head == NULL)
-		return (new_env_node);
-	// traverse to the last node
-	last = head;
-	while (last->next != NULL)
-		last = last->next;
-	last->next = new_env_node;
-	return (head);
-}
-//
-t_env	*deleteEnvNode(t_env *env, char *key)
-{
-	t_env	*head;
-
-	head = env;
-	// delete the node with the key and return the head pointer
-	while (env)
 	{
-		if (ft_strncmp(env->key, key, ft_strlen(key)) == 0)
-		{ // delete the node no matter inthe , shoud be a doubed list ,
-			// i need to change tmre
-		}
-		env = env->next;
+		target = argv[1];
 	}
-	return (head);
-}
-
-// set an enviroment variabe
-int	builtin_export(char **argv, t_env *env)
-{
-	char	**var_value_pair;
-	char	**ptr;
-	t_env	*find_env_node;
-
-	// argv[0] == export
-	// argv[1] =  zsh = xxx
-	if (!argv[1])
-		// should it print env or not ?
-		return (builtin_env(env));
-	// search for the varaibe
-	// if there is an existing varaible, update it
-	// if there is no existing env variabe,
-	ptr = &argv[1];
-	while (*ptr)
+	oldpwd = getcwd(NULL, 0); // 失败也不一定要中断 cd
+	rc = chdir(target);
+	if (rc != 0)
 	{
-		if (ft_isdigit(**ptr))
-		{
-			ft_printf(" export: not an identifier: 1\n");
-			return (-1);
-		}
-		if (**ptr == '=')
-		{
-			ft_putstr_fd("bad assingnment \n", STDOUT_FILENO);
-			return (-1);
-		}
-		if (ft_strchr(*ptr, '='))
-		{
-			var_value_pair = ft_split(*ptr, '=');
-			find_env_node = find_env_var(var_value_pair[0], env);
-			if (find_env_node)
-				find_env_node->value = var_value_pair[1];
-			else
-				// add new env var
-				env = insertAtEnd(env, var_value_pair[0], var_value_pair[1]);
-			builtin_env(env);
-		}
-		else
-		{ // could not find exisitng variabke
-			// create new node
-			// add to linked-list ordered by alphabetic order
-			env = insertAtEnd(env, *ptr, "");
-			builtin_env(env);
-		}
-		ptr++;
+		free(oldpwd);
+		return (print__errno_n_return("cd", target, errno));
 	}
-	return (1);
-}
-
-int	check_str_alpnum(char *str)
-{
-	while (str)
-	{
-		if (!ft_isalnum(*str))
-			return (0);
-		str++;
-	}
-	return (1);
-}
-
-// unset an environement variabe
-int	builtin_unset(char **argv, t_env *env)
-{
-	char	**arg_ptr;
-	t_env	*find_env_node;
-	t_env	*new_head;
-
-	if (!argv[1])
-	{
-		ft_printf("unset: not enough arguments\n");
-		return (-1);
-	}
-	// need to add other error handling
-	arg_ptr = &argv[1];
-	while (*arg_ptr)
-	{
-		// check if *arg_prtr is alpha
-		if (!check_str_alpnum(*arg_ptr))
-		{
-			ft_printf("unset: %s : invalid parameter name \n ", *arg_ptr);
-			return (-1);
-		}
-		// try to find var in env
-		find_env_node = find_env_var(*arg_ptr, env);
-		if (!find_env_node)
-			new_head = deleteEnvNode(env, *arg_ptr);
-		return (0);
-	}
+	newpwd = getcwd(NULL, 0);
+	if (oldpwd)
+		env_set_value(ctx, "OLDPWD", oldpwd, true);
+	if (newpwd)
+		env_set_value(ctx, "PWD", newpwd, true);
+	free(oldpwd);
+	free(newpwd);
 	return (0);
 }
 
-int	check_all_digit(char *str)
+static int	is_valid_ident(const char *s)
 {
-	while (*str)
+	int	i;
+
+	if (!s || !s[0])
+		return (0);
+	if (ft_isdigit((unsigned char)s[0]))
+		return (0);
+	i = 0;
+	while (s[i])
 	{
-		if (!ft_isdigit(*str))
+		if (!(ft_isalnum((unsigned char)s[i]) || s[i] == '_'))
 			return (0);
-		str++;
+		i++;
 	}
 	return (1);
+}
+
+int	builtin_export(char **argv, t_shell_context *ctx)
+{
+	int		i;
+	int		status;
+	char	*arg;
+	char	*eq;
+	char	*name;
+	char	*val;
+	char	*plus_eq;
+
+	i = 1;
+	status = 0;
+	if (!argv[1])
+	{
+		print_env(true, ctx);
+		return (0);
+	}
+	while (argv[i])
+	{
+		arg = argv[i];
+		eq = ft_strchr(arg, '=');
+		/* Detect NAME+=VALUE safely:
+			only when there is an '=' and the char right before '=' is '+' */
+		plus_eq = NULL;
+		if (eq && eq > arg && eq[-1] == '+')
+			plus_eq = eq - 1;
+		if (plus_eq)
+		{
+			/* NAME+=VALUE */
+			name = ft_substr(arg, 0, (size_t)(plus_eq - arg));
+			val = eq + 1; /* value starts after '=' */
+			if (!name || !is_valid_ident(name))
+			{
+				print_err_msg_n_return("export", arg, "not a valid identifier");
+				status = 1;
+			}
+			else if (env_append_value(ctx, name, val, true) != 0)
+			{
+				/* You may choose to print malloc-related error here */
+				status = 1;
+			}
+			free(name);
+		}
+		else if (eq)
+		{
+			/* NAME=VALUE */
+			name = ft_substr(arg, 0, (size_t)(eq - arg));
+			val = eq + 1;
+			if (!name || !is_valid_ident(name))
+			{
+				print_err_msg_n_return("export", arg, "not a valid identifier");
+				status = 1;
+			}
+			else if (env_set_value(ctx, name, val, true) != 0)
+			{
+				status = 1;
+			}
+			free(name);
+		}
+		else
+		{
+			/* NAME (export only) */
+			if (!is_valid_ident(arg))
+			{
+				print_err_msg_n_return("export", arg, "not a valid identifier");
+				status = 1;
+			}
+			else if (env_mark_exported(ctx, arg) != 0)
+			{
+				status = 1;
+			}
+		}
+		i++;
+	}
+	return (status);
+}
+
+int	builtin_unset(char **argv, t_shell_context *ctx)
+{
+	int	i;
+	int	status;
+
+	i = 1;
+	status = 0;
+	if (!argv[1])
+		return (0);
+	while (argv[i])
+	{
+		if (!is_valid_ident(argv[i]))
+		{
+			print_err_msg_n_return("unset", argv[i], "not a valid identifier");
+			status = 1;
+		}
+		else
+		{
+			env_unset(ctx, argv[i]);
+		}
+		i++;
+	}
+	return (status);
 }
 
 // exit, but exit which process ???
-int	builtin_exit(char **argv, t_env *env)
+int	builtin_exit(char **argv, t_shell_context *ctx)
 {
-	(void)env;
-	// exit without argument
+	(void)ctx;
+	/* no args => exit with last status */
 	if (!argv[1])
 		exit(g_lastcmd_exit_code);
+	/* too many args => error, DO NOT exit (matches common shell behavior) */
 	if (argv[2])
-	{
-		ft_printf("exit: too many arguments\n");
-		return (1);
-	}
+		return (print_err_msg_n_return("exit", NULL, "too many arguments"));
+	/* non-numeric => error, exit 255 is common in bash;
+		if you want strictly your old behavior, keep return 1 + no exit,
+		but that differs from bash. Here I won't invent: keep your behavior
+		style unless you decide otherwise. */
 	if (!check_all_digit(argv[1]))
 	{
-		// bash-5.1$ exit hello
-		// exit
-		// bash: exit: hello: numeric argument required
-		ft_putendl_fd(argv[0], STDOUT_FILENO);
-		ft_printf("minishell: %s : %s : numeric argument required \n ", argv[0],
-			argv[1]);
+		print_err_msg_n_return("exit", argv[1], "numeric argument required");
+		/* Keep your previous behavior: return 1 (no exit). */
 		return (1);
 	}
-	// designated code
-	ft_putendl_fd(argv[0], STDOUT_FILENO);
 	exit(ft_atoi(argv[1]));
-	return (0);
 }
 
-int	is_only_n(char *str)
-{
-	while (*str)
-	{
-		if (*str != 'n')
-			return (0);
-		str++;
-	}
-	return (1);
-}
 // buildin, execute in child or pipeline
 int	builtin_echo(char **argv)
 {
@@ -286,40 +239,23 @@ int	builtin_echo(char **argv)
 }
 
 // print working directory
-int	builtin_pwd(char **argv)
+int	builtin_pwd(char **argv, t_shell_context *ctx)
 {
-	char	*ptr;
-	long	size;
-	char	*buf;
+	char	*pwd;
 
-	if (ft_strncmp(argv[0], "pwd", 3) != 0)
-		return (1);
-	// argv pwd
-	// char *getcwd(char *buf, size_t size);
-	// These functions return a null-terminated string containing an absolute pathname that
-	// is the current working directory of the calling process.
-	// getcwd() 会把当前工作目录（当前路径）的 绝对路径 写入 buf 指向的内存中，并返回 buf。
-	size = pathconf(".", _PC_PATH_MAX); // get the longest possible path length
-	if ((buf = malloc(size)) != NULL)
-	{
-		ptr = getcwd(buf, size);
-		ft_putstr_fd(ptr, STDOUT_FILENO);
-		ft_putchar_fd('\n', STDOUT_FILENO);
-	}
-	free(buf);
+	(void)argv;
+	(void)ctx;
+	pwd = getcwd(NULL, 0);
+	if (!pwd)
+		return (print__errno_n_return("pwd", NULL, errno));
+	ft_putendl_fd(pwd, STDOUT_FILENO);
+	free(pwd);
 	return (0);
 }
-int	builtin_env(t_env *env)
+
+int	builtin_env(char **argv, t_shell_context *ctx)
 {
-	// how to get a list of envinrable names to search value for
-	// env is the pointer to the head node ;
-	while (env)
-	{
-		ft_putstr_fd(env->key, STDOUT_FILENO);
-		ft_putchar_fd('=', STDOUT_FILENO);
-		ft_putstr_fd(env->value, STDOUT_FILENO);
-		ft_putchar_fd('\n', STDOUT_FILENO);
-		env = env->next;
-	}
+	(void)argv;
+	print_env(false, ctx);
 	return (0);
 }

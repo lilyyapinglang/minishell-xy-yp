@@ -42,6 +42,19 @@ int	add_new_env_var(t_list **env, const char *name, const char *value,
 	return (0);
 }
 
+int	env_mark_exported(t_shell_context *ctx, const char *name)
+{
+	t_list		*node;
+	t_env_var	*env_var;
+
+	node = env_node_find(ctx->env, name);
+	if (!node)
+		return (add_new_env_var(&ctx->env, name, NULL, true));
+	env_var = env_var_from_node(node);
+	env_var->exported = true;
+	return (0);
+}
+
 // return env_node
 t_list	*env_node_find(t_list *env, const char *name)
 {
@@ -53,7 +66,7 @@ t_list	*env_node_find(t_list *env, const char *name)
 		env_var = env_var_from_node(env);
 		n = ft_strlen(env_var->name);
 		if (env_var && env_var->name && ft_strncmp(env_var->name, name, n) == 0
-			&& env_var->name[0] == '\0')
+			&& env_var->name[n] == '\0')
 			return (env);
 		env = env->next;
 	}
