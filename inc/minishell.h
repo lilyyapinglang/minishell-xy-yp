@@ -110,13 +110,6 @@ typedef struct s_token
 	char					*value;
 }							t_token;
 
-typedef struct s_shell
-{
-	t_env					*env;
-	int						last_status;
-	bool					in_main_process;
-}							t_shell;
-
 //-----parser----- //
 typedef enum e_ast_type
 {

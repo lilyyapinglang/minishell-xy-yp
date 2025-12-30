@@ -36,7 +36,7 @@ ctrl-d : nothing happens, so ignore
 
 // write and read to this variable is atomatic, it won't be interrupted
 //
-volatile sig_atomic_t	g_latest_signal_status = 0;
+
 
 // Provide a general handler for each mode to call and use
 int	set_signal_handler(int sig_num, void (*signal_handler)(int), int flags)
