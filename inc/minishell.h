@@ -241,6 +241,9 @@ typedef struct s_builtin
 }							t_builtin;
 
 t_builtin_func				get_builtin_func(const char *name);
+bool						is_buildtin(char *cmd);
+int							exec_builtin(cmd, shell_conetext);
+bool						is_stateful_builtin(char *cmd);
 
 int							builtin_cd(char **argv, t_env *env);
 int							builtin_export(char **argv, t_env *env);

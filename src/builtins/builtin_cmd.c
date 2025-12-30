@@ -15,11 +15,25 @@
 // OLDPWD=/home/ylang/code/minishell-github
 
 unsigned int	g_lastcmd_exit_code = 0;
+bool	is_buildtin(char *cmd)
+{
+	return (!ft_strncmp(cmd, "echo", 4) || !ft_strncmp(cmd, "pwd", 3)
+		|| !ft_strncmp(cmd, "env", 3) || !ft_strncmp(cmd, "cd", 2)
+		|| !ft_strncmp(cmd, "export", 6) || !ft_strncmp(cmd, "unset", 5)
+		|| !ft_strncmp(cmd, "exit", 4));
+}
 
+// cd, export , unset, exit
+bool	is_stateful_builtin(char *cmd)
+{
+	return (!ft_strncmp(cmd, "cd", 2) || !ft_strncmp(cmd, "export", 6)
+		|| !ft_strncmp(cmd, "unset", 5) || !ft_strncmp(cmd, "exit", 4));
+}
 int	bi_cd(t_ast_command *cmd, t_shell_context *ctx)
 {
 	return (builtin_cd(cmd->args, ctx));
 }
+
 int	builtin_cd(char **argv, t_shell_context *ctx)
 {
 	const char	*target;

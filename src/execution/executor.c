@@ -79,7 +79,8 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	*/
 	// until till command level we decide we we want this command to return to main shell by return or simply exit
 	else if (node->type == AST_COMMAND)
-		status = execute_cmd(&(node->u_data.command), execution_context, shell);
+		status = execute_command(&(node->u_data.command), execution_context,
+				shell);
 	else
 	{
 		ft_printf("execute,illegal node type");

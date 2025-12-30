@@ -10,16 +10,6 @@ int	is_buildtin(char *cmd)
 		|| !ft_strncmp(cmd, "exit", 4));
 }
 
-void	free_strs(char **strs)
-{
-	int	i;
-
-	i = 0;
-	while (strs[i])
-		free(strs[i++]);
-	free(strs);
-}
-
 char	*resolve_cmd_path(char *cmd, t_env *env)
 {
 	char	**dirs;
@@ -74,37 +64,6 @@ char	*resolve_cmd_path(char *cmd, t_env *env)
 	return (NULL);
 }
 
-char	**env_list_to_envp(t_env *env)
-{
-	int		count;
-	t_env	*tmp;
-	char	**envp;
-	int		i;
-
-	count = 0;
-	tmp = env;
-	// Count how many env variables you have
-	while (tmp)
-	{
-		count++;
-		tmp = tmp->next;
-	}
-	envp = malloc(sizeof(char *) * (count + 1));
-	if (!envp)
-		return (NULL);
-	tmp = env;
-	i = 0;
-	while (tmp)
-	{
-		int len = strlen(tmp->key) + strlen(tmp->value) + 2; // '=' + '\0'
-		envp[i] = malloc(len);
-		sprintf(envp[i], "%s=%s", tmp->key, tmp->value);
-		i++;
-		tmp = tmp->next;
-	}
-	envp[i] = NULL;
-	return (envp);
-}
 int	get_file_type(char *path)
 {
 	struct stat	buf;
@@ -218,6 +177,38 @@ int	exec_single_cmd(t_simple_cmd *cmd, t_env *env)
 	return (WEXITSTATUS(status));
 }
 
+// env
+char	**env_list_to_envp(t_env *env)
+{
+	int		count;
+	t_env	*tmp;
+	char	**envp;
+	int		i;
+
+	count = 0;
+	tmp = env;
+	// Count how many env variables you have
+	while (tmp)
+	{
+		count++;
+		tmp = tmp->next;
+	}
+	envp = malloc(sizeof(char *) * (count + 1));
+	if (!envp)
+		return (NULL);
+	tmp = env;
+	i = 0;
+	while (tmp)
+	{
+		int len = strlen(tmp->key) + strlen(tmp->value) + 2; // '=' + '\0'
+		envp[i] = malloc(len);
+		sprintf(envp[i], "%s=%s", tmp->key, tmp->value);
+		i++;
+		tmp = tmp->next;
+	}
+	envp[i] = NULL;
+	return (envp);
+}
 void	free_env_list(t_env *head)
 {
 	t_env	*tmp;
@@ -272,6 +263,16 @@ t_env	*dup_env(char **envp)
 		envp++;
 	}
 	return (head);
+}
+// free
+void	free_strs(char **strs)
+{
+	int	i;
+
+	i = 0;
+	while (strs[i])
+		free(strs[i++]);
+	free(strs);
 }
 
 void	exec_child_pipeline(t_simple_cmd *cmd, int prev_read, int fd_write_end,
