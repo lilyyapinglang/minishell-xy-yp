@@ -41,6 +41,11 @@ static void	put_segment(const *str)
 	put_raw("", STDERR_FILENO);
 }
 
+void	warn_errno(const char *cmd, const char *arg, int errnum)
+{
+	print_error(cmd, arg, strerror(errnum));
+}
+
 /*
 ** Bash-like format:
 ** minishell : [cmd: ] [arg:] message \n

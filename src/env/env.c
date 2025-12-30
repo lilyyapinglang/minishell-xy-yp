@@ -150,7 +150,8 @@ int	env_unset(t_shell_context *shell_context, const char *name)
 		if (ft_strncmp(env_var->name, name, ft_strlen(name)) == 0)
 		{
 			// detele this node from lsit
-			ft_lstdelone(&shell_context->env, env);
+			// TODO
+			ft_lstdelone(&shell_context->env, free);
 			return (0);
 		}
 		env = env->next;
@@ -194,7 +195,7 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 	return (envp);
 }
 
-void	init_env(t_shell_context *shell_context, char **envp)
+t_list	*init_env(char **envp, t_shell_context *shell_context)
 {
 	t_list	*env_list;
 	char	*eq;
@@ -202,7 +203,7 @@ void	init_env(t_shell_context *shell_context, char **envp)
 
 	env_list = NULL;
 	if (!shell_context)
-		return ;
+		return (NULL);
 	while (envp && *envp)
 	{
 		eq = ft_strchr(*envp, '=');
@@ -236,6 +237,7 @@ void	init_env(t_shell_context *shell_context, char **envp)
 	// shell_context->home = env_get_value(env_list, "HOME");
 	if (!env_node_find(env_list, "PATH"))
 		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true);
+	return (env_list);
 }
 
 // called by on builtin-env or built-in export ?

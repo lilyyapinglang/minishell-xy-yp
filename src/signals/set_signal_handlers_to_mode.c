@@ -37,7 +37,6 @@ ctrl-d : nothing happens, so ignore
 // write and read to this variable is atomatic, it won't be interrupted
 //
 
-
 // Provide a general handler for each mode to call and use
 int	set_signal_handler(int sig_num, void (*signal_handler)(int), int flags)
 {
@@ -88,7 +87,7 @@ void	handle_sigint_in_heredoc_mode(int sig_num)
 	rl_redisplay();
 }
 
-void	set_signal_in_prompt_mode(void)
+void	set_signal_in_main_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
 	// i can not kill shell, i need to clear line and return to prompt

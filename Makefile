@@ -1,58 +1,133 @@
-NAME_PARSING:= parsing
-NAME_EXECUTION := execution
-
-CC := cc 
-CFLAGS := -Wall -Wextra -Werror -lreadline -g
+NAME		= minishell
 
 INC_DIR := inc
 SRC_DIR := src
+BUILD_DIR = build
+
+CC := cc 
+CFLAGS := -Wall -Wextra -Werror #-g
+INCLUDES	:= -I$(INC_DIR)
+
+# linker libs
+LDLIBS	:= -lreadline
+
+#ft_printf & libft 
 FT_PRINTF_DIR := lib/ft_printf
 FT_PRINTF_A = $(FT_PRINTF_DIR)/libftprintf.a
 
-INCS := -I$(INC_DIR)
+#Get next line
+#GNL_DIR     = get_next_line
+#GNL_SRCS    = $(GNL_DIR)/get_next_line.c \
+              $(GNL_DIR)/get_next_line_utils.c
+#GNL_OBJS    = $(GNL_SRCS:.c=.o)
 
-#PARSING_DIR := $(SRC_DIR)/parsing
-EXECUTION_DIR := $(SRC_DIR)/execution
 
-#PARSING_SRC := $(EXECUTION_DIR)/parsing.c 
-EXECUTION_SRC := $(EXECUTION_DIR)/execution.c $(EXECUTION_DIR)/builtin_cmd.c
+# Source files organized by module
+SRCS_MAIN = src/core/main.c \
+            src/core/core.c
 
-EXECUTION_OBJ := $(EXECUTION_SRC:.c =.o)
+#SRCS_LEXER	= src/lexer/lexer.c \
+			  src/lexer/lexer_utile.c \
+			  src/lexer/lexer_single_token.c \
+			  src/lexer/lexer_test.c \
 
-#OBJ :=$(addprefix $(BUILD_DIR)/, $(SRC:.c = .o))
+#SRCS_PARSER	= src/parser/parser.c \
+			  src/parser/parser_utils.c \
+			  src/parser/command_builder.c \
+			  src/parser/redirect_parser.c \
+			  src/parser/syntax_checker.c
+
+#SRCS_EXPAND	= src/expander/expander.c \
+			  src/expander/variable_expand.c \
+			  src/expander/quote_removal.c \
+			  src/expander/field_split.c \
+			  src/expander/expansion_utils.c \
+			  src/expander/split_quoted_token.c \
+			  src/expander/argv_expansion.c
+
+#SRCS_SAFE	= src/expander/expander.c \
+			  src/expander/variable_expand.c \
+			  src/expander/quote_removal.c \
+			  src/expander/field_split.c \
+			  src/expander/expansion_utils.c \
+			  src/expander/split_quoted_token.c \
+			  src/expander/argv_expansion.c
+
+SRCS_ENV	= src/env/env.c
+
+SRCS_BUILTINS = src/builtins/builtin_cmd.c \
+				src/builtins/builtin_utils.c
+
+SRCS_EXECUTION = src/execution/collect_heredoc.c \
+				src/execution/exec_command.c\
+				src/execution/exec_logical.c\
+				src/execution/exec_pipeline.c\
+				src/execution/exec_redirection.c\
+				src/execution/exec_subshell.c\
+				src/execution/executor.c
+
+SRCS_SIGNALS =  src/signal/set_signal_handlers_to_mode.c
+
+SRCS_UTILS = src/utils/error_exe.c\
+				src/utils/ft_list_ops.c\
+				src/utils/utils_general.c
+
+
+#real all version 
+#SRCS        = $(SRCS_TEST_MAIN) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND)
+SRCS		= $(SRCS_MAIN) $(SRCS_ENV) $(SRCS_BUILTINS) $(SRCS_EXECUTION) $(SRCS_SIGNALS) $(SRCS_UTILS)
+
+#OBJS		= $(SRCS:.c=.o)
+
+OBJS = $(SRCS:src/%.c=$(BUILD_DIR)/%.o)
+
+
+# Colors for output
+GREEN		= \033[0;32m
+YELLOW		= \033[0;33m
+RESET		= \033[0m
 
 # Rules
 
-all : $(NAME_EXECUTION)
+all :$(NAME)
 
-#all : $(NAME_PARSING) $(NAME_EXECUTION)
+$(NAME): $(OBJS) $(FT_PRINTF_A)
+	@echo "$(YELLOW)Linking $(NAME)...$(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS) $(FT_PRINTF_A) -o $(NAME) $(LDLIBS)
+	@echo "$(GREEN)$(NAME) created successfully!$(RESET)"
 
-#$(NAME_PARSING) : $(PARSING_DIR) $(FT_PRINTF_A)
-#	$(CC) $(CFLAGS) $(INCS) $^ -o $@
-
-$(NAME_EXECUTION) : $(EXECUTION_OBJ) $(FT_PRINTF_A)
-	$(CC) $(CFLAGS) $(INCS) $^ -o $@
-
-%.c : %.o
-	$(CC) $(FLAGS) $(INCS) -c $< -o $@
-$(NAME) : $(FT_PRINTF_A) $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ)# -o $@
+#%.o: %.c
+#	@echo "Compiling $<..."
+#	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # ft_printf
 $(FT_PRINTF_A):
 	$(MAKE) -C $(FT_PRINTF_DIR)
 
-clean: 
-	$(RM) $(NAME_EXECUTION)
-	$(MAKE) -C $(FT_PRINTF_DIR) clean
+$(BUILD_DIR)/%.o: src/%.c
+	@echo "Compiling $<..."
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+val: $(NAME)
+	@if ! [ -f "ignore.supp" ]; then make ignore; fi
+	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
+
+clean:
+	@echo "$(YELLOW)Removing object files...$(RESET)"
+	@rm -rf $(BUILD_DIR)
+	@$(MAKE) -C $(FT_PRINTF_DIR) clean
+	@echo "$(GREEN)Clean complete!$(RESET)"
 
 fclean: clean
-	$(MAKE) -C $(FT_PRINTF_DIR) fclean
-
-re: fclean all
+	@echo "$(YELLOW)Removing $(NAME)...$(RESET)"
+	@rm -f $(NAME)
+	@$(MAKE) -C $(FT_PRINTF_DIR) fclean
+	@echo "$(GREEN)Full clean complete!$(RESET)"
 
 norm: 
 	norminette $(INC_DIR) $(SRC_DIR)
 
+re: fclean all
 
-.PHONY: all clean fclean re norm
+.PHONY: all clean fclean re
