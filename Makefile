@@ -6,7 +6,7 @@
 #    By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/30 16:06:25 by xuewang           #+#    #+#              #
-#    Updated: 2025/12/30 18:12:17 by xuewang          ###   ########.fr        #
+#    Updated: 2025/12/30 19:13:55 by xuewang          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,10 +47,10 @@ SRCS_PARSER	= srcs/parser/parser.c \
 			  srcs/parser/parser_baskc_act.c
 
 SRCS_EXPAND	= srcs/expander/expander.c \
-			  srcs/expander/expander_utils.c \
+			  srcs/expander/expander_utile.c \
 			  srcs/expander/expander_var.c \
-			  srcs/expander/expander_var_env.c \
-			  srcs/expander/expander_one_arg.c 
+			  srcs/expander/expander_env.c \
+			  srcs/expander/expander_single_argv.c 
 
 SRCS_SAFE	= srcs/safe_functions/error.c \
 			  srcs/safe_functions/libft_list.c \
