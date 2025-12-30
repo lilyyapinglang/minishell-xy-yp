@@ -18,7 +18,7 @@ int	execute_cmd(t_ast_command *cmd, t_exec_context exectuion_context,
 	int		status;
 	bool	isbuiltin;
 
-	status = 0;
+	status = EXIT_SUCCESS;
 	isbuiltin = false;
 	// check if it is built-in
 	// if it is built-in like cd, export, unset, ecit et,
@@ -27,7 +27,7 @@ int	execute_cmd(t_ast_command *cmd, t_exec_context exectuion_context,
 	// handover to fork_command decide how to run it
 	// builtin 总是在“当前进程”执行（谁调用它，它就在哪个进程里跑）
 	if (!cmd->args || !cmd->args[0])
-		return (0);
+		return (EXIT_SUCCESS);
 	isbuiltin = get_builtin(cmd->args[0]);
 	// already in child process, must not fork
 	if (exectuion_context == RUN_IN_CHILD)
@@ -68,7 +68,7 @@ int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell *shell,
 
 	pid = fork();
 	if (pid < 0)
-		return (1);
+		return (EXIT_FAILURE);
 	if (pid == 0)
 	{
 		shell->in_main_process = false;
@@ -81,7 +81,7 @@ int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell *shell,
 	{
 		if (errno == EINTR)
 			continue ;
-		return (1);
+		return (EXIT_FAILURE);
 	}
 
 	report_child_termination_signal(wait_status, NULL, shell);

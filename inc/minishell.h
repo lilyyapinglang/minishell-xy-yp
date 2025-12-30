@@ -17,22 +17,6 @@
 
 extern unsigned int			g_lastcmd_exit_code;
 
-/**
- * Doubly linked list node.
- *
- * Generic container used throughout the shell to store:
- * - environment variables
- * - pipeline command lists
- * - allocated resource tracking
- *
- * `content` ownership depends on the usage context.
- */
-typedef struct s_list
-{
-	void *content;       // user-owned data
-	struct s_list *next; // next node
-	struct s_list *prev; // previous node
-}							t_list;
 // ----- CORE ----- //
 /**
  * Shell runtime context.
@@ -50,7 +34,7 @@ typedef struct s_shell_context
 {
 	/* ---------- Environment ---------- */
 	t_list *env; // environment variables (KEY=VALUE)
-	char *home;  // cached $HOME value
+	// char *home;  // cached $HOME value
 	/* ---------- Memory / Resource Tracking ---------- */
 	t_list					*allocated_pointers[3];
 	//// categorized allocation tracking (lifetime-based cleanup)
@@ -91,16 +75,7 @@ typedef struct s_prompt_mode
 	MAIN_PROMPT, HEREDOC_PROMPT
 }							t_prompt_mode;
 
-/*
-typedef enum e_redir_type
-{
-	REDIR_IN,      // <
-	REDIR_OUT,     // >
-	REDIR_APPEND,  //>>
-	REDIR_HEREDOC, //<<
-}							t_redir_type;
-							*/
-// -----core , main-----
+// -----main-----
 
 void						init_shell(t_shell_context *shell_context,
 								char **envp);
@@ -178,6 +153,16 @@ typedef struct s_ast_redirection
 	struct s_ast			*exe_child;
 	char					*file_path;
 }							t_ast_redirection;
+
+/*
+typedef enum e_redir_type
+{
+	REDIR_IN,      // <
+	REDIR_OUT,     // >
+	REDIR_APPEND,  //>>
+	REDIR_HEREDOC, //<<
+}							t_redir_type;
+							*/
 
 typedef struct s_ast_subshell
 {
@@ -298,8 +283,38 @@ void						fatal_err_msg_quit(t_shell_context *shell_context,
 								int exit_status, const char *cmd,
 								const char *arg, const char *msg);
 
-//---test
+// --list ops
+/**
+ * Doubly linked list node.
+ *
+ * Generic container used throughout the shell to store:
+ * - environment variables
+ * - pipeline command lists
+ * - allocated resource tracking
+ *
+ * `content` ownership depends on the usage context.
+ */
+typedef struct s_list
+{
+	void *content;       // user-owned data
+	struct s_list *next; // next node
+	struct s_list *prev; // previous node
+}							t_list;
 
+t_list						*ft_lstnew(void *content);
+void						ft_lstadd_front(t_list **lst, t_list *new);
+int							ft_lstsize(t_list *lst);
+t_list						*ft_lstlast(t_list *lst);
+void						ft_lstadd_back(t_list **lst, t_list *new);
+void						ft_lstdelone(t_list *lst, void (*del)(void *));
+void						ft_lstclear(t_list **lst, void (*del)(void *));
+
+// utils-general
+
+int							ft_strcmp(const char *s1, const char *s2);
+ssize_t						ft_write_fd(const char *s, int fd);
+
+//---test
 t_ast_command				*build_fake_cmd_table_for_tests(void);
 #define DEFAULT_PATH
 

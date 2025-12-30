@@ -150,7 +150,7 @@ int	env_unset(t_shell_context *shell_context, const char *name)
 		if (ft_strncmp(env_var->name, name, ft_strlen(name)) == 0)
 		{
 			// detele this node from lsit
-			ft_lst_remove(&shell_context->env, env);
+			ft_lstdelone(&shell_context->env, env);
 			return (0);
 		}
 		env = env->next;
