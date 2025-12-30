@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expander_utils.c                                   :+:      :+:    :+:   */
+/*   expander_utile.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 16:37:51 by fvastena          #+#    #+#             */
-/*   Updated: 2025/12/30 13:54:03 by xuewang          ###   ########.fr       */
+/*   Created: 2025/12/30 19:10:31 by xuewang           #+#    #+#             */
+/*   Updated: 2025/12/30 19:10:41 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/token.h"
-#include "../include/parse.h"
-#include "../include/minishell.h"
+#include "safefunctions.h"
+#include "parse.h"
+#include "minishellparse.h"
 
 void init_expander(t_expander *exp, char *str, t_list **expanded_args,
 				   t_shell_context *sh)
