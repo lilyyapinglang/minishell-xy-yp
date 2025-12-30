@@ -6,7 +6,7 @@
 #    By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/30 16:06:25 by xuewang           #+#    #+#              #
-#    Updated: 2025/12/30 19:13:55 by xuewang          ###   ########.fr        #
+#    Updated: 2025/12/30 19:32:41 by xuewang          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,8 @@ SRCS_PARSER	= srcs/parser/parser.c \
 			  srcs/parser/parser_redir.c \
 			  srcs/parser/parser_redir_next.c \
 			  srcs/parser/parser_build_node.c \
-			  srcs/parser/parser_baskc_act.c
+			  srcs/parser/parser_test.c \
+			  srcs/parser/parser_basic_act.c
 
 SRCS_EXPAND	= srcs/expander/expander.c \
 			  srcs/expander/expander_utile.c \
@@ -60,7 +61,7 @@ SRCS_SAFE	= srcs/safe_functions/error.c \
 			  
 #real all version
 #SRCS        = $(SRCS_TEST_MAIN) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND)
-SRCS		= $(SRCS_LEXER) $(SRCS_SAFE)
+SRCS		= $(SRCS_LEXER) $(SRCS_SAFE) $(SRCS_PARSER)
 OBJS		= $(SRCS:.c=.o)
 
 # Colors for output

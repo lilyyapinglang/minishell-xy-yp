@@ -182,6 +182,7 @@ void	run_test(const char *input)
    1) argv 模式：./lexer_test "cmd..."
    2) 内置用例模式：不传参就跑一组测试
 */
+/*
 int	main(int argc, char **argv)
 {
 	if (argc == 2)
@@ -190,7 +191,7 @@ int	main(int argc, char **argv)
 		return (0);
 	}
 
-	/* 内置测试（覆盖 && || () 紧贴、组合、重定向） */
+
 	run_test("ls -l | grep 'file.c' > output");
 	run_test("echo \"Hello\" && echo World");
 	run_test("echo a||echo b");
@@ -198,7 +199,8 @@ int	main(int argc, char **argv)
 	run_test("cat << EOF | wc >> out");
 	run_test("cmd&&(echo x||echo y)|grep z");
 	run_test("single_quotes_unclosed_start'");
-	run_test("echo a & echo b");     /* 单个 &：期待你 lexer 报 syntax error */
+	run_test("echo a & echo b");  
 
 	return (0);
 }
+*/

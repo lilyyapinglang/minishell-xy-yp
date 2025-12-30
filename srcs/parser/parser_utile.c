@@ -6,7 +6,7 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:16:00 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 18:33:23 by xuewang          ###   ########.fr       */
+/*   Updated: 2025/12/30 19:24:33 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 void init_ast_node(t_ast **node, t_ast_type type, t_shell_context *sh)
 {
-    *node = calloc_s(1, sizeof(t_ast), PROMPT, sh);
+    *node = calloc_s(1, sizeof(t_ast), PROMPT_S, sh);
     (*node)->type = type;
 }
 

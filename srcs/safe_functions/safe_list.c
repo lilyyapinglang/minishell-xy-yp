@@ -6,7 +6,7 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:47:00 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 17:14:13 by xuewang          ###   ########.fr       */
+/*   Updated: 2025/12/30 19:28:55 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,31 @@ void	remove_list_node(t_list **node, t_list **head,
 		to_remove->next->prev = to_remove->prev;
 	if (free_node)
 		ft_lstdelone(to_remove, free_function);
+}
+
+void	add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh)
+{
+	char	**new_array;
+	int		i;
+
+	new_array = calloc_s(count_strs(*array) + 2, sizeof(char *), PROMPT_S, sh);
+	i = 0;
+	while (array && (*array)[i])
+	{
+		new_array[i] = (*array)[i];
+		i++;
+	}
+	new_array[i] = new_arg;
+	new_array[i + 1] = NULL;
+	*array = new_array;
+}
+
+int	count_strs(char **argv)
+{
+	int	i;
+
+	i = 0;
+	while (argv && argv[i])
+		i++;
+	return (i);
 }

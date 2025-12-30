@@ -6,7 +6,7 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 16:13:39 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 18:23:51 by xuewang          ###   ########.fr       */
+/*   Updated: 2025/12/30 19:34:49 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,9 @@ int match_list(t_list **tok, t_token_type type);
 void init_ast_node(t_ast **node, t_ast_type type, t_shell_context *sh);
 char *tk_type_to_string(t_token_type type);
 
+/*parser_test.c*/
 
+int main(int argc, char **argv);
 /*******safe + error functions  */
 
 /*safe_list*/
@@ -272,6 +274,7 @@ void lst_add_back_s(void *content, t_list **lst, t_tracking_scope scope,
 void check_node_alloc(t_list *new_node, void *pointer, t_shell_context *sh);
 void remove_list_node(t_list **node, t_list **head,
                       void (*free_function)(void *), bool free_node);
+int count_strs(char **argv);
 
 /*libft_list*/
 void ft_lstadd_back(t_list **lst, t_list *n);
@@ -283,6 +286,7 @@ t_list *ft_lstlast(t_list *lst);
 t_list *ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 t_list *ft_lstnew(void *content);
 int ft_lstsize(t_list *lst);
+void add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh);
 
 /*safe alloc*/
 void *s_alloc(void *pointer, t_tracking_scope scope, t_shell_context *sh);
@@ -303,4 +307,32 @@ void quit_shell(int exit_status, t_shell_context *sh);
 void error(const char *context, char *description, int exit_status,
            t_shell_context *sh);
 
+/*****************safe functions *******************/
+t_list	*ft_lstnew(void *content);
+int		ft_lstsize(t_list *lst);
+t_list	*ft_lstlast(t_list *lst);
+void	ft_lstadd_front(t_list **lst, t_list *n);
+void	ft_lstadd_back(t_list **lst, t_list *n);
+void	ft_lstiter(t_list *lst, void (*f)(void *));
+void	ft_lstdelone(t_list *lst, void (*del)(void *));
+void	ft_lstclear(t_list **lst, void (*del)(void *));
+
+t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
+
+/*safe alloc*/
+
+void	*s_alloc(void *pointer, t_tracking_scope scope, t_shell_context *sh);
+void	*calloc_s(size_t count, size_t size,
+			t_tracking_scope scope, t_shell_context *sh);
+void	track_alloc(void *pointer, t_tracking_scope scope, t_shell_context *sh);
+
+
+/*safe list*/
+void	lst_add_front_s(void *content, t_list **lst,
+			t_tracking_scope scope, t_shell_context *sh);
+void	lst_add_back_s(void *content, t_list **lst,
+			t_tracking_scope scope, t_shell_context *sh);
+void	check_node_alloc(t_list *new_node, void *pointer, t_shell_context *sh);
+void	remove_list_node(t_list **node, t_list **head,
+			void (*free_function)(void *), bool free_node);
 #endif
