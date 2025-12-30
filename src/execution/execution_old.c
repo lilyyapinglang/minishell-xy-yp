@@ -1,6 +1,6 @@
 #include "../inc/minishell.h"
 
-void		free_env_list(t_env *head);
+void		free_env_list(t_env_var *head);
 
 int	is_buildtin(char *cmd)
 {
@@ -10,7 +10,7 @@ int	is_buildtin(char *cmd)
 		|| !ft_strncmp(cmd, "exit", 4));
 }
 
-char	*resolve_cmd_path(char *cmd, t_env *env)
+char	*resolve_cmd_path(char *cmd, t_env_var *env)
 {
 	char	**dirs;
 	char	*full_path;
@@ -82,7 +82,7 @@ int	get_file_type(char *path)
 	}
 	return (-1);
 }
-void	execute_external(t_simple_cmd *cmd, t_env *env)
+void	execute_external(t_simple_cmd *cmd, t_env_var *env)
 {
 	char	*path;
 	char	**env_str;
@@ -123,7 +123,7 @@ void	execute_external(t_simple_cmd *cmd, t_env *env)
 		free_env_list(env);
 		exit(127);
 	}
-	// turn t_env into char **
+	// turn t_env_var into char **
 	env_str = env_list_to_envp(env);
 	execve(path, cmd->argv, env_str);
 	// perror("execve");
@@ -134,7 +134,7 @@ void	execute_external(t_simple_cmd *cmd, t_env *env)
 }
 
 // need to guard the length with \0
-int	exec_builtin_in_parent(t_simple_cmd *cmd, t_env *env)
+int	exec_builtin_in_parent(t_simple_cmd *cmd, t_env_var *env)
 {
 	// cd  // export // unset //exit
 	if (!ft_strncmp(cmd->argv[0], "cd", 2))
@@ -154,12 +154,12 @@ int	exec_builtin_in_parent(t_simple_cmd *cmd, t_env *env)
 	return (0);
 }
 
-void	exec_child(t_simple_cmd *cmd, t_env *env)
+void	exec_child(t_simple_cmd *cmd, t_env_var *env)
 {
 	execute_external(cmd, env);
 }
 
-int	exec_single_cmd(t_simple_cmd *cmd, t_env *env)
+int	exec_single_cmd(t_simple_cmd *cmd, t_env_var *env)
 {
 	pid_t	pid;
 	int		status;
@@ -178,12 +178,12 @@ int	exec_single_cmd(t_simple_cmd *cmd, t_env *env)
 }
 
 // env
-char	**env_list_to_envp(t_env *env)
+char	**env_list_to_envp(t_env_var *env)
 {
-	int		count;
-	t_env	*tmp;
-	char	**envp;
-	int		i;
+	int			count;
+	t_env_var	*tmp;
+	char		**envp;
+	int			i;
 
 	count = 0;
 	tmp = env;
@@ -209,9 +209,9 @@ char	**env_list_to_envp(t_env *env)
 	envp[i] = NULL;
 	return (envp);
 }
-void	free_env_list(t_env *head)
+void	free_env_list(t_env_var *head)
 {
-	t_env	*tmp;
+	t_env_var	*tmp;
 
 	while (head)
 	{
@@ -223,13 +223,13 @@ void	free_env_list(t_env *head)
 	}
 }
 
-t_env	*dup_env(char **envp)
+t_env_var	*dup_env(char **envp)
 {
-	char	**key_value_split;
-	t_env	*new_env_node;
-	t_env	*prev;
-	t_env	*head;
-	int		i;
+	char		**key_value_split;
+	t_env_var	*new_env_node;
+	t_env_var	*prev;
+	t_env_var	*head;
+	int			i;
 
 	prev = NULL;
 	head = NULL;
@@ -241,7 +241,7 @@ t_env	*dup_env(char **envp)
 			free_env_list(head);
 			return (NULL);
 		}
-		new_env_node = malloc(sizeof(t_env));
+		new_env_node = malloc(sizeof(t_env_var));
 		if (!new_env_node)
 		{
 			free_strs(key_value_split);
@@ -276,13 +276,13 @@ void	free_strs(char **strs)
 }
 
 void	exec_child_pipeline(t_simple_cmd *cmd, int prev_read, int fd_write_end,
-		t_env *cpy_env)
+		t_env_var *cpy_env)
 {
 	(void)prev_read;
 	(void)fd_write_end;
 	exec_child(cmd, cpy_env);
 }
-int	exec_pipeline(t_pipeline *pipeline, t_env *cpy_env)
+int	exec_pipeline(t_pipeline *pipeline, t_env_var *cpy_env)
 {
 	int		i;
 	int		fildes[2];
@@ -386,7 +386,7 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	t_simple_cmd	single_cmd;
 	int				exit_status;
-	t_env			*cpy_env_list;
+	t_env_var		*cpy_env_list;
 	t_pipeline		*t;
 
 	(void)argc;

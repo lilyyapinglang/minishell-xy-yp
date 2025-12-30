@@ -7,6 +7,7 @@
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -16,6 +17,32 @@
 # include <unistd.h>
 
 extern unsigned int			g_lastcmd_exit_code;
+
+// structures
+
+/**
+ * Doubly linked list node.
+ *
+ * Generic container used throughout the shell to store:
+ * - environment variables
+ * - pipeline command lists
+ * - allocated resource tracking
+ *
+ * `content` ownership depends on the usage context.
+ */
+typedef struct s_list
+{
+	void *content;       // user-owned data
+	struct s_list *next; // next node
+	struct s_list *prev; // previous node
+}							t_list;
+
+typedef struct s_env_var
+{
+	char					*name;
+	char					*value;
+	bool					exported;
+}							t_env_var;
 
 // ----- CORE ----- //
 /**
@@ -70,10 +97,46 @@ typedef enum e_tracking_scope
 	TRACK_CYCLE  // lifetime: one REPL iteration / one command line
 }							t_tracking_scope;
 
-typedef struct s_prompt_mode
+typedef enum s_prompt_mode
 {
-	MAIN_PROMPT, HEREDOC_PROMPT
+	MAIN_PROMPT,
+	HEREDOC_PROMPT
 }							t_prompt_mode;
+
+// -----Error
+
+// static void					print_error(const char *cmd, const char *arg,
+// const char *msg);
+int							print__errno_n_return(const char *cmd,
+								const char *arg, int errnum);
+void						fatal_errno_quit(t_shell_context *shell_context,
+								int exit_status, const char *cmd,
+								const char *arg, int errnum);
+
+void						fatal_err_msg_quit(t_shell_context *shell_context,
+								int exit_status, const char *cmd,
+								const char *arg, const char *msg);
+void						warn_errno(const char *cmd, const char *arg,
+								int errnum);
+int							print_err_msg_n_return(const char *cmd,
+								const char *arg, const char *msg);
+int							print__errno_n_return(const char *cmd,
+								const char *arg, int errnum);
+
+// --list ops
+
+t_list						*ft_lstnew(void *content);
+void						ft_lstadd_front(t_list **lst, t_list *new);
+int							ft_lstsize(t_list *lst);
+t_list						*ft_lstlast(t_list *lst);
+void						ft_lstadd_back(t_list **lst, t_list *new);
+void						ft_lstdelone(t_list **lst, void (*del)(void *));
+void						ft_lstclear(t_list **lst, void (*del)(void *));
+
+// utils-general
+
+int							ft_strcmp(const char *s1, const char *s2);
+ssize_t						ft_write_fd(const char *s, int fd);
 
 // -----main-----
 
@@ -248,13 +311,17 @@ int							execute_builtin(t_ast_command *cmd,
 int							execute_external_or_die(t_ast_command *cmd,
 								t_shell_context *ctx);
 
-int							builtin_cd(char **argv, t_env *env);
-int							builtin_export(char **argv, t_env *env);
-int							builtin_unset(char **argv, t_env *env);
-int							builtin_exit(char **argv, t_env *env);
+int							builtin_cd(char **argv,
+								t_shell_context *shell_context);
+int							builtin_export(char **argv,
+								t_shell_context *shell_context);
+int							builtin_unset(char **argv,
+								t_shell_context *shell_context);
+int							builtin_exit(char **argv,
+								t_shell_context *shell_context);
 int							builtin_echo(char **argv);
-int							builtin_pwd(char **argv);
-int							builtin_env(t_env *env);
+int							builtin_pwd(char **argv, t_shell_context *ctx);
+int							builtin_env(char **argv, t_shell_context *ctx);
 
 //-----  signal-----
 
@@ -263,20 +330,12 @@ int							set_signal_handler(int sig_num,
 								void (*signal_handler)(int), int flags);
 void						handle_sigint_in_heredoc_mode(int sig_num);
 void						handle_sigint_in_prompt_mode(int sig_num);
-void						set_signal_in_prompt_mode(void);
+void						set_signal_in_main_prompt_mode(void);
 void						set_signal_in_heredoc_prompt_mode(void);
 void						set_signal_in_exe_main_process(void);
 void						set_signal_in_exe_child_process(void);
 
-#endif
-
 //// ----- ENVIRONMENT ----- //
-typedef struct s_env_var
-{
-	char					*name;
-	char					*value;
-	bool					exported;
-}							t_env_var;
 
 t_list						*init_env(char **envp,
 								t_shell_context *shell_context);
@@ -299,54 +358,10 @@ int							env_unset(t_shell_context *shell_context,
 int							env_mark_exported(t_shell_context *ctx,
 								const char *name);
 
-// -----Error
-
-static void					print_error(const char *cmd, const char *arg,
-								const char *msg);
-int							print__errno_n_return(const char *cmd,
-								const char *arg, int errnum);
-void						fatal_errno_quit(t_shell_context *shell_context,
-								int exit_status, const char *cmd,
-								const char *arg, int errnum);
-
-void						fatal_err_msg_quit(t_shell_context *shell_context,
-								int exit_status, const char *cmd,
-								const char *arg, const char *msg);
-
-// --list ops
-/**
- * Doubly linked list node.
- *
- * Generic container used throughout the shell to store:
- * - environment variables
- * - pipeline command lists
- * - allocated resource tracking
- *
- * `content` ownership depends on the usage context.
- */
-typedef struct s_list
-{
-	void *content;       // user-owned data
-	struct s_list *next; // next node
-	struct s_list *prev; // previous node
-}							t_list;
-
-t_list						*ft_lstnew(void *content);
-void						ft_lstadd_front(t_list **lst, t_list *new);
-int							ft_lstsize(t_list *lst);
-t_list						*ft_lstlast(t_list *lst);
-void						ft_lstadd_back(t_list **lst, t_list *new);
-void						ft_lstdelone(t_list *lst, void (*del)(void *));
-void						ft_lstclear(t_list **lst, void (*del)(void *));
-
-// utils-general
-
-int							ft_strcmp(const char *s1, const char *s2);
-ssize_t						ft_write_fd(const char *s, int fd);
-
 //---test
 t_ast_command				*build_fake_cmd_table_for_tests(void);
-#define DEFAULT_PATH
-
-"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
+# define DEFAULT_PATH \
+	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
 :/usr/local/sbin:/opt/bin:/opt/sbin"
+
+#endif

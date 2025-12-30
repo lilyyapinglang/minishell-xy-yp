@@ -6,11 +6,11 @@ int	main(int argc, char **argv, char **envp)
 
 	int exit_status;
 
-	void(argv);
+	(void)argv;
 	if (argc != 1)
 		exit(EXIT_FAILURE);
-	// current at main process, main prompt, set ctrl-c, ctrl-d , ctrl\ 
-    // set signal first
+	// current at main process, main prompt, set ctrl-c, ctrl-d , ctrl-\-
+	// set signal first
 	/*配置“主进程”的信号行为
 	prompt 阶段 Ctrl-C / Ctrl-\ 的行为?
 	*/

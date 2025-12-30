@@ -15,6 +15,7 @@
 // OLDPWD=/home/ylang/code/minishell-github
 
 unsigned int	g_lastcmd_exit_code = 0;
+
 bool	is_buildtin(char *cmd)
 {
 	return (!ft_strncmp(cmd, "echo", 4) || !ft_strncmp(cmd, "pwd", 3)
