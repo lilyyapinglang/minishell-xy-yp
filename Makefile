@@ -1,113 +1,86 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/12/30 16:06:25 by xuewang           #+#    #+#              #
+#    Updated: 2025/12/30 18:12:17 by xuewang          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME		= minishell
 
-INC_DIR := inc
-SRC_DIR := src
-BUILD_DIR = build
+CC			= cc
+CFLAGS		= -Wall -Wextra -Werror
+INCLUDES	= -I./include
+LIBS		= -lreadline
 
-CC := cc 
-CFLAGS := -Wall -Wextra -Werror #-g
-INCLUDES	:= -I$(INC_DIR)
-
-# linker libs
-LDLIBS	:= -lreadline
-
-#ft_printf & libft 
-FT_PRINTF_DIR := lib/ft_printf
-FT_PRINTF_A = $(FT_PRINTF_DIR)/libftprintf.a
-
-#Get next line
-#GNL_DIR     = get_next_line
-#GNL_SRCS    = $(GNL_DIR)/get_next_line.c \
+GNL_DIR     = get_next_line
+GNL_SRCS    = $(GNL_DIR)/get_next_line.c \
               $(GNL_DIR)/get_next_line_utils.c
-#GNL_OBJS    = $(GNL_SRCS:.c=.o)
+GNL_OBJS    = $(GNL_SRCS:.c=.o)
 
+LIBFT_DIR := libft
+LIBFT     := $(LIBFT_DIR)/libft.a
+LIBFT_INC := -I $(LIBFT_DIR)/include
+
+INC := -I include $(LIBFT_INC)
 
 # Source files organized by module
-SRCS_MAIN = src/core/main.c \
-            src/core/core.c
-
-#SRCS_LEXER	= src/lexer/lexer.c \
-			  src/lexer/lexer_utile.c \
-			  src/lexer/lexer_single_token.c \
-			  src/lexer/lexer_test.c \
-
-#SRCS_PARSER	= src/parser/parser.c \
-			  src/parser/parser_utils.c \
-			  src/parser/command_builder.c \
-			  src/parser/redirect_parser.c \
-			  src/parser/syntax_checker.c
-
-#SRCS_EXPAND	= src/expander/expander.c \
-			  src/expander/variable_expand.c \
-			  src/expander/quote_removal.c \
-			  src/expander/field_split.c \
-			  src/expander/expansion_utils.c \
-			  src/expander/split_quoted_token.c \
-			  src/expander/argv_expansion.c
-
-#SRCS_SAFE	= src/expander/expander.c \
-			  src/expander/variable_expand.c \
-			  src/expander/quote_removal.c \
-			  src/expander/field_split.c \
-			  src/expander/expansion_utils.c \
-			  src/expander/split_quoted_token.c \
-			  src/expander/argv_expansion.c
-
-SRCS_ENV	= src/env/env.c
-
-SRCS_BUILTINS = src/builtins/builtin_cmd.c \
-				src/builtins/builtin_utils.c
-
-SRCS_EXECUTION = src/execution/collect_heredoc.c \
-				src/execution/exec_command.c\
-				src/execution/exec_logical.c\
-				src/execution/exec_pipeline.c\
-				src/execution/exec_redirection.c\
-				src/execution/exec_subshell.c\
-				src/execution/executor.c
-
-SRCS_SIGNALS =  src/signal/set_signal_handlers_to_mode.c
-
-SRCS_UTILS = src/utils/error_exe.c\
-				src/utils/ft_list_ops.c\
-				src/utils/utils_general.c
+SRCS_MAIN	= srcs/main.c \
 
 
-#real all version 
+SRCS_LEXER	= srcs/lexer/lexer.c \
+			  srcs/lexer/lexer_utile.c \
+			  srcs/lexer/lexer_single_token.c \
+			  srcs/lexer/lexer_test.c \
+
+SRCS_PARSER	= srcs/parser/parser.c \
+			  srcs/parser/parser_utile.c \
+			  srcs/parser/parser_tk_type.c \
+			  srcs/parser/parser_sub.c \
+			  srcs/parser/parser_redir.c \
+			  srcs/parser/parser_redir_next.c \
+			  srcs/parser/parser_build_node.c \
+			  srcs/parser/parser_baskc_act.c
+
+SRCS_EXPAND	= srcs/expander/expander.c \
+			  srcs/expander/expander_utils.c \
+			  srcs/expander/expander_var.c \
+			  srcs/expander/expander_var_env.c \
+			  srcs/expander/expander_one_arg.c 
+
+SRCS_SAFE	= srcs/safe_functions/error.c \
+			  srcs/safe_functions/libft_list.c \
+			  srcs/safe_functions/quitshell.c \
+			  srcs/safe_functions/safe_alloc.c \
+			  srcs/safe_functions/safe_list.c \
+			  
+#real all version
 #SRCS        = $(SRCS_TEST_MAIN) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND)
-SRCS		= $(SRCS_MAIN) $(SRCS_ENV) $(SRCS_BUILTINS) $(SRCS_EXECUTION) $(SRCS_SIGNALS) $(SRCS_UTILS)
-
-#OBJS		= $(SRCS:.c=.o)
-
-OBJS = $(SRCS:src/%.c=$(BUILD_DIR)/%.o)
-
+SRCS		= $(SRCS_LEXER) $(SRCS_SAFE)
+OBJS		= $(SRCS:.c=.o)
 
 # Colors for output
 GREEN		= \033[0;32m
 YELLOW		= \033[0;33m
 RESET		= \033[0m
 
-# Rules
+all: $(NAME)
 
-all :$(NAME)
-
-$(NAME): $(OBJS) $(FT_PRINTF_A)
+$(NAME): $(OBJS) $(LIBFT)
 	@echo "$(YELLOW)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(FT_PRINTF_A) -o $(NAME) $(LDLIBS)
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME) $(LIBS)
 	@echo "$(GREEN)$(NAME) created successfully!$(RESET)"
 
-#%.o: %.c
-#	@echo "Compiling $<..."
-#	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
 
-# ft_printf
-$(FT_PRINTF_A):
-	$(MAKE) -C $(FT_PRINTF_DIR)
-
-$(BUILD_DIR)/%.o: src/%.c
+%.o: %.c
 	@echo "Compiling $<..."
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 val: $(NAME)
 	@if ! [ -f "ignore.supp" ]; then make ignore; fi
@@ -115,18 +88,13 @@ val: $(NAME)
 
 clean:
 	@echo "$(YELLOW)Removing object files...$(RESET)"
-	@rm -rf $(BUILD_DIR)
-	@$(MAKE) -C $(FT_PRINTF_DIR) clean
+	@rm -f $(OBJS)
 	@echo "$(GREEN)Clean complete!$(RESET)"
 
 fclean: clean
 	@echo "$(YELLOW)Removing $(NAME)...$(RESET)"
 	@rm -f $(NAME)
-	@$(MAKE) -C $(FT_PRINTF_DIR) fclean
 	@echo "$(GREEN)Full clean complete!$(RESET)"
-
-norm: 
-	norminette $(INC_DIR) $(SRC_DIR)
 
 re: fclean all
 
