@@ -13,7 +13,7 @@ stateful builtin → 不能 fork
 stateless builtin → 可 fork 可不 fork**
 */
 int	execute_cmd(t_ast_command *cmd, t_exec_context exectuion_context,
-		t_shell *shell)
+		t_shell_context *shell_conetext)
 {
 	int		status;
 	bool	isbuiltin;
@@ -59,7 +59,7 @@ int	execute_cmd(t_ast_command *cmd, t_exec_context exectuion_context,
 	return (fork_and_run_cmd_in_child(cmd, shell, isbuiltin));
 }
 
-int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell *shell,
+int	fork_and_run_cmd_in_child(t_ast_command *cmd, t_shell_context *shell_conetext,
 		t_built_in_func bi)
 {
 	pid_t pid;

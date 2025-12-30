@@ -10,11 +10,10 @@
 	AST_SYNTAX_ERROR
 
 */
-
-int						prompt_execution_status = execute(ast, O_RETURN, shell);
 // Expand node  should come from expander
 
-int	execute(t_ast *node, t_exec_context execution_context, t_shell *shell)
+int	execute(t_ast *node, t_exec_context execution_context,
+		t_shell_context *shell_conetext)
 {
 	int status;
 	status = EXIT_SUCCESS;

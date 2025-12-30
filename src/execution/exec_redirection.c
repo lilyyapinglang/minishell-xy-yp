@@ -5,7 +5,8 @@
 // void	apply_all_redirs(t_cmd *cmd);
 #include "../inc/minishell.h"
 
-int	execute_redirection(t_ast_redirection *redir_node, t_shell *shell)
+int	execute_redirection(t_ast_redirection *redir_node,
+		t_shell_context *shell_conetext)
 {
 	int	status;
 
@@ -37,7 +38,8 @@ redirection 节点的职责是：
 
 回收环境
 */
-int	exe_redirect_input(t_ast_redirection *redir_node, t_shell *shell)
+int	exe_redirect_input(t_ast_redirection *redir_node,
+		t_shell_context *shell_conetext)
 {
 	int	input_fd;
 	int	status;
@@ -65,7 +67,8 @@ int	exe_redirect_input(t_ast_redirection *redir_node, t_shell *shell)
 	return (status);
 }
 
-int	exe_redirect_output(t_ast_redirection *redir_node, t_shell *shell)
+int	exe_redirect_output(t_ast_redirection *redir_node,
+		t_shell_context *shell_conetext)
 {
 	int	output_fd;
 	int	status;
@@ -84,7 +87,7 @@ int	exe_redirect_output(t_ast_redirection *redir_node, t_shell *shell)
 }
 
 int	execute_redirect_append_output(t_ast_redirection *redir_node,
-		t_shell *shell)
+		t_shell_context *shell_conetext)
 {
 	int append_fd;
 	int status;

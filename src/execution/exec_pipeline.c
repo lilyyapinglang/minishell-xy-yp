@@ -16,7 +16,7 @@ execute_pipeline(...)        // 处理 AST_PIPELINE
  └─ wait_for_pipeline_children(stage_count)
 
 */
-int	execute_pipeline(t_ast *pipeline_node, t_shell *shell)
+int	execute_pipeline(t_ast *pipeline_node, t_shell_context *shell_conetext)
 {
 	t_ast_pipeline	*pipeline;
 
@@ -31,7 +31,7 @@ t_list			*ft_listadd_front(t_list **lst, t_list new_node);
 
 // always build from right side
 // ((A|B)|C) - > [A, B,C]
-t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell *shell)
+t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *shell_conetext)
 {
 	t_ast_pipeline	*pipeline_list;
 
@@ -52,7 +52,7 @@ t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell *shell)
 	return (pipeline_list);
 }
 
-int	execute_pipeline_commands(t_list *pipeline, t_shell *shell)
+int	execute_pipeline_commands(t_list *pipeline, t_shell_context *shell_conetext)
 {
 	int		fd[2];
 	int		prev_read_end;
@@ -95,7 +95,7 @@ int	execute_pipeline_commands(t_list *pipeline, t_shell *shell)
 }
 
 int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
-		t_shell *shell)
+		t_shell_context *shell_conetext)
 {
 	pid_t	pid;
 	int		status;
@@ -127,7 +127,7 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 	return (pid);
 }
 
-int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell *shell)
+int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell_context *shell_conetext)
 {
 	pid_t	child_pid;
 	int		status;

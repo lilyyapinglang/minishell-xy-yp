@@ -9,7 +9,9 @@ minishell$
 to turn all cmd << EOF to cmd < /tmp/minishell_heredoc_X.
 Handle current heredocs node, and turn it into temp file input,
 */
-int	collect_all_heredocs_from_this_node(t_ast *node, t_shell *shell)
+
+int	collect_all_heredocs_from_this_node(t_ast *node,
+		t_shell_context *shell_context)
 {
 	int		search_result;
 	int		current_temp_files_counts;
@@ -89,7 +91,7 @@ REDIR (>)
 └── file: "b"
 
 */
-int	is_heredoc(t_ast *node, t_shell *shell)
+int	is_heredoc(t_ast *node, t_shell_context *shell_conetext)
 {
 	if (node &node->type = AST_REDIRECTION &&node->u_data.redirection = "<<")
 		// TK_HEREDOCS
@@ -97,7 +99,8 @@ int	is_heredoc(t_ast *node, t_shell *shell)
 	return (0);
 }
 
-int	search_for_heredocs_from_this_node(t_ast *node, t_shell *shell)
+int	search_for_heredocs_from_this_node(t_ast *node,
+		t_shell_context *shell_conetext)
 {
 	if (!node)
 		return (0);
@@ -144,7 +147,8 @@ int	search_for_heredocs_from_this_node(t_ast *node, t_shell *shell)
 	// need to remove quote and escape\
 //'EOF' "EOF"  E"OF" \EOF E\"OF
 */
-char	*get_clean_heredoc_delimiter(const char *raw_delimiter, t_shell *shell)
+char	*get_clean_heredoc_delimiter(const char *raw_delimiter,
+		t_shell_context *shell_conetext)
 {
 	size_t	i;
 	size_t	o;
@@ -193,7 +197,7 @@ char	*get_clean_heredoc_delimiter(const char *raw_delimiter, t_shell *shell)
 	return (cleaned_delimiter);
 }
 
-char	*trim_delimiter(char *delimiter, t_shell *shell)
+char	*trim_delimiter(char *delimiter, t_shell_context *shell_conetext)
 {
 	char	first_char;
 
@@ -210,7 +214,7 @@ finish read, close the tmp file desciption
 */
 
 int	collect_heredocs_from_terminal(int tmp_file_des, char *delimiter,
-		t_shell *shell)
+		t_shell_context *shell_conetext)
 {
 	char	*user_input;
 

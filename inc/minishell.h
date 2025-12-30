@@ -204,6 +204,37 @@ typedef enum e_exec_context
 # define READ_END 0
 # define WRITE_END 1
 
+// heredocs
+int							collect_all_heredocs_from_this_node(t_ast *node,
+								t_shell_context *shell_context);
+int							is_heredoc(t_ast *node,
+								t_shell_context *shell_conetext);
+int							search_for_heredocs_from_this_node(t_ast *node,
+								t_shell_context *shell_conetext);
+char						*get_clean_heredoc_delimiter(const char *raw_delimiter,
+								t_shell_context *shell_conetext);
+char						*trim_delimiter(char *delimiter,
+								t_shell_context *shell_conetext);
+int							collect_heredocs_from_terminal(int tmp_file_des,
+								char *delimiter,
+								t_shell_context *shell_conetext);
+
+// executor
+int							execute(t_ast *node,
+								t_exec_context execution_context,
+								t_shell_context *shell_conetext);
+int							execute_logical(t_ast_logical *logical_node,
+								t_shell_context *shell_conetext);
+int							execute_command(t_ast_command *cmd,
+								t_exec_context exectuion_context,
+								t_shell_context *shell_conetext);
+int							execute_pipeline(t_ast *pipeline_node,
+								t_shell_context *shell_conetext);
+int							execute_redirection(t_ast_redirection *redir_node,
+								t_shell_context *shell_conetext);
+int							execute_subshell(t_ast_subshell *subshell_node,
+								t_shell_context *shell_conetext);
+
 // -----built-in
 
 typedef int					(*t_builtin_func)(t_ast_command *,

@@ -1,5 +1,7 @@
 #include "../inc/minishell.h"
 
+// To be done by yaping lang
+
 // create new node
 t_list	*ft_lstnew(void *content)
 {

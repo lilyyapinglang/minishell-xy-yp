@@ -92,7 +92,7 @@ void	set_signal_in_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
 	// i can not kill shell, i need to clear line and return to prompt
-	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode，0);
+	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN);
@@ -101,7 +101,7 @@ void	set_signal_in_prompt_mode(void)
 void	set_signal_in_heredoc_prompt_mode(void)
 {
 	// set handling behavior for ctrl-c, SIGINT
-	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode，0);
+	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN);

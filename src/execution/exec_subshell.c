@@ -13,7 +13,7 @@ waitpid(pid, &st)
 
 */
 
-// run a smaller ast tree in subshell.i
+// run a smaller ast tree in subshell.
 
 int	wait_status_to_exit_code(int wait_status)
 {
@@ -35,7 +35,7 @@ int	wait_status_to_exit_code(int wait_status)
 // when child process is terminated by signal, print user realted prompr ,
 //	for exmaple new line ,quit etc
 void	report_child_termination_signal(int wait_status, bool *new_line_existed,
-		t_shell *shell)
+		t_shell_context *shell_conetext)
 {
 	int	signal_num;
 
@@ -65,7 +65,7 @@ void	report_child_termination_signal(int wait_status, bool *new_line_existed,
 		write(STDERR_FILENO, "\n", 1);
 }
 
-int	execute_subshell(t_ast_subshell *subshell_node, t_shell *shell)
+int	execute_subshell(t_ast_subshell *subshell_node, t_shell_context *shell_conetext)
 {
 	pid_t	pid;
 	int		status;
