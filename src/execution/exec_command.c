@@ -34,34 +34,36 @@ int	execute_command(t_ast_command *cmd, t_exec_context exectuion_context,
 	{
 		if (isbuiltin)
 		{
-			status = exec_builtin(cmd, shell_conetext);
+			// match the built_in name with built_in function name
+			status = execute_builtin(cmd, shell_conetext);
 			return (status);
 		}
 		// esle it is not built in, execve rewrite current process
-		execve(get_cmd_path(cmd->args[0], shell_conetext), cmd->args,
-			shell_conetext->env, shell_conetext);
+		execute_external_or_die(cmd, shell_conetext);
+		// execve(get_cmd_path(cmd->args[0], shell_conetext), cmd->args,
+		// 	shell_conetext->env, shell_conetext);
 		return (127);
 	}
-	// has to be executer in parent process,shell process
+	// has to be executed in parent process,shell process
 	if (exectuion_context == RUN_IN_SHELL)
 	{
 		// stateful builti has to be run in parent ,
 		//	otherwise change will not take effect
 		if (isbuiltin && is_stateful_builtin(cmd->args[0]))
-			return (exec_builtin(cmd, shell_conetext));
+			return (execute_builtin(cmd, shell_conetext));
 		if (isbuiltin) // stateless builtin , can be run in parent too,
 						// i choose not to fork
-			return (exec_builtin(cmd, shell_conetext));
+			return (execute_builtin(cmd, shell_conetext));
 		// external cmd is not allowed to run in parent,
 		//	otherwise it will quit shell after executer
 		exectuion_context = RUN_FORK_WAIT;
 	}
 	// need to fork , parent fork, child exe as run in child, parent wait
-	return (fork_and_run_cmd_in_child(cmd, shell_conetext, isbuiltin));
+	return (fork_and_run_cmd_in_child(cmd, shell_conetext));
 }
 
 int	fork_and_run_cmd_in_child(t_ast_command *cmd,
-		t_shell_context *shell_conetext, t_built_in_func bi)
+		t_shell_context *shell_conetext)
 {
 	pid_t pid;
 	int wait_status;
@@ -72,7 +74,7 @@ int	fork_and_run_cmd_in_child(t_ast_command *cmd,
 		return (EXIT_FAILURE);
 	if (pid == 0)
 	{
-		shell->in_main_process = false;
+		shell_conetext->in_main_process = false;
 		set_signal_child_process();
 		/// reuse run in child logic
 		status = execute_command(cmd, RUN_IN_CHILD, shell_conetext);
