@@ -248,13 +248,13 @@ int							execute_builtin(t_ast_command *cmd,
 int							execute_external_or_die(t_ast_command *cmd,
 								t_shell_context *ctx);
 
-int							builtin_cd(char **argv, t_env *env);
-int							builtin_export(char **argv, t_env *env);
-int							builtin_unset(char **argv, t_env *env);
-int							builtin_exit(char **argv, t_env *env);
+int							builtin_cd(char **argv, t_env_var *env);
+int							builtin_export(char **argv, t_env_var *env);
+int							builtin_unset(char **argv, t_env_var *env);
+int							builtin_exit(char **argv, t_env_var *env);
 int							builtin_echo(char **argv);
 int							builtin_pwd(char **argv);
-int							builtin_env(t_env *env);
+int							builtin_env(t_env_var *env);
 
 //-----  signal-----
 
