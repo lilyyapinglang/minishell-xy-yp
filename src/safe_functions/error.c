@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 17:08:42 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 17:49:44 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/04 17:04:53 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "safefunctions.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "minishell.h"
 
 ssize_t	ft_write_fd(const char *s, int fd)
 {

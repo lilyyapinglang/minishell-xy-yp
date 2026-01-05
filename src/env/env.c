@@ -198,7 +198,7 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 t_list	*init_env(char **envp, t_shell_context *shell_context)
 {
 	t_list	*env_list;
-	char	*eq;
+	char	*equal_sign;
 	char	*name_tmp;
 
 	env_list = NULL;
@@ -206,28 +206,29 @@ t_list	*init_env(char **envp, t_shell_context *shell_context)
 		return (NULL);
 	while (envp && *envp)
 	{
-		eq = ft_strchr(*envp, '=');
-		if (!eq)
+		equal_sign = ft_strchr(*envp, '=');
+		if (!equal_sign)
 		{
 			// No '=' -> name only, value NULL
 			// exported=true because it came from envp
-			add_new_env_var(&env_list, *envp, NULL, true);
+			add_new_env_var(&env_list, *envp, NULL, true, shell_context);
 		}
 		else
 		{
 			// name is left side
-			name_tmp = ft_substr(*envp, 0, (size_t)(eq - *envp));
+			name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign - *envp));
 			if (name_tmp)
 			{
 				// value is right side (eq+1)
-				add_new_env_var(&env_list, name_tmp, eq + 1, true);
+				add_new_env_var(&env_list, name_tmp, equal_sign + 1, true,
+					shell_context);
 				free(name_tmp);
 			}
-			else
-			{
-				// if you have malloc_s/calloc_s that exits, you won't need this
-				// otherwise decide how you want to handle alloc failure
-			}
+			// else
+			// {
+			// 	// if you have malloc_s/calloc_s that exits, you won't need this
+			// 	// otherwise decide how you want to handle alloc failure
+			// }
 		}
 		envp++;
 	}
@@ -236,7 +237,7 @@ t_list	*init_env(char **envp, t_shell_context *shell_context)
 	// If you insist on caching:
 	// shell_context->home = env_get_value(env_list, "HOME");
 	if (!env_node_find(env_list, "PATH"))
-		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true);
+		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, shell_context);
 	return (env_list);
 }
 
