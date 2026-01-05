@@ -6,7 +6,7 @@ env：打印 exported==true && value!=NULL
 
 export：打印 exported==true（value 可空）
 
-envp 导出：只导出 exported==true && value!=NULL
+envp 导出：只导出 exported==true && value!=NU
 
 export 的作用是：让某个变量进入将来子进程的 envp（即“导出”）。
 exported 的意义：
@@ -17,29 +17,21 @@ static t_env_var	*env_var_from_node(t_list *node)
 {
 	return ((t_env_var *)node->content);
 }
-int	add_new_env_var(t_list **env, const char *name, const char *value,
-		bool exported)
+
+void	add_new_env_var(t_list **env_list, const char *name, const char *value,
+		bool exported, t_shell_context *sh_ctx)
 {
-	t_env_var	*env_var;
+	t_env_var	*var;
 	t_list		*node;
 
 	if (!env || !name || name[0] == '\0')
-		return (1);
-	env_var = malloc(sizeof(*env_var));
-	if (!env_var)
-		return (1);
-	env_var->name = ft_strdup(name);
-	if (!env_var->name)
-		return (free(env_var), 1);
-	env_var->value = value ? ft_strdup(value) : NULL;
-	if (value && !env_var->value)
-		return (free(env_var->name), free(env_var), 1);
-	env_var->exported = exported;
-	node = ft_lstnew(env_var);
-	if (!node)
-		return (free(env_var->value), free(env_var->name), free(env_var), 1);
-	ft_lstadd_back(env, node);
-	return (0);
+		return ;
+	var = calloc_s(1, sizeof(*var), ALLOC_UNTRACKED, sh_ctx);
+	var->name = strdup_s(name, ALLOC_UNTRACKED, sh_ctx);
+	var->value = value ? strdup_s(value, ALLOC_UNTRACKED, sh_ctx) : NULL;
+	var->exported = exported;
+	// node = ft_listnew_s(var, TRACK_SHELL, sh_ctx);
+	lst_add_back_s(var, env_list, ALLOC_UNTRACKED, sh_ctx);
 }
 
 int	env_mark_exported(t_shell_context *ctx, const char *name)
@@ -56,19 +48,20 @@ int	env_mark_exported(t_shell_context *ctx, const char *name)
 }
 
 // return env_node
-t_list	*env_node_find(t_list *env, const char *name)
+t_list	*env_node_find(t_list *env_list, const char *name)
 {
 	t_env_var	*env_var;
-	size_t		n;
+	t_list		*cur;
 
-	while (env)
+	if (!name || name[0] == '\0')
+		return (NULL);
+	cur = env_list;
+	while (cur)
 	{
-		env_var = env_var_from_node(env);
-		n = ft_strlen(env_var->name);
-		if (env_var && env_var->name && ft_strncmp(env_var->name, name, n) == 0
-			&& env_var->name[n] == '\0')
+		env_var = env_var_from_node(cur);
+		if (env_var && env_var->name && ft_strcmp(env_var->name, name) == 0)
 			return (env);
-		env = env->next;
+		cur = cur->next;
 	}
 	return (NULL);
 }
@@ -91,20 +84,27 @@ int	env_set_value(t_shell_context *shell_context, const char *name,
 	t_env_var	*env_var;
 	t_list		*node;
 	char		*old;
+	char		*new_value;
 
+	if (!shell_context || !name || name[0] == '\0')
+		return (1);
 	node = env_node_find(shell_context->env, name);
 	if (!node)
 	{
-		add_new_env_var(&shell_context->env, name, value, exported);
+		add_new_env_var(&shell_context->env, name, value, exported,
+			shell_context);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
 	// udpate exported is requested
 	if (exported)
 		env_var->exported = true;
+	new_value = value ?: ft_strdup(value) : NULL;
+	if (value && &&!new_value)
+		return (1);
 	// repalce value
 	old = env_var->value;
-	env_var->value = value ? ft_strdup(value) : NULL;
+	env_var->value = new_value;
 	free(old);
 	return (0);
 }
@@ -224,11 +224,6 @@ t_list	*init_env(char **envp, t_shell_context *shell_context)
 					shell_context);
 				free(name_tmp);
 			}
-			// else
-			// {
-			// 	// if you have malloc_s/calloc_s that exits, you won't need this
-			// 	// otherwise decide how you want to handle alloc failure
-			// }
 		}
 		envp++;
 	}

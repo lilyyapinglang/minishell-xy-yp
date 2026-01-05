@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   safe_list.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:47:00 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 17:14:13 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/05 23:42:23 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,3 +63,5 @@ void	remove_list_node(t_list **node, t_list **head,
 	if (free_node)
 		ft_lstdelone(to_remove, free_function);
 }
+
+

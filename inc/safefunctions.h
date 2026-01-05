@@ -33,4 +33,6 @@ void	check_node_alloc(t_list *new_node, void *pointer, t_shell_context *sh);
 void	remove_list_node(t_list **node, t_list **head,
 			void (*free_function)(void *), bool free_node);
 
+/*secure libft*/
+char	*strdup_s(char const *str1, t_tracking_scope scope, t_shell_context);
 #endif
