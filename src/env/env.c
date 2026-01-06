@@ -78,7 +78,7 @@ char	*env_get_value(t_list *env, const char *name)
 	return (env_var->value);
 }
 // set/rewrite value
-int	env_set_value(t_shell_context *shell_context, const char *name,
+int	env_set_value(t_shell_context *sh_ctx, const char *name,
 		const char *value, bool exported)
 {
 	t_env_var	*env_var;
@@ -110,7 +110,7 @@ int	env_set_value(t_shell_context *shell_context, const char *name,
 }
 
 // append VAR +=
-int	env_append_value(t_shell_context *shell_context, const char *name,
+int	env_append_value(t_shell_context *sh_ctx, const char *name,
 		const char *append_str, bool exported)
 {
 	t_env_var	*env_var;
@@ -138,7 +138,7 @@ int	env_append_value(t_shell_context *shell_context, const char *name,
 }
 
 // delete node
-int	env_unset(t_shell_context *shell_context, const char *name)
+int	env_unset(t_shell_context *sh_ctx, const char *name)
 {
 	t_list		*env;
 	t_env_var	*env_var;
@@ -159,7 +159,7 @@ int	env_unset(t_shell_context *shell_context, const char *name)
 	return (1);
 }
 // envp 导出：只导出 exported==true && value!=NULL
-char	**build_envp_from_env_list(t_shell_context *shell_context)
+char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 {
 	t_list		*env;
 	int			count_strs;
@@ -195,7 +195,7 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 	return (envp);
 }
 
-t_list	*init_env(char **envp, t_shell_context *shell_context)
+t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 {
 	t_list	*env_list;
 	char	*equal_sign;
@@ -237,7 +237,7 @@ t_list	*init_env(char **envp, t_shell_context *shell_context)
 }
 
 // called by on builtin-env or built-in export ?
-void	print_env(bool export_format, t_shell_context *shell_context)
+void	print_env(bool export_format, t_shell_context *sh_ctx)
 {
 	t_env_var *env_var;
 	t_list *env = shell_context->env;

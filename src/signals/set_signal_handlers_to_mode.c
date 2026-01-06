@@ -43,7 +43,7 @@ int	set_signal_handler(int sig_num, void (*signal_handler)(int), int flags)
 	struct sigaction	sig_act;
 
 	memset(&sig_act, 0, sizeof(sig_act)); // clean garbage value
-	sig_act.handler = signal_handler;
+	sig_act.sa_handler = signal_handler;
 	sig_act.sa_flags = flags; // let calling function to decide if SA_RESTART
 	sigemptyset(&sig_act.sa_mask);
 	if (sigaction(sig_num, &sig_act, NULL) == -1)
@@ -55,19 +55,21 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 {
 	// record that sigint happened， this change is to be consumed by main process
 	// which is actaully quite current cmd and return to shell.
-	g_latest_signal_status = sig_num;
+	void(sig_num);
+	g_latest_signal_status = SIGINT;
 	// change to new line because it's ugly to start new prompt on the same line
 	// write is signal safe
-	if (write(1, "\n", 1) == -1)
-		return ;
-	// drop what users has entered into buffer of readline
-	// clear current readline buffer, not adding to history
-	rl_replace_line("", 0);
-	// fix readline inernal status, location of cursur, line start info,
-	//	need to redisplay prompt or not
-	rl_on_new_line();
-	// redraw clean prompt
-	rl_redisplay();
+	write(STDOUT_FILENO, "\n", 1);
+	// if (write(1, "\n", 1) == -1)
+	// 	return ;
+	// // drop what users has entered into buffer of readline
+	// // clear current readline buffer, not adding to history
+	// rl_replace_line("", 0);
+	// // fix readline inernal status, location of cursur, line start info,
+	// //	need to redisplay prompt or not
+	// rl_on_new_line();
+	// // redraw clean prompt
+	// rl_redisplay();
 }
 /*
 should stop collecting heredoc immediately, drop content of current heredoc,
@@ -77,14 +79,16 @@ entire cmd will not be executed anymore, shell return to main prompt,
 void	handle_sigint_in_heredoc_mode(int sig_num)
 {
 	// 1/ record signal
-	g_latest_signal_status = sig_num;
+	(void)sig_num;
+	g_latest_signal_status = SIGINT;
 	// 2. output newline, to make it visually clean
-	if (write(1, "\n", 1) == -1)
-		return ;
-	// 3. let readline exit/finish
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
+	write(STDOUT_FILENO, "\n", 1);
+	// if (write(1, "\n", 1) == -1)
+	// 	return ;
+	// // 3. let readline exit/finish
+	// rl_replace_line("", 0);
+	// rl_on_new_line();
+	// rl_redisplay();
 }
 
 void	set_signal_in_main_prompt_mode(void)
@@ -94,7 +98,7 @@ void	set_signal_in_main_prompt_mode(void)
 	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_IGN);
+	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
 
 void	set_signal_in_heredoc_prompt_mode(void)
@@ -103,7 +107,7 @@ void	set_signal_in_heredoc_prompt_mode(void)
 	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_IGN);
+	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
 /* eg : sleep 100
 when pressing ctrl-c, kernel send SIGINT to all foreground processes
@@ -127,10 +131,10 @@ void	set_signal_in_exe_main_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process
-	set_signal_handler(SIGINT, SIG_IGN，0);
+	set_signal_handler(SIGINT, SIG_IGN, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_IGN，0);
+	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
 
 // after fork child process copied the signal handler from parent as well,
@@ -140,8 +144,8 @@ void	set_signal_in_exe_child_process(void)
 {
 	// set handling behavior for ctrl-c, as parent process ,
 	// i do nothing o react to signal, i will waitfor child process
-	set_signal_handler(SIGINT, SIG_DFL，0);
+	set_signal_handler(SIGINT, SIG_DFL, 0);
 	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
 	//	nothing happens
-	set_signal_handler(SIGQUIT, SIG_DFL，0);
+	set_signal_handler(SIGQUIT, SIG_DFL, 0);
 }

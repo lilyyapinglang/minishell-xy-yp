@@ -75,14 +75,14 @@ int	print_err_msg_n_return(const char *cmd, const char *arg, const char *msg)
 }
 /*fatal error, print, clean up , exit current process / quit shell  */
 
-void	fatal_errno_quit(t_shell_context *shell_context, int exit_status,
+void	fatal_errno_quit(t_shell_context *sh_ctx, int exit_status,
 		const char *cmd, const char *arg, int errnum)
 {
 	print_error(cmd, arg, strerror(errnum));
 	quit_shell(exit_status, shell_context);
 }
 
-void	fatal_err_msg_quit(t_shell_context *shell_context, int exit_status,
+void	fatal_err_msg_quit(t_shell_context *sh_ctx, int exit_status,
 		const char *cmd, const char *arg, const char *msg)
 {
 	print_error(cmd, arg, msg);

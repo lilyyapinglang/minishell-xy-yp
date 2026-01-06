@@ -20,5 +20,5 @@ int	main(int argc, char **argv, char **envp)
 	// Shell main loop (REPL: Read–Eval–Print Loop)
 	exit_status = shell_repl_loop(&shell_context);
 	// final cleanup and exit
-	quit_shell(exit_status, &shell_context);
+	shell_destroy(exit_status, &shell_context);
 }

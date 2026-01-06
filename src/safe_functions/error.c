@@ -6,13 +6,13 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 17:08:42 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/04 17:04:53 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/06 17:53:36 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
 #include "minishell.h"
+#include "parse.h"
+#include "safefunctions.h"
 
 ssize_t	ft_write_fd(const char *s, int fd)
 {
@@ -30,13 +30,14 @@ void	*set_syntax_error(char *unexpected_token, t_shell_context *sh)
 
 int	report_syntax_error(t_shell_context *sh)
 {
-	report_error("syntax error near unexpected token `",
-		sh->parsing_error, "'", sh);
+	report_error("syntax error near unexpected token `", sh->parsing_error, "'",
+		sh);
 	sh->parsing_error = NULL;
 	return (2);
 }
 
-int	report_error(char *context, char *element, char *description, t_shell_context *sh)
+int	report_error(char *context, char *element, char *description,
+		t_shell_context *sh)
 {
 	write_s("minishell: ", STDERR_FILENO, sh);
 	write_s(context, STDERR_FILENO, sh);
@@ -62,15 +63,12 @@ void	syscall_error(const char *context, int errnum, t_shell_context *sh)
 	error(context, strerror(errnum), EXIT_FAILURE, sh);
 }
 
-
-/*
 void	free_env_var(void *content)
 {
-	t_var	*var;
+	t_env_var	*var;
 
-	var = (t_var *)content;
+	var = (t_env_var *)content;
 	free(var->name);
 	free(var->value);
 	free(var);
 }
-*/

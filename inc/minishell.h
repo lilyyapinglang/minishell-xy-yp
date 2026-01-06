@@ -119,11 +119,11 @@ typedef enum s_prompt_mode
 // const char *msg);
 int							print__errno_n_return(const char *cmd,
 								const char *arg, int errnum);
-void						fatal_errno_quit(t_shell_context *shell_context,
+void						fatal_errno_quit(t_shell_context *sh_ctx,
 								int exit_status, const char *cmd,
 								const char *arg, int errnum);
 
-void						fatal_err_msg_quit(t_shell_context *shell_context,
+void						fatal_err_msg_quit(t_shell_context *sh_ctx,
 								int exit_status, const char *cmd,
 								const char *arg, const char *msg);
 void						warn_errno(const char *cmd, const char *arg,
@@ -150,16 +150,15 @@ ssize_t						ft_write_fd(const char *s, int fd);
 
 // -----main-----
 
-void						init_shell(t_shell_context *shell_context,
-								char **envp);
-int							shell_repl_loop(t_shell_context *shell_context);
+void						init_shell(t_shell_context *sh_ctx, char **envp);
+int							shell_repl_loop(t_shell_context *sh_ctx);
 char						*prompt_listener(t_prompt_mode mode);
 int							prompt_execution(char *line,
-								t_shell_context *shell_context);
+								t_shell_context *sh_ctx);
 
-void						clear_cycle(t_shell_context *shell_context);
-void						quit_shell(int exit_status,
-								t_shell_context *shell_context);
+void						shell_clear_iteration(t_shell_context *sh_ctx);
+
+void						shell_exit(t_shell_context *sh_ctx, int status);
 
 // ----- LEXER ----- //
 typedef enum e_token_type
@@ -271,8 +270,8 @@ typedef enum e_exec_context
 # define WRITE_END 1
 
 // heredocs
-int							collect_all_heredocs_from_this_node(t_ast *node,
-								t_shell_context *shell_context);
+int							collect_all_heredocs(t_ast *node,
+								t_shell_context *sh_ctx);
 int							is_heredoc(t_ast *node,
 								t_shell_context *shell_conetext);
 int							search_for_heredocs_from_this_node(t_ast *node,
@@ -281,7 +280,7 @@ char						*get_clean_heredoc_delimiter(const char *raw_delimiter,
 								t_shell_context *shell_conetext);
 char						*trim_delimiter(char *delimiter,
 								t_shell_context *shell_conetext);
-int							collect_heredocs_from_terminal(int tmp_file_des,
+int							read_heredoc_lines(int tmp_file_des,
 								char *delimiter,
 								t_shell_context *shell_conetext);
 
@@ -321,14 +320,11 @@ int							execute_builtin(t_ast_command *cmd,
 int							execute_external_or_die(t_ast_command *cmd,
 								t_shell_context *ctx);
 
-int							builtin_cd(char **argv,
-								t_shell_context *shell_context);
+int							builtin_cd(char **argv, t_shell_context *sh_ctx);
 int							builtin_export(char **argv,
-								t_shell_context *shell_context);
-int							builtin_unset(char **argv,
-								t_shell_context *shell_context);
-int							builtin_exit(char **argv,
-								t_shell_context *shell_context);
+								t_shell_context *sh_ctx);
+int							builtin_unset(char **argv, t_shell_context *sh_ctx);
+int							builtin_exit(char **argv, t_shell_context *sh_ctx);
 int							builtin_echo(char **argv);
 int							builtin_pwd(char **argv, t_shell_context *ctx);
 int							builtin_env(char **argv, t_shell_context *ctx);
@@ -347,23 +343,22 @@ void						set_signal_in_exe_child_process(void);
 
 //// ----- ENVIRONMENT ----- //
 
-t_list						*init_env(char **envp,
-								t_shell_context *shell_context);
+t_list						*init_env(char **envp, t_shell_context *sh_ctx);
 void						print_env(bool export_format,
-								t_shell_context *shell_context);
-char						**build_envp_from_env_list(t_shell_context *shell_context);
+								t_shell_context *sh_ctx);
+char						**build_envp_from_env_list(t_shell_context *sh_ctx);
 
 int							add_new_env_var(t_list **env, const char *name,
 								const char *value, bool exported);
 t_list						*env_node_find(t_list *env, const char *name);
 char						*env_get_value(t_list *env, const char *name);
-int							env_set_value(t_shell_context *shell_context,
+int							env_set_value(t_shell_context *sh_ctx,
 								const char *name, const char *value,
 								bool exported);
-int							env_append_value(t_shell_context *shell_context,
+int							env_append_value(t_shell_context *sh_ctx,
 								const char *name, const char *append_str,
 								bool exported);
-int							env_unset(t_shell_context *shell_context,
+int							env_unset(t_shell_context *sh_ctx,
 								const char *name);
 int							env_mark_exported(t_shell_context *ctx,
 								const char *name);
