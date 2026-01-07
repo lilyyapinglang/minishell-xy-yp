@@ -13,7 +13,7 @@ exported 的意义：
 这个变量是否应该被放进 env_to_char_array() 生成的 envp（传给 execve）。
 */
 
-static t_env_var	*env_var_from_node(t_list *node)
+t_env_var	*env_var_from_node(t_list *node)
 {
 	return ((t_env_var *)node->content);
 }
@@ -86,13 +86,13 @@ int	env_set_value(t_shell_context *sh_ctx, const char *name,
 	char		*old;
 	char		*new_value;
 
-	if (!shell_context || !name || name[0] == '\0')
+	if (!sh_ctx || !name || name[0] == '\0')
 		return (1);
-	node = env_node_find(shell_context->env, name);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&shell_context->env, name, value, exported,
-			shell_context);
+		add_new_env_var(&sh_ctx->env, name, value, exported,
+			sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
@@ -118,10 +118,10 @@ int	env_append_value(t_shell_context *sh_ctx, const char *name,
 	char		*base;
 	char		*new_value;
 
-	node = env_node_find(shell_context->env, name);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&shell_context->env, name, append_str, exported);
+		add_new_env_var(&sh_ctx->env, name, append_str, exported);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
@@ -143,7 +143,7 @@ int	env_unset(t_shell_context *sh_ctx, const char *name)
 	t_list		*env;
 	t_env_var	*env_var;
 
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -151,7 +151,7 @@ int	env_unset(t_shell_context *sh_ctx, const char *name)
 		{
 			// detele this node from lsit
 			// TODO
-			ft_lstdelone(&shell_context->env, free);
+			ft_lstdelone(&sh_ctx->env, free);
 			return (0);
 		}
 		env = env->next;
@@ -170,7 +170,7 @@ char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 
 	count_strs = 0;
 	i = 0;
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -179,7 +179,7 @@ char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 		env = env->next;
 	}
 	envp = malloc(sizeof(char *) * (count_strs + 1)); // garde with malloc_s
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -202,7 +202,7 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 	char	*name_tmp;
 
 	env_list = NULL;
-	if (!shell_context)
+	if (!sh_ctx)
 		return (NULL);
 	while (envp && *envp)
 	{
@@ -211,28 +211,29 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 		{
 			// No '=' -> name only, value NULL
 			// exported=true because it came from envp
-			add_new_env_var(&env_list, *envp, NULL, true, shell_context);
+			add_new_env_var(&env_list, *envp, NULL, true, sh_ctx);
 		}
 		else
 		{
 			// name is left side
+			// TODO: maybe need ft_substr_s
 			name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign - *envp));
 			if (name_tmp)
 			{
 				// value is right side (eq+1)
 				add_new_env_var(&env_list, name_tmp, equal_sign + 1, true,
-					shell_context);
+					sh_ctx);
 				free(name_tmp);
 			}
 		}
 		envp++;
 	}
-	shell_context->env = env_list;
+	sh_ctx->env = env_list;
 	// Recommendation: do NOT cache HOME here (avoids stale cache bugs)
 	// If you insist on caching:
-	// shell_context->home = env_get_value(env_list, "HOME");
+	// sh_ctx->home = env_get_value(env_list, "HOME");
 	if (!env_node_find(env_list, "PATH"))
-		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, shell_context);
+		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, sh_ctx);
 	return (env_list);
 }
 
@@ -240,7 +241,7 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 void	print_env(bool export_format, t_shell_context *sh_ctx)
 {
 	t_env_var *env_var;
-	t_list *env = shell_context->env;
+	t_list *env = sh_ctx->env;
 
 	while (env)
 	{

@@ -147,6 +147,7 @@ void						ft_lstclear(t_list **lst, void (*del)(void *));
 
 int							ft_strcmp(const char *s1, const char *s2);
 ssize_t						ft_write_fd(const char *s, int fd);
+void						free_env_var(void *content);
 
 // -----main-----
 
@@ -270,19 +271,16 @@ typedef enum e_exec_context
 # define WRITE_END 1
 
 // heredocs
-int							collect_all_heredocs(t_ast *node,
+int							collect_all_heredocs(t_ast *root,
 								t_shell_context *sh_ctx);
-int							is_heredoc(t_ast *node,
-								t_shell_context *shell_conetext);
-int							search_for_heredocs_from_this_node(t_ast *node,
-								t_shell_context *shell_conetext);
-char						*get_clean_heredoc_delimiter(const char *raw_delimiter,
-								t_shell_context *shell_conetext);
-char						*trim_delimiter(char *delimiter,
-								t_shell_context *shell_conetext);
-int							read_heredoc_lines(int tmp_file_des,
-								char *delimiter,
-								t_shell_context *shell_conetext);
+
+static int					collect_one_heredoc(t_ast *redir_node,
+								t_shell_context *sh_ctx);
+
+int							read_heredoc_lines(int fd, const char *delimiter,
+								t_shell_context *sh_ctx);
+char						*heredoc_delimiter_strip(const char *raw,
+								t_shell_context *sh_ctx);
 
 // executor
 int							execute(t_ast *node,
@@ -362,9 +360,10 @@ int							env_unset(t_shell_context *sh_ctx,
 								const char *name);
 int							env_mark_exported(t_shell_context *ctx,
 								const char *name);
+t_env_var	*env_var_from_node(t_list *node);
 
-//---test
-t_ast_command				*build_fake_cmd_table_for_tests(void);
+	//---test
+	t_ast_command *build_fake_cmd_table_for_tests(void);
 # define DEFAULT_PATH \
 	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
 :/usr/local/sbin:/opt/bin:/opt/sbin"

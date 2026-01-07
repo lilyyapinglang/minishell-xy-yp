@@ -13,73 +13,106 @@ stateful builtin → 不能 fork
 stateless builtin → 可 fork 可不 fork**
 */
 
-void	free_envp(char **envp)
+void free_envp(char **envp)
 {
-	int	i;
-
-	i = 0;
-	if (!envp)
-		return ;
-	while (envp[i])
-		free(envp[i++]);
-	free(envp);
+    int i = 0;
+    if (!envp) return;
+    while (envp[i]) free(envp[i++]);
+    free(envp);
 }
 
-char	**env_list_to_envp(t_list *env_list)
+char **env_list_to_envp(t_list *env_list)
 {
-	int			count;
-	int			i;
-	t_list		*node;
-	t_env_var	*ev;
-	char		**envp;
-	const char	*val = ev->value ? ev->value : "";
-	size_t		name_len;
-	size_t		val_len;
+    int count = 0;
+    int i = 0;
+    t_list *node;
+    t_env_var *ev;
+    char **envp;
 
-	count = 0;
-	i = 0;
-	/* 1) count exported */
-	node = env_list;
-	while (node)
-	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
-			count++;
-		node = node->next;
-	}
-	envp = malloc(sizeof(char *) * (count + 1));
-	if (!envp)
-		return (NULL);
-	/* 2) build envp */
-	node = env_list;
-	while (node)
-	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
-		{
-			name_len = ft_strlen(ev->name);
-			val_len = ft_strlen(val);
-			envp[i] = malloc(name_len + 1 + val_len + 1);
-			if (!envp[i])
-			{
-				/* rollback */
-				while (i > 0)
-					free(envp[--i]);
-				free(envp);
-				return (NULL);
-			}
-			ft_memcpy(envp[i], ev->name, name_len);
-			envp[i][name_len] = '=';
-			ft_memcpy(envp[i] + name_len + 1, val, val_len);
-			envp[i][name_len + 1 + val_len] = '\0';
-			i++;
-		}
-		node = node->next;
-	}
-	envp[i] = NULL;
-	return (envp);
+    /* 1) count exported */
+    node = env_list;
+    while (node)
+    {
+        ev = env_var_from_node(node);
+        if (ev && ev->exported && ev->name)
+            count++;
+        node = node->next;
+    }
+
+    envp = malloc(sizeof(char *) * (count + 1));
+    if (!envp)
+        return NULL;
+
+    /* 2) build envp */
+    node = env_list;
+    while (node)
+    {
+        ev = env_var_from_node(node);
+        if (ev && ev->exported && ev->name)
+        {
+            const char *val = ev->value ? ev->value : "";
+            size_t name_len = ft_strlen(ev->name);
+            size_t val_len = ft_strlen(val);
+
+            envp[i] = malloc(name_len + 1 + val_len + 1);
+            if (!envp[i])
+            {
+                /* rollback */
+                while (i > 0)
+                    free(envp[--i]);
+                free(envp);
+                return NULL;
+            }
+            ft_memcpy(envp[i], ev->name, name_len);
+            envp[i][name_len] = '=';
+            ft_memcpy(envp[i] + name_len + 1, val, val_len);
+            envp[i][name_len + 1 + val_len] = '\0';
+            i++;
+        }
+        node = node->next;
+    }
+    envp[i] = NULL;
+    return envp;
 }
+// char	**env_list_to_envp(t_list *env)
+// {
+// 	int			count;
+// 	t_env_var	*tmp;
+// 	char		**envp;
+// 	int			i;
+// 	char		*value;
 
+// 	count = 0;
+// 	tmp = env;
+// 	// Count how many env variables you have
+// 	while (tmp)
+// 	{
+// 		count++;
+// 		tmp = tmp->next;
+// 	}
+// 	envp = malloc(sizeof(char *) * (count + 1));
+// 	if (!envp)
+// 		return (NULL);
+// 	tmp = env;
+// 	i = 0;
+// 	while (tmp)
+// 	{
+// 		value = tmp->value ? tmp->value : "";
+// 		int len = strlen(tmp->key) + strlen(tmp->value) + 2; // '=' + '\0'
+// 		// TODO:free till envp free_envp(i);
+// 		envp[i] = malloc(len); //
+// 		// TODO:
+// 		// sprintf(envp[i], "%s=%s", tmp->key, tmp->value);
+// 		ft_putstr_fd(tmp->name);
+// 		ft_putstr_fd("=");
+// 		ft_putstr_fd(tmp->value);
+// 		ft_putstr_fd("\n");
+// 		i++;
+// 		tmp = tmp->next;
+// 	}
+// 	envp[i] = NULL;
+// 	return (envp);
+// }
 char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 {
 	char		**dirs;
@@ -117,18 +150,8 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 	while (*dirs)
 	{
 		mid_path = ft_strjoin(*dirs, "/");
-		if (!mid_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
 		full_path = ft_strjoin(mid_path, cmd);
 		free(mid_path);
-		if (!full_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
 		// check for execution permission
 		if (access(full_path, X_OK) == 0)
 		{
@@ -158,15 +181,16 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	{
 		// permission denied
 		// the direcotry
-		path = cmd->args[0];
 		if (stat(cmd->args[0], &st) == -1)
 		{
 			path = cmd->args[0];
 			if (errno == ENOENT)
-				return (print_errno_n_return(127, cmd->args[0], NULL, errno));
+				return (print_errno_n_return(127, cmd, cmd->args[0], NULL,
+						errno));
 			if (errno == EACCES)
-				return (print_errno_n_return(126, cmd->args[0], NULL, errno));
-			return (print_errno_n_return(126, cmd->args[0], NULL, errno));
+				return (print_errno_n_return(126, cmd, cmd->args[0], NULL,
+						errno));
+			return (print_errno_n_return(126, cmd, cmd->args[0], NULL, errno));
 		}
 		if (S_ISDIR(st.st_mode))
 			return (print_msg_n_return(126, path, NULL, "Is a directory"));
@@ -178,8 +202,7 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	{
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
 		if (!path)
-			return (print_msg_n_return(127, cmd->args[0], NULL,
-					"command not found"));
+			return (print_msg_n_return(127, cmd->args[0], NULL, "command not found"));
 	}
 	envp = env_list_to_envp(sh_ctx->env);
 	if (!envp)
@@ -256,9 +279,8 @@ int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
 		sh_ctx->in_main_process = false;
 		set_signal_child_process();
 		/// reuse run in child logic
-		// status = execute(node, RUN_IN_CHILD, sh_ctx);
-		execute(node, RUN_IN_CHILD, sh_ctx);
-		exit(sh->last_status); // should be unreachable, safety net
+		status = execute(node, RUN_IN_CHILD, sh_ctx);
+		// exit(status);
 	}
 	while (waitpid(pid, &wait_status, 0) == -1)
 	{

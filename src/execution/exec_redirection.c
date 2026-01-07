@@ -5,11 +5,12 @@
 // void	apply_all_redirs(t_cmd *cmd);
 #include "../inc/minishell.h"
 
-int	execute_redirection(t_ast_redirection *redir_node,
-		t_shell_context *shell_conetext)
+int	execute_redirection(t_ast *node, t_shell_context *shell_conetext)
 {
-	int	status;
+	int					status;
+	t_ast_redirection	*redir_node;
 
+	redir_node = node->u_data.redirection;
 	status = 1;
 	if (redir_node->redir_type == TK_REDIRECT_IN
 		|| redir_node->redir_type == TK_HEREDOC)

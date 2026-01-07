@@ -8,11 +8,13 @@
 
 */
 
-int	execute_logical(t_ast_logical *logical_node, t_shell shell)
+int	execute_logical(t_ast *node, t_shell shell)
 {
-	int	left_status;
-	int	right_status;
+	int				left_status;
+	int				right_status;
+	t_ast_logical	*logical_node;
 
+	logical_node = node->u_data.logical;
 	left_status = execute(logical_node->left, RUN_IN_SHELL, shell);
 	shell.last_status = left_status;
 	if (logical_node->operator= TK_AND)

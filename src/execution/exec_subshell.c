@@ -42,7 +42,7 @@ void	report_child_termination_signal(int wait_status, bool *new_line_existed,
 	if (!WIFSIGNALED(wait_status))
 		return ;
 	signal_num = WTERMSIG(wait_status);
-	//如果是 SIGQUIT，打印一条 Quit 信息
+	// 如果是 SIGQUIT，打印一条 Quit 信息
 	/*
 	对 SIGINT / SIGQUIT 补一个换行，并确保只补一次
 	SIGINT（Ctrl-C）和 SIGQUIT（Ctrl-\）经常会让终端光标停在一行中间，为了让 prompt 下一行显示干净，shell 通常会补一个 \n。
@@ -65,11 +65,13 @@ void	report_child_termination_signal(int wait_status, bool *new_line_existed,
 		write(STDERR_FILENO, "\n", 1);
 }
 
-int	execute_subshell(t_ast_subshell *subshell_node, t_shell_context *shell_conetext)
+int	execute_subshell(t_ast *node, t_shell_context *shell_conetext)
 {
-	pid_t	pid;
-	int		status;
+	pid_t			pid;
+	int				status;
+	t_ast_subshell	*subshell_node;
 
+	subshell_node = node->u_data.subshell;
 	pid = fork(); // fork parent process
 	// child porcess execute
 	if (pid < 0)

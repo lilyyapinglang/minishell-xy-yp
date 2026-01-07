@@ -1,20 +1,77 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   collect_heredoc.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
+/*   Updated: 2026/01/07 19:08:02 by lilypad          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 
-/* heredoc_traversal.c */
-int			collect_all_heredocs(t_ast *root, t_shell_context *sc);
 
-/* heredoc_node.c */
-static int	collect_one_heredoc(t_ast *redir_node, t_shell_context *sc);
+int			collect_all_heredocs(t_ast *root, t_shell_context *sh_ctx);
 
-/* heredoc_read.c */
+
+static int	collect_one_heredoc(t_ast *redir_node, t_shell_context *sh_ctx);
+
+
 int			read_heredoc_lines(int fd, const char *delimiter,
-				t_shell_context *sc);
+				t_shell_context *sh_ctx);
+char		*heredoc_delimiter_strip(const char *raw, t_shell_context *sh_ctx);
 
-/* heredoc_delimiter.c */
-char		*heredoc_delimiter_strip(const char *raw, t_shell_context *sc);
 
-/* ast_predicates.c */
-bool		ast_node_is_heredoc(const t_ast *node);
+
+/*a function to readline read input from terminal heredoc line by line to terminal
+finish read, close the tmp file desciption
+*/
+
+int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
+		t_shell_context *sh_ctx)
+{
+	char	*line;
+
+	(void)sh_ctx;
+	g_latest_signal_status = 0;
+	while (1)
+	{
+		// i need to know if it is main prompt or if is heredoc prompt,
+		line = prompt_listener(HEREDOC_PROMPT);
+		/* Ctrl-C: abort heredoc AND cancel whole command line */
+		/*  FIRST: did Ctrl-C happen? */
+		if (g_latest_signal_status == SIGINT)
+		{
+			if (line)
+				free(line);
+			return (130);
+		}
+		/* EOF: stop heredoc early (optional warning) */
+		/*  SECOND: did we hit EOF (Ctrl-D)? */
+		if (!line)
+		{
+			// errno("error collecting ");
+			return (EXIT_SUCCESS);
+		}
+		/* THIRD: delimiter match */
+		if (ft_strcmp(line, delimiter) == 0)
+		{
+			free(line);
+			return (EXIT_SUCCESS);
+		}
+		/* LAST: write content */
+		if (write(tmp_file_des, line, ft_strlen(line)) == -1
+			|| write(tmp_file_des, "\n", 1) == -1)
+		{
+			free(line);
+			return (EXIT_FAILURE);
+		}
+		free(line);
+	}
+}
+
 
 /*
 cat << EOF
@@ -39,15 +96,18 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	raw_delim = node->u_data.redirection.file_path;
 	clean_delim = heredoc_delimiter_strip(raw_delim, NULL, sh_ctx);
 	if (!clean_delim)
-		return (1);
+		return (EXIT_FAILURE);
 	/* build /tmp/minishell_heredoc_N */
+	// TODO: ft_itoa_s?
 	suffix = ft_itoa(ft_lstsize(sh_ctx->temporary_files));
 	if (!suffix)
 		return (free(clean_delim), 1);
+	// TODO: ft_strjoin_s?
 	tmp_name = ft_strjoin("/tmp/minishell_heredoc_", suffix);
 	free(suffix);
 	if (!tmp_name)
 		return (free(clean_delim), 1);
+	// TODO: open_s?
 	fd = open(tmp_name, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	if (fd == -1)
 		return (free(clean_delim), free(tmp_name), 1);
@@ -72,6 +132,7 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	return (EXIT_SUCCESS);
 }
 
+/*scan from root to collect heredocs */
 int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 {
 	int	status;
@@ -171,49 +232,4 @@ char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
 	out[o] = '\0';
 	return (out);
 }
-/*a function to readline read input from terminal heredoc line by line to terminal
-finish read, close the tmp file desciption
-*/
 
-int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
-		t_shell_context *shell_conetext)
-{
-	char	*line;
-
-	(void)shell_conetext;
-	g_latest_signal_status = 0;
-	while (1)
-	{
-		// i need to know if it is main prompt or if is heredoc prompt,
-		line = prompt_listener(HEREDOC_PROMPT);
-		/* Ctrl-C: abort heredoc AND cancel whole command line */
-		/*  FIRST: did Ctrl-C happen? */
-		if (g_latest_signal_status == SIGINT)
-		{
-			if (line)
-				free(line);
-			return (130);
-		}
-		/* EOF: stop heredoc early (optional warning) */
-		/*  SECOND: did we hit EOF (Ctrl-D)? */
-		if (!line)
-		{
-			// errno("error collecting ");
-			return (EXIT_SUCCESS);
-		}
-		/* THIRD: delimiter match */
-		if (ft_strcmp(line, delimiter) == 0)
-		{
-			free(line);
-			return (EXIT_SUCCESS);
-		}
-		/* LAST: write content */
-		if (write(tmp_file_des, line, ft_strlen(line)) == -1
-			|| write(tmp_file_des, "\n", 1) == -1)
-		{
-			free(line);
-			return (EXIT_FAILURE);
-		}
-		free(line);
-	}
-}

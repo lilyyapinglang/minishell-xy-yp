@@ -27,23 +27,16 @@ bash: syntax error near unexpected token '|'
 
 static void	put_raw(const char *str)
 {
-	if (!str)
-		return ;
-	ft_putstr_fd(str, STDERR_FILENO);
+	if (str && *str)
+		ft_putstr_fd(str, STDERR_FILENO);
 }
-static void	put_segment(const *str)
+static void	put_segment(const char *str)
 {
-	if (str & *str)
+	if (str && *str)
 	{
 		put_raw(str);
 		put_raw(": ");
 	}
-	put_raw("", STDERR_FILENO);
-}
-
-void	warn_errno(const char *cmd, const char *arg, int errnum)
-{
-	print_error(cmd, arg, strerror(errnum));
 }
 
 /*
@@ -59,32 +52,58 @@ static void	print_error(const char *cmd, const char *arg, const char *msg)
 	put_raw(msg ? msg : "");
 	put_raw("\n");
 }
-/*4 types of public APIs */
-/*non fatal error, print and return exit failure to uppser level*/
 
-int	print__errno_n_return(const char *cmd, const char *arg, int errnum)
+/*
+** minishell: [cmd: ] [arg: ] message\n
+*/
+static void	print_error(const char *cmd, const char *arg, const char *msg)
+{
+	put_raw(SHELL_NAME);
+	put_raw(": ");
+	put_segment(cmd);
+	put_segment(arg);
+	put_raw(msg ? msg : "");
+	put_raw("\n");
+}
+
+/* ---------------- public: print only (optional) ---------------- */
+
+void	print_errno(const char *cmd, const char *arg, int errnum)
 {
 	print_error(cmd, arg, strerror(errnum));
-	return (EXIT_FAILURE);
 }
 
-int	print_err_msg_n_return(const char *cmd, const char *arg, const char *msg)
+void	print_msg(const char *cmd, const char *arg, const char *msg)
 {
 	print_error(cmd, arg, msg);
-	return (EXIT_FAILURE);
 }
-/*fatal error, print, clean up , exit current process / quit shell  */
 
-void	fatal_errno_quit(t_shell_context *sh_ctx, int exit_status,
+/* ---------------- public: print + return(code) ---------------- */
+
+int	print_errno_n_return(int code, const char *cmd, const char *arg, int errnum)
+{
+	print_error(cmd, arg, strerror(errnum));
+	return (code);
+}
+
+int	print_msg_n_return(int code, const char *cmd, const char *arg, const char *msg)
+{
+	print_error(cmd, arg, msg);
+	return (code);
+}
+
+/* ---------------- public: fatal in shell (rare) ---------------- */
+
+void	fatal_errno_shell_quit(t_shell_context *sh_ctx, int code,
 		const char *cmd, const char *arg, int errnum)
 {
 	print_error(cmd, arg, strerror(errnum));
-	quit_shell(exit_status, shell_context);
+	quit_shell(code, sh_ctx);
 }
 
-void	fatal_err_msg_quit(t_shell_context *sh_ctx, int exit_status,
+void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code,
 		const char *cmd, const char *arg, const char *msg)
 {
 	print_error(cmd, arg, msg);
-	quit_shell(exit_status, shell_context);
+	quit_shell(code, sh_ctx);
 }
