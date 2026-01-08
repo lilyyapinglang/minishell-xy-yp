@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+         #
+#    By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/30 16:06:25 by xuewang           #+#    #+#              #
-#    Updated: 2025/12/30 19:32:41 by xuewang          ###   ########.fr        #
+#    Updated: 2026/01/09 01:52:39 by lilypad          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -81,7 +81,7 @@ $(LIBFT):
 
 %.o: %.c
 	@echo "Compiling $<..."
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 val: $(NAME)
 	@if ! [ -f "ignore.supp" ]; then make ignore; fi
@@ -90,11 +90,13 @@ val: $(NAME)
 clean:
 	@echo "$(YELLOW)Removing object files...$(RESET)"
 	@rm -f $(OBJS)
+	@$(MAKE) -C $(LIBFT_DIR) clean
 	@echo "$(GREEN)Clean complete!$(RESET)"
 
 fclean: clean
 	@echo "$(YELLOW)Removing $(NAME)...$(RESET)"
 	@rm -f $(NAME)
+	@$(MAKE) -C $(LIBFT_DIR) fclean
 	@echo "$(GREEN)Full clean complete!$(RESET)"
 
 re: fclean all
