@@ -1,2 +1,8 @@
-dup2_s(prev_read_end, STDIN_FILENO, sh_ctx);
-		close_s(prev_read_end, sh_ctx);
+#include "../inc/minishell.h"
+
+void	dup2_s(int fd1, int fd2, t_shell_context *sh_ctx)
+{
+}
+void	close_s(int fd, t_shell_context *sh_ctx)
+{
+}

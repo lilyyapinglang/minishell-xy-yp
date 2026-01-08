@@ -55,7 +55,7 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 {
 	// record that sigint happened， this change is to be consumed by main process
 	// which is actaully quite current cmd and return to shell.
-	void(sig_num);
+	(void)sig_num;
 	g_latest_signal_status = SIGINT;
 	// change to new line because it's ugly to start new prompt on the same line
 	// write is signal safe

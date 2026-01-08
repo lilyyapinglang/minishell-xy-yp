@@ -35,9 +35,13 @@ SRCS_LEXER	= src/lexer/lexer.c \
 
 SRCS_PARSER	= src/parser/parser.c \
 			  src/parser/parser_utils.c \
-			  src/parser/command_builder.c \
-			  src/parser/redirect_parser.c \
-			  src/parser/syntax_checker.c
+			  src/parser/parser_tk_type.c \
+			  src/parser/parser_sub.c \
+			  src/parser/parser_redir.c \
+			  src/parser/parser_redir_next.c \
+			  src/parser/parser_build_node.c \
+			  src/parser/parser_test.c \
+			  src/parser/parser_basic_act.c
 
 SRCS_EXPAND	= src/expander/expander.c \
 			  src/expander/variable_expand.c \
@@ -68,7 +72,7 @@ SRCS_EXECUTION = src/execution/collect_heredoc.c \
 				src/execution/exec_subshell.c\
 				src/execution/executor.c
 
-SRCS_SIGNALS =  src/signal/set_signal_handlers_to_mode.c
+SRCS_SIGNALS =  src/signals/set_signal_handlers_to_mode.c
 
 SRCS_UTILS = src/utils/error_exe.c\
 				src/utils/ft_list_ops.c\
@@ -134,7 +138,7 @@ check-src:
 	@for f in $(SRCS); do \
 		test -f $$f || echo "Missing source: $$f"; \
 	done
-	
+
 re: fclean all
 
 .PHONY: all clean fclean re

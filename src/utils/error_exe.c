@@ -28,7 +28,7 @@ bash: syntax error near unexpected token '|'
 static void	put_raw(const char *str)
 {
 	if (str && *str)
-		ft_putstr_fd(str, STDERR_FILENO);
+		ft_putstr_fd((char *)str, STDERR_FILENO);
 }
 static void	put_segment(const char *str)
 {
@@ -42,19 +42,6 @@ static void	put_segment(const char *str)
 /*
 ** Bash-like format:
 ** minishell : [cmd: ] [arg:] message \n
-*/
-static void	print_error(const char *cmd, const char *arg, const char *msg)
-{
-	put_raw(SHELL_NAME);
-	put_raw(": ");
-	put_segment(cmd);
-	put_segment(arg);
-	put_raw(msg ? msg : "");
-	put_raw("\n");
-}
-
-/*
-** minishell: [cmd: ] [arg: ] message\n
 */
 static void	print_error(const char *cmd, const char *arg, const char *msg)
 {
@@ -86,7 +73,8 @@ int	print_errno_n_return(int code, const char *cmd, const char *arg, int errnum)
 	return (code);
 }
 
-int	print_msg_n_return(int code, const char *cmd, const char *arg, const char *msg)
+int	print_msg_n_return(int code, const char *cmd, const char *arg,
+		const char *msg)
 {
 	print_error(cmd, arg, msg);
 	return (code);
@@ -98,12 +86,12 @@ void	fatal_errno_shell_quit(t_shell_context *sh_ctx, int code,
 		const char *cmd, const char *arg, int errnum)
 {
 	print_error(cmd, arg, strerror(errnum));
-	shell_exit(code, sh_ctx);
+	shell_exit(sh_ctx, code);
 }
 
-void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code,
-		const char *cmd, const char *arg, const char *msg)
+void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code, const char *cmd,
+		const char *arg, const char *msg)
 {
 	print_error(cmd, arg, msg);
-	shell_exit(code, sh_ctx);
+	shell_exit(sh_ctx, code);
 }

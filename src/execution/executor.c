@@ -27,7 +27,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	int status;
 	status = EXIT_SUCCESS;
 	if (!node)
-        return finalize_status(0, ctx, sh);
+		return (finalize_status(0, execution_context, sh_ctx));
 
 	// 1. only ast_redirection and ast_commdn that actully has content *file and **argv to expand
 	// 2. Other types logicla, pipeline, subshell are just structure ,
@@ -50,7 +50,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	if (node->type == AST_LOGICAL)
 		// status = execute_logical(&(node->u_data.logical), execution_context,
 		// 		sh_ctx);
-		status = execute_logical(node, execution_context, sh_ctx);
+		status = execute_logical(node, sh_ctx);
 	/*
 	typedef struct s_ast_pipeline
 	{
@@ -95,7 +95,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 		// 		sh_ctx);
 		status = execute_command(node, execution_context, sh_ctx);
 	else
-		return (print_err_msg_n_return("execute", NULL, "illegal node type"));
+		return (print_msg_n_return(1, "execute", NULL, "illegal node type"));
 	// should I exit current exection or should i return to main shell prompt
 	// if corrent exection is meanted to be exited, quit this shell
 	// if (exit_or_return == EXITAFTEREXE)

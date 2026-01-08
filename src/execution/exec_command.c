@@ -219,29 +219,23 @@ void	report_child_termination_signal(int wait_status, const char *cmd_name,
 	int	sig;
 
 	(void)cmd_name;
-	// Optional: only print in interactive main shell
-	// If you have a flag like ctx->in_main_process / ctx->interactive:
+	// only parent / interactive shell should print
 	if (ctx && ctx->in_main_process == false)
 		return ;
 	if (!WIFSIGNALED(wait_status))
 		return ;
 	sig = WTERMSIG(wait_status);
 	if (sig == SIGINT)
-	{
-		// bash prints a newline when foreground job is interrupted
 		ft_putstr_fd("\n", STDERR_FILENO);
-	}
 	else if (sig == SIGQUIT)
 	{
-		// Many minishell projects expect at least "Quit\n".
-		// bash often prints "Quit (core dumped)\n" if a core is produced.
 #ifdef WCOREDUMP
 		if (WCOREDUMP(wait_status))
 			ft_putstr_fd("Quit (core dumped)\n", STDERR_FILENO);
 		else
 			ft_putstr_fd("Quit\n", STDERR_FILENO);
 #else
-		put_str(STDERR_FILENO, "Quit\n");
+		ft_putstr_fd("Quit\n", STDERR_FILENO);
 #endif
 	}
 }

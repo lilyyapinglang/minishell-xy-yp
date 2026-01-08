@@ -19,10 +19,12 @@ execute_pipeline(...)        // 处理 AST_PIPELINE
 
 // always build from right side
 // ((A|B)|C) - > [A, B,C]
-t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *sh_ctx)
+t_list	*build_cmd_list(t_ast *node, t_shell_context *sh_ctx)
 {
-	t_ast_pipeline	*pipeline_list;
+	t_list	*pipeline_list;
 
+	// t_ast_pipeline	*pipeline_list;
+	;
 	// 把树压平到一个CMD list
 	pipeline_list = NULL;
 	while (node->type == AST_PIPELINE)
@@ -33,7 +35,8 @@ t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *sh_ctx)
 			node = node->u_data.pipeline.left;
 		else
 		{
-			lst_add_front_s(node->u_data.pipeline.left, &pipeline_list, sh_ctx);
+			lst_add_front_s(node->u_data.pipeline.left, &pipeline_list,
+				ALLOC_PROMPT, sh_ctx);
 			break ;
 			//? ?
 		}
@@ -58,12 +61,15 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 	// if not the first cmd
 	if (prev_read_end != -1)
 	{
-		dup2_s(prev_read_end, STDIN_FILENO, sh_ctx);
-		close_s(prev_read_end, sh_ctx);
+		// dup2_s(prev_read_end, STDIN_FILENO, sh_ctx);
+		// close_s(prev_read_end, sh_ctx);
+		dup2(prev_read_end, STDIN_FILENO);
+		close(prev_read_end);
 	}
 	// if not the last
 	if (pipeline->next != NULL)
-		dup2_s(pipe[WRITE_END], STDOUT_FILENO, sh_ctx);
+		// dup2_s(pipe[WRITE_END], STDOUT_FILENO, sh_ctx);
+		dup2(pipe[WRITE_END], STDOUT_FILENO);
 	if (pipe[READ_END] != -1)
 		close(pipe[READ_END]);
 	if (pipe[WRITE_END] != -1)
@@ -80,9 +86,9 @@ int	wait_for_children(pid_t last_pid, int count_pipeline,
 	pid_t	child_pid;
 	int		status;
 	int		last_cmd_status;
-	bool	new_line;
 
-	new_line = false;
+	// bool	new_line;
+	// new_line = false;
 	last_cmd_status = 0;
 	while (count_pipeline > 0)
 	{
@@ -101,7 +107,8 @@ int	wait_for_children(pid_t last_pid, int count_pipeline,
 		if (child_pid == last_pid)
 		{
 			// only do ui output to the last cmd
-			report_child_termination_signal(status, &new_line, sh_ctx);
+			// report_child_termination_signal(status, &new_line, sh_ctx);
+			report_child_termination_signal(status, NULL, sh_ctx);
 			// pipeline &? last cmd exit code
 			last_cmd_status = wait_status_to_shell_status(status);
 			// ui output ()
@@ -154,8 +161,8 @@ int	execute_pipeline_commands(t_list *pipeline, t_shell_context *sh_ctx)
 
 int	execute_pipeline(t_ast *pipeline_node, t_shell_context *sh_ctx)
 {
-	t_ast_pipeline *pipeline;
-
+	// t_ast_pipeline *pipeline;
+	t_list *pipeline;
 	pipeline = build_cmd_list(pipeline_node, sh_ctx);
 	return (execute_pipeline_commands(pipeline, sh_ctx));
 }

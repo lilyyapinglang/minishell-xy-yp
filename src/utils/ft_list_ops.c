@@ -16,18 +16,18 @@ t_list	*ft_lstnew(void *content)
 }
 // add node to the front
 // TODO
-void	ft_lstadd_front(t_list **lst, t_list *new);
-{
-	(void)list;
-	(void)new;
-}
+// void	ft_lstadd_front(t_list **lst, t_list *new);
+// {
+// 	(void)list;
+// 	(void)new;
+// }
 
 // get list size
 // TODO
-int	ft_lstsize(t_list *list)
-{
-	return (1);
-}
+// int	ft_lstsize(t_list *list)
+// {
+// 	return (1);
+// }
 // add node to the back
 void	ft_lstadd_back(t_list **lst, t_list *new)
 {
@@ -51,13 +51,13 @@ void	del(void)
 }
 // delete one node
 // TODO
-void	ft_lstdelone(t_list *lst, void (*del)(void *));
-{
-	(void)lst;
-}
+// void	ft_lstdelone(t_list *lst, void (*del)(void *));
+// {
+// 	(void)lst;
+// }
 // delete entire list
 // TODO
-void	ft_lstclear(t_list **lst, void (*del)(void *));
-{
-	(void)lst;
-}
+// void	ft_lstclear(t_list **lst, void (*del)(void *));
+// {
+// 	(void)lst;
+// }
