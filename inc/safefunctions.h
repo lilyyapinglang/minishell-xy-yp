@@ -1,11 +1,12 @@
 #ifndef SAFEFUNCTIONS_H
 # define SAFEFUNCTIONS_H
 
+# include "list.h"
 # include "minishell.h"
 # include "parse.h"
+# include "tracking.h"
 # include <stdbool.h>
-typedef struct s_list			t_list;
-typedef enum e_tracking_scope	t_tracking_scope;
+
 typedef struct s_shell_context	t_shell_context;
 /*libft functions*/
 
@@ -47,5 +48,6 @@ void							remove_list_node(t_list **node, t_list **head,
 
 /*secure libft*/
 char							*strdup_s(char const *str1,
-									t_tracking_scope scope, t_shell_context *sh_ctx);
+									t_tracking_scope scope,
+									t_shell_context *sh_ctx);
 #endif

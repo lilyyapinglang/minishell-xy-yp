@@ -2,13 +2,12 @@
 # define MINISHELLPARSE_H
 
 # include "../lib/ft_printf/ft_printf.h"
+# include "list.h"
 # include "minishell.h"
 # include "parse.h"
 # include "safefunctions.h"
 # include <errno.h>
 # include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
 # include <signal.h>
 # include <stdbool.h>
 # include <stddef.h>
@@ -19,16 +18,15 @@
 # include <sys/wait.h>
 # include <termios.h>
 # include <unistd.h>
-
 # define PROMPT "minishell$ "
 # define ERROR_PROMPT "minishell: "
 
-typedef struct s_list
-{
-	void *content;       // user-owned data
-	struct s_list *next; // next node
-	struct s_list *prev; // previous node
-}							t_list;
+// typedef struct s_list
+// {
+// 	void *content;       // user-owned data
+// 	struct s_list *next; // next node
+// 	struct s_list *prev; // previous node
+// }							t_list;
 
 typedef struct s_shell_context
 {

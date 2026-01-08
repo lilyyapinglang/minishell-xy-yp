@@ -1,4 +1,6 @@
 #include "../inc/minishell.h"
+#include <readline/history.h>
+#include <readline/readline.h>
 
 /*non interactive input handler for testing purpose*/
 // TODO:
@@ -86,7 +88,6 @@ int	shell_repl_loop(t_shell_context *sh_ctx)
 		/* Ctrl-D / EOF , user_input == NULL */
 		if (!user_intput)
 			shell_exit(sh_ctx, sh_ctx->last_status);
-
 		/*normal line */
 		track_alloc(user_intput, ALLOC_PROMPT, sh_ctx);
 		if (user_intput[0] != '\0')
@@ -98,5 +99,3 @@ int	shell_repl_loop(t_shell_context *sh_ctx)
 	}
 	return (sh_ctx->last_status);
 }
-
-

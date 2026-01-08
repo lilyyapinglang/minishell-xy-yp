@@ -3,20 +3,14 @@
 
 // define a comman table as a result of parsing and as a execution plan for execution
 # include "../lib/ft_printf/ft_printf.h"
-typedef enum e_tracking_scope
-{
-	ALLOC_UNTRACKED, // not tracked; freed manually
-	ALLOC_SHELL,     // lifetime: whole shell
-	ALLOC_PROMPT     // lifetime: one REPL iteration / one command line
-}								t_tracking_scope;
-
+#include"list.h"
+#include "tracking.h"
 # include "expander.h"
 # include "parse.h"
 # include "safefunctions.h"
 # include <errno.h>
 # include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
+
 # include <signal.h>
 # include <stdbool.h>
 # include <stddef.h>
@@ -29,7 +23,7 @@ typedef enum e_tracking_scope
 # include <termios.h>
 # include <unistd.h>
 
-# define PROMPT "minishell$ "
+# define M_PROMPT "minishell$ "
 # define ERROR_PROMPT "minishell: "
 
 typedef struct s_ast			t_ast;
@@ -88,29 +82,6 @@ typedef struct s_env_var
 // 	// exit status of the last executed command ($?)
 // }						t_shell_context;
 
-/**
- * Allocation tracking group.
- *
- * ALLOC_UNTRACKED:
- *   Allocation is NOT added to allocated_pointers[]. owned elsewhere
- *   Caller (or another owner container like env list) must free it manually.
- * 		memory is owned and freed by the data structure (env, etc.)
- *
- * ALLOC_SHELL:
- *   shell-lifetime allocations freed once in quit_shell()
- *
- * ALLOC_PROMPT:
- *   Freed at the end of each prompt/command loop (clear_prompt()).
- *
- * Never track memory that is freed manually.
- */
-
-// typedef enum e_tracking_scope
-// {
-// 	ALLOC_UNTRACKED, // not tracked; freed manually
-// 	ALLOC_SHELL,     // lifetime: whole shell
-// 	ALLOC_PROMPT     // lifetime: one REPL iteration / one command line
-// }								t_tracking_scope;
 
 typedef enum s_prompt_mode
 {
