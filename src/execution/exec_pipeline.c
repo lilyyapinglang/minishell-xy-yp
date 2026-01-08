@@ -16,22 +16,10 @@ execute_pipeline(...)        // 处理 AST_PIPELINE
  └─ wait_for_pipeline_children(stage_count)
 
 */
-int	execute_pipeline(t_ast *pipeline_node, t_shell_context *shell_conetext)
-{
-	t_ast_pipeline	*pipeline;
-
-	pipeline = build_cmd_list(pipeline_node, shell);
-	return (execute_pipeline_commands(pipeline, shell));
-}
-
-// add a note to the front of a list
-t_list			*ft_listadd_front(t_list **lst, t_list new_node);
-{
-}
 
 // always build from right side
 // ((A|B)|C) - > [A, B,C]
-t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *shell_conetext)
+t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *sh_ctx)
 {
 	t_ast_pipeline	*pipeline_list;
 
@@ -39,12 +27,13 @@ t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *shell_conetext)
 	pipeline_list = NULL;
 	while (node->type == AST_PIPELINE)
 	{
-		ft_list_add_front(node->u_data.pipeline.right, &pipeline_list);
+		lst_add_front_s(node->u_data.pipeline.right, &pipeline_list,
+			ALLOC_PROMPT, sh_ctx);
 		if (node->u_data.pipeline.left->type == AST_PIPELINE)
 			node = node->u_data.pipeline.left;
 		else
 		{
-			ft_listadd_front(node->u_data.pipeline.left, &pipeline_list);
+			lst_add_front_s(node->u_data.pipeline.left, &pipeline_list, sh_ctx);
 			break ;
 			//? ?
 		}
@@ -52,50 +41,8 @@ t_ast_pipeline	*build_cmd_list(t_ast *node, t_shell_context *shell_conetext)
 	return (pipeline_list);
 }
 
-int	execute_pipeline_commands(t_list *pipeline, t_shell_context *shell_conetext)
-{
-	int		fd[2];
-	int		prev_read_end;
-	pid_t	last_pid;
-	int		last_cmd_status;
-	int		pipeline_count;
-	bool	has_next;
-
-	pipeline_count = ft_lstsize(pipeline);
-	//
-	last_pid = 0;
-	prev_read_end = -1;
-	while (pipeline)
-	{
-		has_next = (pipeline->next != NULL);
-		if (has_next && pipe(fd) < 0)
-			return (1);
-		// last cmd
-		if (!has_next)
-		{
-			fd[READ_END] = -1;
-			fd[WRITE_END] = -1;
-		}
-		last_pid = execute_one_command(pipeline, prev_read_end, fd, shell);
-		// parent closes
-		if (prev_read_end != -1)
-			close(prev_read_end);
-		if (has_next)
-			close(fd[WRITE_END]); // close write end in parent
-		if (has_next)
-			prev_read_end = fd[READ_END];
-		else
-			prev_read_end = -1;
-		pipeline = pipeline->next;
-	}
-	if (prev_read_end != -1)
-		close(prev_read_end);
-	last_cmd_status = wait_for_children(last_pid, pipeline_count, shell);
-	return (last_cmd_status);
-}
-
 int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
-		t_shell_context *shell_conetext)
+		t_shell_context *sh_ctx)
 {
 	pid_t	pid;
 	int		status;
@@ -106,28 +53,29 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 	if (pid > 0)
 		return (pid); // return parent pid
 	// child
-	shell->in_main_process = false;
-	set_signal_exe_child_process();
+	sh_ctx->in_main_process = false;
+	set_signal_in_exe_child_process();
 	// if not the first cmd
 	if (prev_read_end != -1)
 	{
-		dup2_s(prev_read_end, STDIN_FILENO, shell);
-		close_s(prev_read_end, shell);
+		dup2_s(prev_read_end, STDIN_FILENO, sh_ctx);
+		close_s(prev_read_end, sh_ctx);
 	}
 	// if not the last
 	if (pipeline->next != NULL)
-		dup2_s(pipe[WRITE_END], STDOUT_FILENO, shell);
+		dup2_s(pipe[WRITE_END], STDOUT_FILENO, sh_ctx);
 	if (pipe[READ_END] != -1)
 		close(pipe[READ_END]);
 	if (pipe[WRITE_END] != -1)
 		close(pipe[WRITE_END]);
-	//执行这个 stage 的 AST，然后退出（O_EXIT）
-	status = execute((t_ast *)pipeline->content, RUN_IN_CHILD, shell);
+	// 执行这个 stage 的 AST，然后退出（O_EXIT）
+	status = execute((t_ast *)pipeline->content, RUN_IN_CHILD, sh_ctx);
 	exit(status);
 	return (pid);
 }
 
-int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell_context *shell_conetext)
+int	wait_for_children(pid_t last_pid, int count_pipeline,
+		t_shell_context *sh_ctx)
 {
 	pid_t	child_pid;
 	int		status;
@@ -153,11 +101,61 @@ int	wait_for_children(pid_t last_pid, int count_pipeline, t_shell_context *shell
 		if (child_pid == last_pid)
 		{
 			// only do ui output to the last cmd
-			report_child_termination_signal(status, &new_line, shell);
+			report_child_termination_signal(status, &new_line, sh_ctx);
 			// pipeline &? last cmd exit code
 			last_cmd_status = wait_status_to_shell_status(status);
 			// ui output ()
 		}
 	}
 	return (last_cmd_status);
+}
+
+int	execute_pipeline_commands(t_list *pipeline, t_shell_context *sh_ctx)
+{
+	int		fd[2];
+	int		prev_read_end;
+	pid_t	last_pid;
+	int		last_cmd_status;
+	int		pipeline_count;
+	bool	has_next;
+
+	pipeline_count = ft_lstsize(pipeline);
+	//
+	last_pid = 0;
+	prev_read_end = -1;
+	while (pipeline)
+	{
+		has_next = (pipeline->next != NULL);
+		if (has_next && pipe(fd) < 0)
+			return (1);
+		// last cmd
+		if (!has_next)
+		{
+			fd[READ_END] = -1;
+			fd[WRITE_END] = -1;
+		}
+		last_pid = execute_one_command(pipeline, prev_read_end, fd, sh_ctx);
+		// parent closes
+		if (prev_read_end != -1)
+			close(prev_read_end);
+		if (has_next)
+			close(fd[WRITE_END]); // close write end in parent
+		if (has_next)
+			prev_read_end = fd[READ_END];
+		else
+			prev_read_end = -1;
+		pipeline = pipeline->next;
+	}
+	if (prev_read_end != -1)
+		close(prev_read_end);
+	last_cmd_status = wait_for_children(last_pid, pipeline_count, sh_ctx);
+	return (last_cmd_status);
+}
+
+int	execute_pipeline(t_ast *pipeline_node, t_shell_context *sh_ctx)
+{
+	t_ast_pipeline *pipeline;
+
+	pipeline = build_cmd_list(pipeline_node, sh_ctx);
+	return (execute_pipeline_commands(pipeline, sh_ctx));
 }

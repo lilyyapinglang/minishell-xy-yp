@@ -13,7 +13,7 @@ stateful builtin → 不能 fork
 stateless builtin → 可 fork 可不 fork**
 */
 
-void	free_envp(char **envp)
+void	free_strs(char **envp)
 {
 	int	i;
 
@@ -32,7 +32,7 @@ char	**env_list_to_envp(t_list *env_list)
 	t_list		*node;
 	t_env_var	*ev;
 	char		**envp;
-	const char	*val = ev->value ? ev->value : "";
+	const char	*val;
 	size_t		name_len;
 	size_t		val_len;
 
@@ -58,6 +58,7 @@ char	**env_list_to_envp(t_list *env_list)
 		if (ev && ev->exported && ev->name)
 		{
 			name_len = ft_strlen(ev->name);
+			val = ev->value ? ev->value : "";
 			val_len = ft_strlen(val);
 			envp[i] = malloc(name_len + 1 + val_len + 1);
 			if (!envp[i])
@@ -85,13 +86,11 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 	char		**dirs;
 	char		*full_path;
 	char		*path_ptr;
-	int			i;
 	char		*mid_path;
 	char		**head_ptr;
 	t_list		*env;
 	t_env_var	*env_var;
 
-	i = 0;
 	path_ptr = NULL;
 	env = sh_ctx->env;
 	// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
@@ -99,7 +98,10 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 	{
 		env_var = env_var_from_node(env);
 		if (!env_var)
-			return (NULL);
+		{
+			env = env->next;
+			continue ;
+		}
 		if (ft_strcmp(env_var->name, "PATH") == 0)
 			path_ptr = env_var->value;
 		env = env->next;
@@ -144,6 +146,12 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 	return (NULL);
 }
 
+int	execve_errno_to_status(int err)
+{
+	if (err == ENOENT)
+		return (127);
+	return (126);
+}
 int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 {
 	int			status;
@@ -186,12 +194,85 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 		return (1);
 	execve(path, cmd->args, envp);
 	status = execve_errno_to_status(errno);
-	free_envp(envp);
+	free_strs(envp);
 	if (path != cmd->args[0])
 		free(path);
 	return (print_errno_n_return(status, cmd->args[0], NULL, errno));
 }
 
+int	wait_status_to_shell_status(int wait_status)
+{
+	if (WIFEXITED(wait_status))
+		return (WEXITSTATUS(wait_status));
+	if (WIFSIGNALED(wait_status))
+		return (128 + WTERMSIG(wait_status));
+#ifdef WIFSTOPPED
+	if (WIFSTOPPED(wait_status))
+		return (128 + WSTOPSIG(wait_status));
+#endif
+	// Fallback: should not happen in normal minishell execution
+	return (1);
+}
+void	report_child_termination_signal(int wait_status, const char *cmd_name,
+		t_shell_context *ctx)
+{
+	int	sig;
+
+	(void)cmd_name;
+	// Optional: only print in interactive main shell
+	// If you have a flag like ctx->in_main_process / ctx->interactive:
+	if (ctx && ctx->in_main_process == false)
+		return ;
+	if (!WIFSIGNALED(wait_status))
+		return ;
+	sig = WTERMSIG(wait_status);
+	if (sig == SIGINT)
+	{
+		// bash prints a newline when foreground job is interrupted
+		ft_putstr_fd("\n", STDERR_FILENO);
+	}
+	else if (sig == SIGQUIT)
+	{
+		// Many minishell projects expect at least "Quit\n".
+		// bash often prints "Quit (core dumped)\n" if a core is produced.
+#ifdef WCOREDUMP
+		if (WCOREDUMP(wait_status))
+			ft_putstr_fd("Quit (core dumped)\n", STDERR_FILENO);
+		else
+			ft_putstr_fd("Quit\n", STDERR_FILENO);
+#else
+		put_str(STDERR_FILENO, "Quit\n");
+#endif
+	}
+}
+
+int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
+{
+	pid_t	pid;
+	int		wait_status;
+
+	// int		status;
+	pid = fork();
+	if (pid < 0)
+		return (print_errno_n_return(1, "fork", NULL, errno));
+	if (pid == 0)
+	{
+		sh_ctx->in_main_process = false;
+		set_signal_in_exe_child_process();
+		/// reuse run in child logic
+		// status = execute(node, RUN_IN_CHILD, sh_ctx);
+		execute(node, RUN_IN_CHILD, sh_ctx);
+		exit(sh_ctx->last_status); // should be unreachable, safety net
+	}
+	while (waitpid(pid, &wait_status, 0) == -1)
+	{
+		if (errno == EINTR)
+			continue ;
+		return (print_errno_n_return(1, "waitpid", NULL, errno));
+	}
+	report_child_termination_signal(wait_status, NULL, sh_ctx);
+	return (wait_status_to_shell_status(wait_status));
+}
 int	execute_command(t_ast *node, t_exec_context exe_ctx,
 		t_shell_context *sh_ctx)
 {
@@ -240,33 +321,4 @@ int	execute_command(t_ast *node, t_exec_context exe_ctx,
 	// need to fork , parent fork, child exe as run in child, parent wait
 	// default folk
 	return (fork_and_run_cmd_in_child(node, sh_ctx));
-}
-
-int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
-{
-	pid_t pid;
-	int wait_status;
-	int status;
-
-	pid = fork();
-	if (pid < 0)
-		return (print_errno_n_return(1, "fork", NULL, errno));
-	if (pid == 0)
-	{
-		sh_ctx->in_main_process = false;
-		set_signal_child_process();
-		/// reuse run in child logic
-		// status = execute(node, RUN_IN_CHILD, sh_ctx);
-		execute(node, RUN_IN_CHILD, sh_ctx);
-		exit(sh->last_status); // should be unreachable, safety net
-	}
-	while (waitpid(pid, &wait_status, 0) == -1)
-	{
-		if (errno == EINTR)
-			continue ;
-		return (print__errno_n_return(1, "waitpid", NULL, errno));
-	}
-
-	report_child_termination_signal(wait_status, NULL, sh_ctx);
-	return (wait_status_to_shell_status(wait_status));
 }

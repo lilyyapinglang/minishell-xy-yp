@@ -133,13 +133,17 @@ void					print_msg(const char *cmd, const char *arg,
 int						print_errno_n_return(int code, const char *cmd,
 							const char *arg, int errnum);
 int						print_msg_n_return(int code, const char *cmd,
-							const char *arg, int errnum);
+							const char *arg, const char *msg);
 
 void					fatal_errno_shell_quit(t_shell_context *sh_ctx,
 							int code, const char *cmd, const char *arg,
 							int errnum);
 void					fatal_msg_shell_quit(t_shell_context *sh_ctx, int code,
 							const char *cmd, const char *arg, int errnum);
+
+void					report_child_termination_signal(status, &new_line,
+							sh_ctx);
+void					wait_status_to_shell_status(status);
 
 // --list ops
 
@@ -156,7 +160,8 @@ void					ft_lstclear(t_list **lst, void (*del)(void *));
 int						ft_strcmp(const char *s1, const char *s2);
 ssize_t					ft_write_fd(const char *s, int fd);
 void					free_env_var(void *content);
-
+int						check_all_digit(char *str);
+int						is_only_n(char *str);
 // -----main-----
 
 void					init_shell(t_shell_context *sh_ctx, char **envp);
@@ -193,17 +198,15 @@ int						collect_all_heredocs(t_ast *root,
 
 int						read_heredoc_lines(int fd, const char *delimiter,
 							t_shell_context *sh_ctx);
-char					*heredoc_delimiter_strip(const char *raw,
+char					*heredoc_delimiter_strip(const char *raw, bool *quoted,
 							t_shell_context *sh_ctx);
 
 // executor
 int						execute(t_ast *node, t_exec_context execution_context,
 							t_shell_context *shell_conetext);
-int						execute_logical(t_ast_logical *logical_node,
-							t_shell_context *shell_conetext);
-int						execute_command(t_ast_command *cmd,
-							t_exec_context exectuion_context,
-							t_shell_context *shell_conetext);
+int						execute_logical(t_ast *node, t_shell_context *sh_ctx);
+int						execute_command(t_ast *node, t_exec_context exe_ctx,
+							t_shell_context *sh_ctx);
 int						execute_pipeline(t_ast *pipeline_node,
 							t_shell_context *shell_conetext);
 int						execute_redirection(t_ast_redirection *redir_node,
@@ -212,7 +215,6 @@ int						execute_subshell(t_ast_subshell *subshell_node,
 							t_shell_context *shell_conetext);
 // builtin- new
 typedef int				(*t_builtin_func)(char **argv, t_shell_context *ctx);
-
 typedef enum e_builtin_id
 {
 	BI_NONE = 0,
@@ -231,6 +233,7 @@ typedef struct s_builtin_entry
 	t_builtin_id		id;
 	t_builtin_func		func;
 }						t_builtin_entry;
+
 // -----built-in
 
 // typedef int					(*t_builtin_func)(t_ast_command *,
@@ -252,13 +255,17 @@ bool					is_stateful_builtin(char *cmd);
 // int							execute_external_or_die(t_ast_command *cmd,
 // 								t_shell_context *ctx);
 
+bool					is_builtin(char *cmd);
+
 int						builtin_cd(char **argv, t_shell_context *sh_ctx);
 int						builtin_export(char **argv, t_shell_context *sh_ctx);
 int						builtin_unset(char **argv, t_shell_context *sh_ctx);
 int						builtin_exit(char **argv, t_shell_context *sh_ctx);
-int						builtin_echo(char **argv);
+int						builtin_echo(char **argv, t_shell_context *sh_ctx);
 int						builtin_pwd(char **argv, t_shell_context *ctx);
 int						builtin_env(char **argv, t_shell_context *ctx);
+int						execute_builtin(t_ast_command *cmd,
+							t_shell_context *ctx);
 
 //-----  signal-----
 
@@ -277,9 +284,10 @@ void					set_signal_in_exe_child_process(void);
 t_list					*init_env(char **envp, t_shell_context *sh_ctx);
 void					print_env(bool export_format, t_shell_context *sh_ctx);
 char					**build_envp_from_env_list(t_shell_context *sh_ctx);
+void					add_new_env_var(t_list **env_list, const char *name,
+							const char *value, bool exported,
+							t_shell_context *sh_ctx);
 
-int						add_new_env_var(t_list **env, const char *name,
-							const char *value, bool exported);
 t_list					*env_node_find(t_list *env, const char *name);
 char					*env_get_value(t_list *env, const char *name);
 int						env_set_value(t_shell_context *sh_ctx, const char *name,

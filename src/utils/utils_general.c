@@ -23,5 +23,22 @@ int	is_only_n(char **strs)
 // TODO
 int	check_all_digit(char *str)
 {
+	while (*str)
+	{
+		if (ft_isdigit(*str) != 1)
+			return (0);
+		str++;
+	}
+	return (1);
+}
+
+int	is_only_n(char *str)
+{
+	while (*str)
+	{
+		if (*str != 'n')
+			return (0);
+		str++;
+	}
 	return (1);
 }

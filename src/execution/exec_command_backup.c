@@ -13,7 +13,7 @@ stateful builtin → 不能 fork
 stateless builtin → 可 fork 可不 fork**
 */
 
-void free_envp(char **envp)
+void free_strs(char **envp)
 {
     int i = 0;
     if (!envp) return;
@@ -99,7 +99,7 @@ char **env_list_to_envp(t_list *env_list)
 // 	{
 // 		value = tmp->value ? tmp->value : "";
 // 		int len = strlen(tmp->key) + strlen(tmp->value) + 2; // '=' + '\0'
-// 		// TODO:free till envp free_envp(i);
+// 		// TODO:free till envp free_strs(i);
 // 		envp[i] = malloc(len); //
 // 		// TODO:
 // 		// sprintf(envp[i], "%s=%s", tmp->key, tmp->value);
@@ -209,7 +209,7 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 		return (1);
 	execve(path, cmd->args, envp);
 	status = execve_errno_to_status(errno);
-	free_envp(envp);
+	free_strs(envp);
 	if (path != cmd->args[0])
 		free(path);
 	return (print_errno_n_return(status, cmd->args[0], NULL, errno));

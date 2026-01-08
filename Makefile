@@ -53,11 +53,11 @@ SRCS_SAFE	= src/safe_functions/error.c \
 			  src/safe_functions/safe_alloc.c \
 			  src/safe_functions/safe_list.c \
 			  src/safe_functions/secure_libft.c \
-			  src/expasafe_functions/secure_list.c
+			  src/safe_functions/secure_list.c
 
 SRCS_ENV	= src/env/env.c
 
-SRCS_BUILTINS = src/builtins/builtin_cmd.c \
+SRCS_BUILTINS = src/builtins/builtin_cmds.c \
 				src/builtins/builtin_utils.c
 
 SRCS_EXECUTION = src/execution/collect_heredoc.c \
@@ -130,6 +130,11 @@ fclean: clean
 norm: 
 	norminette $(INC_DIR) $(SRC_DIR)
 
+check-src:
+	@for f in $(SRCS); do \
+		test -f $$f || echo "Missing source: $$f"; \
+	done
+	
 re: fclean all
 
 .PHONY: all clean fclean re

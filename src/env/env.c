@@ -22,9 +22,8 @@ void	add_new_env_var(t_list **env_list, const char *name, const char *value,
 		bool exported, t_shell_context *sh_ctx)
 {
 	t_env_var	*var;
-	t_list		*node;
 
-	if (!env || !name || name[0] == '\0')
+	if (!env_list || !name || name[0] == '\0')
 		return ;
 	var = calloc_s(1, sizeof(*var), ALLOC_UNTRACKED, sh_ctx);
 	var->name = strdup_s(name, ALLOC_UNTRACKED, sh_ctx);
@@ -41,7 +40,11 @@ int	env_mark_exported(t_shell_context *ctx, const char *name)
 
 	node = env_node_find(ctx->env, name);
 	if (!node)
-		return (add_new_env_var(&ctx->env, name, NULL, true));
+	// return (add_new_env_var(&ctx->env, name, NULL, true, ctx));
+	{
+		add_new_env_var(&ctx->env, name, NULL, true, ctx);
+		return (0);
+	}
 	env_var = env_var_from_node(node);
 	env_var->exported = true;
 	return (0);
@@ -60,7 +63,7 @@ t_list	*env_node_find(t_list *env_list, const char *name)
 	{
 		env_var = env_var_from_node(cur);
 		if (env_var && env_var->name && ft_strcmp(env_var->name, name) == 0)
-			return (env);
+			return (cur);
 		cur = cur->next;
 	}
 	return (NULL);
@@ -78,8 +81,8 @@ char	*env_get_value(t_list *env, const char *name)
 	return (env_var->value);
 }
 // set/rewrite value
-int	env_set_value(t_shell_context *sh_ctx, const char *name,
-		const char *value, bool exported)
+int	env_set_value(t_shell_context *sh_ctx, const char *name, const char *value,
+		bool exported)
 {
 	t_env_var	*env_var;
 	t_list		*node;
@@ -91,16 +94,15 @@ int	env_set_value(t_shell_context *sh_ctx, const char *name,
 	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&sh_ctx->env, name, value, exported,
-			sh_ctx);
+		add_new_env_var(&sh_ctx->env, name, value, exported, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
 	// udpate exported is requested
 	if (exported)
 		env_var->exported = true;
-	new_value = value ?: ft_strdup(value) : NULL;
-	if (value && &&!new_value)
+	new_value = value ? ft_strdup(value) : NULL;
+	if (value && !new_value)
 		return (1);
 	// repalce value
 	old = env_var->value;
@@ -121,7 +123,7 @@ int	env_append_value(t_shell_context *sh_ctx, const char *name,
 	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&sh_ctx->env, name, append_str, exported);
+		add_new_env_var(&sh_ctx->env, name, append_str, exported, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
@@ -151,7 +153,7 @@ int	env_unset(t_shell_context *sh_ctx, const char *name)
 		{
 			// detele this node from lsit
 			// TODO
-			ft_lstdelone(&sh_ctx->env, free);
+			ft_lstdelone(sh_ctx->env, free);
 			return (0);
 		}
 		env = env->next;

@@ -6,24 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/07 19:08:02 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/08 18:18:38 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-
-
-int			collect_all_heredocs(t_ast *root, t_shell_context *sh_ctx);
-
-
-static int	collect_one_heredoc(t_ast *redir_node, t_shell_context *sh_ctx);
-
-
-int			read_heredoc_lines(int fd, const char *delimiter,
-				t_shell_context *sh_ctx);
-char		*heredoc_delimiter_strip(const char *raw, t_shell_context *sh_ctx);
-
-
 
 /*a function to readline read input from terminal heredoc line by line to terminal
 finish read, close the tmp file desciption
@@ -71,7 +58,6 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 		free(line);
 	}
 }
-
 
 /*
 cat << EOF
@@ -164,7 +150,7 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 				sh_ctx);
 		if (status != EXIT_SUCCESS)
 			return (status);
-		if (node->u_data.redirection.redir_type == TK_HEREDOC)
+		if (node->u_data.redirection.redir_type == REDIR_HEREDOC)
 			return (collect_one_heredoc(node, sh_ctx));
 		return (EXIT_SUCCESS);
 	}
@@ -179,7 +165,7 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 
 
 
-/*
+
 echo hi > a > b
 
 REDIR (>)
@@ -232,4 +218,3 @@ char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
 	out[o] = '\0';
 	return (out);
 }
-

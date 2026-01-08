@@ -8,16 +8,16 @@
 
 */
 
-int	execute_logical(t_ast *node, t_shell shell)
+int	execute_logical(t_ast *node, t_shell_context *sh_ctx)
 {
 	int				left_status;
 	int				right_status;
 	t_ast_logical	*logical_node;
 
-	logical_node = node->u_data.logical;
-	left_status = execute(logical_node->left, RUN_IN_SHELL, shell);
-	shell.last_status = left_status;
-	if (logical_node->operator= TK_AND)
+	logical_node = &node->u_data.logical;
+	left_status = execute(logical_node->left, RUN_IN_SHELL, sh_ctx);
+	sh_ctx->last_status = left_status;
+	if (logical_node->operator== TOKEN_AND)
 	{
 		// execute left first
 		if (left_status != 0)
@@ -25,25 +25,26 @@ int	execute_logical(t_ast *node, t_shell shell)
 		// left exit with 0; try execute right too
 		if (left_status == 0)
 		{
-			right_status = execute(logical_node->right, RUN_IN_SHELL, shell);
+			right_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
 			if (right_status == 0)
 				return (0);
 			else
 				return (1);
 		}
 	}
-	else if (logical_node.operator= TK_OR)
+	else if (logical_node->operator== TOKEN_OR)
 	{
 		// execute left first
 		if (left_status == 0)
 			return (0); // no need to execute right
 		if (left_status != 0)
 		{
-			right_status = execute(logical_node->right, RUN_IN_SHELL, shell);
+			right_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
 			if (right_status == 0)
 				return (0);
 			else
 				return (1);
 		}
 	}
+	return (sh_ctx->last_status);
 }

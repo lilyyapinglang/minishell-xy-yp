@@ -25,7 +25,7 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 	{
 		target = env_get_value(ctx->env, "HOME");
 		if (!target)
-			return (print_msg_n_return("cd", NULL, "HOME not set"));
+			return (print_msg_n_return(1, "cd", NULL, "HOME not set"));
 	}
 	else
 	{
@@ -36,7 +36,7 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 	if (rc != 0)
 	{
 		free(oldpwd);
-		return (print__errno_n_return("cd", target, errno));
+		return (print_errno_n_return(1, "cd", target, errno));
 	}
 	newpwd = getcwd(NULL, 0);
 	if (oldpwd)
@@ -99,7 +99,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			val = eq + 1; /* value starts after '=' */
 			if (!name || !is_valid_ident(name))
 			{
-				print_msg_n_return("export", arg, "not a valid identifier");
+				print_msg_n_return(1, "export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_append_value(ctx, name, val, true) != 0)
@@ -116,7 +116,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			val = eq + 1;
 			if (!name || !is_valid_ident(name))
 			{
-				printmsg_n_return("export", arg, "not a valid identifier");
+				print_msg_n_return(1, "export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_set_value(ctx, name, val, true) != 0)
@@ -130,7 +130,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			/* NAME (export only) */
 			if (!is_valid_ident(arg))
 			{
-				print_msg_n_return("export", arg, "not a valid identifier");
+				print_msg_n_return(1, "export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_mark_exported(ctx, arg) != 0)
@@ -156,7 +156,7 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 	{
 		if (!is_valid_ident(argv[i]))
 		{
-			print_msg_n_return("unset", argv[i], "not a valid identifier");
+			print_msg_n_return(1, "unset", argv[i], "not a valid identifier");
 			status = 1;
 		}
 		else
@@ -177,14 +177,14 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 		exit(ctx->last_status);
 	/* too many args => error, DO NOT exit (matches common shell behavior) */
 	if (argv[2])
-		return (print_msg_n_return("exit", NULL, "too many arguments"));
+		return (print_msg_n_return(1, "exit", NULL, "too many arguments"));
 	/* non-numeric => error, exit 255 is common in bash;
 		if you want strictly your old behavior, keep return 1 + no exit,
 		but that differs from bash. Here I won't invent: keep your behavior
 		style unless you decide otherwise. */
 	if (!check_all_digit(argv[1]))
 	{
-		print_err_msg_n_return("exit", argv[1], "numeric argument required");
+		print_msg_n_return(255, "exit", argv[1], "numeric argument required");
 		/* Keep your previous behavior: return 1 (no exit). */
 		return (1);
 	}
@@ -192,10 +192,11 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 }
 
 // buildin, execute in child or pipeline
-int	builtin_echo(char **argv)
+int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 {
 	char	**strs;
 
+	(void)sh_ctx;
 	// echo -n hello world
 	// -n means don't add newline charactor at the output
 	// argv[0] = echo
@@ -205,7 +206,7 @@ int	builtin_echo(char **argv)
 		ft_putchar_fd('\n', STDERR_FILENO);
 		return (0);
 	}
-	if (ft_strcmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
+	if (ft_strcmp(argv[1], "-n") == 0 && is_only_n(&argv[1][1]))
 	{
 		// write each char to stardard ouput
 		// printf("with -n options \n");
@@ -241,7 +242,7 @@ int	builtin_pwd(char **argv, t_shell_context *ctx)
 	(void)ctx;
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
-		return (print__errno_n_return("pwd", NULL, errno));
+		return (print_errno_n_return(1, "pwd", NULL, errno));
 	ft_putendl_fd(pwd, STDERR_FILENO);
 	free(pwd);
 	return (0);

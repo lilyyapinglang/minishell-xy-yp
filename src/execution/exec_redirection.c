@@ -13,7 +13,7 @@ int	execute_redirection(t_ast *node, t_shell_context *shell_conetext)
 	redir_node = node->u_data.redirection;
 	status = 1;
 	if (redir_node->redir_type == TK_REDIRECT_IN
-		|| redir_node->redir_type == TK_HEREDOC)
+		|| redir_node->redir_type == REDIR_HEREDOC)
 		status = exe_redirect_input(redir_node, shell);
 	else if (redir_node->redir_type == TK_REDIRECT_OUT)
 		status = exe_redirect_output(redir_node, shell);

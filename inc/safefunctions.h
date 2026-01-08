@@ -47,5 +47,5 @@ void							remove_list_node(t_list **node, t_list **head,
 
 /*secure libft*/
 char							*strdup_s(char const *str1,
-									t_tracking_scope scope, t_shell_context);
+									t_tracking_scope scope, t_shell_context *sh_ctx);
 #endif
