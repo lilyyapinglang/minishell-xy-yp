@@ -3,24 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 00:40:12 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/01/08 22:57:19 by lilypad          ###   ########.fr       */
+/*   Updated: 2025/12/30 18:04:30 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-#include "parse.h"
 #include "safefunctions.h"
-
+#include "parse.h"
+#include "minishellparse.h"
 /*
-int	lexer(char *input, t_list **token_list, t_shell_context *sh)
+int lexer(char *input, t_list **token_list, t_shell_context *sh)
 {
-	t_token			*token;
-	t_token_type	type;
-	size_t			i;
-	size_t			len;
+	t_token *token;
+	t_token_type type;
+	size_t i;
+	size_t len;
 
 	i = 0;
 	*token_list = NULL;
@@ -59,7 +58,7 @@ int	lexer(char *input, t_list **token_list, t_shell_context *sh)
 			if (type == TOKEN_INVALID)
 				return (report_syntax_error(sh));
 			token = create_token(type, input + i, len, sh);
-			lst_add_back_s(token, token_list, ALLOC_PROMPT, sh);
+			lst_add_back_s(token, token_list, PROMPT_S, sh);
 		}
 		else
 			len++;
@@ -67,13 +66,12 @@ int	lexer(char *input, t_list **token_list, t_shell_context *sh)
 	}
 	return (EXIT_SUCCESS);
 }
-t_token	*create_token(t_token_type type, char *value, size_t len,
-		t_shell_context *sh)
+t_token *create_token(t_token_type type, char *value, size_t len, t_shell_context *sh)
 {
-	t_token	*token;
+	t_token *token;
 
-	token = calloc_s(1, sizeof(t_token), ALLOC_PROMPT, sh);
+	token = calloc_s(1, sizeof(t_token), PROMPT_S, sh);
 	token->type = type;
-	token->value = s_alloc(ft_substr(value, 0, len), ALLOC_PROMPT, sh);
+	token->value = s_alloc(ft_substr(value, 0, len), PROMPT_S, sh);
 	return (token);
 }

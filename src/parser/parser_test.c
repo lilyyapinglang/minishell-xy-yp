@@ -1,9 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ast_tester.c                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +7,6 @@
 #include "minishellparse.h"
 #include "safefunctions.h"
 
-/* 你项目里已有 */
 int         lexer(char *input, t_list **token_list, t_shell_context *sh);
 int         parser(t_list *token_list, t_ast **ast, t_shell_context *sh);
 
@@ -173,9 +166,6 @@ static void reset_parse_error(t_shell_context *sh)
 {
     /* 你结构里目前至少有 parsing_error */
     sh->parsing_error = false;
-
-    /* 如果你还有 error_token / error_message 等，也建议在这里清空 */
-    /* e.g. sh->error_token = NULL; sh->error_code = 0; ... */
 }
 
 static void run_test(const char *input)
@@ -196,7 +186,6 @@ static void run_test(const char *input)
     if (st != EXIT_SUCCESS || sh.parsing_error)
     {
         printf("[LEXER] FAILED (st=%d)\n", st);
-        /* lexer 已经打印错误的话，这里不重复 */
         return;
     }
 
@@ -212,20 +201,13 @@ static void run_test(const char *input)
     printf("---- AST ----\n");
     print_ast(ast, 0);
     printf("------------\n");
-
-    /*
-      清理：
-      - 如果你有 PROMPT scope 的 GC/track，建议在这里清掉本次测试产生的 AST 等内存
-      - 例如：free_scope(PROMPT, &sh); / track_clear(PROMPT, &sh);
-      你没贴你的清理函数名，我就不乱写了
-    */
 }
 
 /* =========================
  * main (as you want)
  * ========================= */
 
-/*
+
 int main(int argc, char **argv)
 {
     if (argc == 2)
@@ -233,7 +215,6 @@ int main(int argc, char **argv)
         run_test(argv[1]);
         return (0);
     }
-
 
     run_test("ls -l | grep 'file.c' > output");
     run_test("echo \"Hello\" && echo World");
@@ -246,4 +227,3 @@ int main(int argc, char **argv)
 
     return (0);
 }
-*/

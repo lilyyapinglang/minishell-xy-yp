@@ -1,22 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_var_env.c                                   :+:      :+:    :+:   */
+/*   expander_env.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 16:37:46 by fvastena          #+#    #+#             */
-/*   Updated: 2025/12/30 13:54:03 by xuewang          ###   ########.fr       */
+/*   Created: 2025/12/30 19:09:02 by xuewang           #+#    #+#             */
+/*   Updated: 2025/12/30 19:09:04 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/token.h"
-#include "../include/parse.h"
-#include "../include/minishell.h"
+#include "safefunctions.h"
+#include "parse.h"
+#include "minishellparse.h"
 
-/**
-	@brief Expand environment variable into its value
-*/
+
 char *expand_env_var(char *str, t_expander *exp, t_shell_context *sh)
 {
 	char *name;

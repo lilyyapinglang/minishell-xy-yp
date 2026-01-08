@@ -6,7 +6,7 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 23:45:41 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 16:48:24 by xuewang          ###   ########.fr       */
+/*   Updated: 2025/12/30 19:24:53 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ t_ast *parse_command(t_list **token, t_shell_context *sh)
     if (argc == 0)
         return (NULL);
 
-    argv = calloc_s(argc + 1, sizeof(char *), PROMPT, sh);
+    argv = calloc_s(argc + 1, sizeof(char *), PROMPT_S, sh);
 
     i = 0;
     while (i < argc)

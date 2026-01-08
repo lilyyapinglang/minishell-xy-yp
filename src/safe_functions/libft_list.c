@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft_list.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 14:37:54 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/09 01:18:11 by lilypad          ###   ########.fr       */
+/*   Updated: 2025/12/30 17:14:04 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,15 @@ void	ft_lstadd_back(t_list **lst, t_list *n)
 	{
 		tmp = ft_lstlast(*lst);
 		tmp->next = n;
-//		n->prev = tmp;
+		n->prev = tmp;
 	}
 }
 
 void	ft_lstadd_front(t_list **lst, t_list *n)
 {
 	n->next = *lst;
-	// if (*lst != NULL)
-	// 	(*lst)->prev = n;
+	if (*lst != NULL)
+		(*lst)->prev = n;
 	*lst = n;
 }
 
@@ -113,7 +113,7 @@ t_list	*ft_lstnew(void *content)
 		return (NULL);
 	head->content = content;
 	head->next = NULL;
-//	head->prev = NULL;
+	head->prev = NULL;
 	return (head);
 }
 

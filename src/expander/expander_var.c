@@ -1,22 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_var.c                                       :+:      :+:    :+:   */
+/*   expander_var.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/01 16:37:49 by fvastena          #+#    #+#             */
-/*   Updated: 2025/12/30 13:54:03 by xuewang          ###   ########.fr       */
+/*   Created: 2025/12/30 19:08:17 by xuewang           #+#    #+#             */
+/*   Updated: 2025/12/30 19:08:22 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/token.h"
-#include "../include/parse.h"
-#include "../include/minishell.h"
+#include "safefunctions.h"
+#include "parse.h"
+#include "minishellparse.h"
 
-/**
-	@brief Expand variable in a string
-*/
 void expand_var(char *str, t_expander *exp, t_shell_context *sh)
 {
 	char *value;
@@ -44,9 +41,7 @@ void expand_last_status(t_expander *exp, t_shell_context *sh)
 	add_variable_to_buffer(last_exit_status, exp, sh);
 }
 
-/**
-	@brief Expand `~` into the home path
-*/
+
 void expand_tilde(char *str, t_expander *exp, t_shell_context *sh)
 {
 	char *home_path;
@@ -56,8 +51,8 @@ void expand_tilde(char *str, t_expander *exp, t_shell_context *sh)
 	if (str[exp->i + 1] == '/' || (str[exp->i + 1] == '\0' && exp->buf_i == 0))
 		path = true;
 	home_path = value(env_var("HOME", sh->env));
-	if (!home_path)
-		home_path = sh->home;
+	//if (!home_path)
+	//	home_path = sh->home;
 	if (home_path && path)
 		add_variable_to_buffer(home_path, exp, sh);
 	else
