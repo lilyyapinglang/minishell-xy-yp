@@ -1,5 +1,11 @@
 #include "../inc/minishell.h"
 
+/*non interactive input handler for testing purpose*/
+// TODO:
+char	*non_interactive_input(void)
+{
+	return (NULL);
+}
 // TODO
 // void	track_alloc(char *line, t_tracking_scope scope,
 // 		t_shell_context *sh_ctx)
@@ -83,7 +89,7 @@ int	shell_repl_loop(t_shell_context *sh_ctx)
 
 		/*normal line */
 		track_alloc(user_intput, ALLOC_PROMPT, sh_ctx);
-		if (line[0] != '\0')
+		if (user_intput[0] != '\0')
 		{
 			add_history(user_intput);
 			sh_ctx->last_status = prompt_execution(user_intput, sh_ctx);
@@ -93,9 +99,4 @@ int	shell_repl_loop(t_shell_context *sh_ctx)
 	return (sh_ctx->last_status);
 }
 
-/*non interactive input handler for testing purpose*/
-// TODO:
-char	*non_interactive_input(void)
-{
-	return (NULL);
-}
+

@@ -14,27 +14,6 @@
 // PWD=/home/ylang/code/minishell-github
 // OLDPWD=/home/ylang/code/minishell-github
 
-unsigned int	g_lastcmd_exit_code = 0;
-
-bool	is_buildtin(char *cmd)
-{
-	return (!ft_strncmp(cmd, "echo", 4) || !ft_strncmp(cmd, "pwd", 3)
-		|| !ft_strncmp(cmd, "env", 3) || !ft_strncmp(cmd, "cd", 2)
-		|| !ft_strncmp(cmd, "export", 6) || !ft_strncmp(cmd, "unset", 5)
-		|| !ft_strncmp(cmd, "exit", 4));
-}
-
-// cd, export , unset, exit
-bool	is_stateful_builtin(char *cmd)
-{
-	return (!ft_strncmp(cmd, "cd", 2) || !ft_strncmp(cmd, "export", 6)
-		|| !ft_strncmp(cmd, "unset", 5) || !ft_strncmp(cmd, "exit", 4));
-}
-int	bi_cd(t_ast_command *cmd, t_shell_context *ctx)
-{
-	return (builtin_cd(cmd->args, ctx));
-}
-
 int	builtin_cd(char **argv, t_shell_context *ctx)
 {
 	const char	*target;
@@ -46,7 +25,7 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 	{
 		target = env_get_value(ctx->env, "HOME");
 		if (!target)
-			return (print_err_msg_n_return("cd", NULL, "HOME not set"));
+			return (print_msg_n_return("cd", NULL, "HOME not set"));
 	}
 	else
 	{
@@ -120,7 +99,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			val = eq + 1; /* value starts after '=' */
 			if (!name || !is_valid_ident(name))
 			{
-				print_err_msg_n_return("export", arg, "not a valid identifier");
+				print_msg_n_return("export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_append_value(ctx, name, val, true) != 0)
@@ -137,7 +116,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			val = eq + 1;
 			if (!name || !is_valid_ident(name))
 			{
-				print_err_msg_n_return("export", arg, "not a valid identifier");
+				printmsg_n_return("export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_set_value(ctx, name, val, true) != 0)
@@ -151,7 +130,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			/* NAME (export only) */
 			if (!is_valid_ident(arg))
 			{
-				print_err_msg_n_return("export", arg, "not a valid identifier");
+				print_msg_n_return("export", arg, "not a valid identifier");
 				status = 1;
 			}
 			else if (env_mark_exported(ctx, arg) != 0)
@@ -177,7 +156,7 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 	{
 		if (!is_valid_ident(argv[i]))
 		{
-			print_err_msg_n_return("unset", argv[i], "not a valid identifier");
+			print_msg_n_return("unset", argv[i], "not a valid identifier");
 			status = 1;
 		}
 		else
@@ -195,10 +174,10 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 	(void)ctx;
 	/* no args => exit with last status */
 	if (!argv[1])
-		exit(g_lastcmd_exit_code);
+		exit(ctx->last_status);
 	/* too many args => error, DO NOT exit (matches common shell behavior) */
 	if (argv[2])
-		return (print_err_msg_n_return("exit", NULL, "too many arguments"));
+		return (print_msg_n_return("exit", NULL, "too many arguments"));
 	/* non-numeric => error, exit 255 is common in bash;
 		if you want strictly your old behavior, keep return 1 + no exit,
 		but that differs from bash. Here I won't invent: keep your behavior
@@ -223,18 +202,18 @@ int	builtin_echo(char **argv)
 	// argv[1] = xxx ?
 	if (!argv[1])
 	{
-		ft_putchar_fd('\n', STDOUT_FILENO);
+		ft_putchar_fd('\n', STDERR_FILENO);
 		return (0);
 	}
-	if (ft_strncmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
+	if (ft_strcmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
 	{
 		// write each char to stardard ouput
 		// printf("with -n options \n");
 		strs = &argv[2];
 		while (*strs)
 		{
-			ft_putstr_fd(*strs, STDOUT_FILENO);
-			ft_putchar_fd(' ', STDOUT_FILENO);
+			ft_putstr_fd(*strs, STDERR_FILENO);
+			ft_putchar_fd(' ', STDERR_FILENO);
 			strs++;
 		}
 	}
@@ -244,11 +223,11 @@ int	builtin_echo(char **argv)
 		strs = &argv[1];
 		while (*strs)
 		{
-			ft_putstr_fd(*strs, STDOUT_FILENO);
-			ft_putchar_fd(' ', STDOUT_FILENO);
+			ft_putstr_fd(*strs, STDERR_FILENO);
+			ft_putchar_fd(' ', STDERR_FILENO);
 			strs++;
 		}
-		ft_putchar_fd('\n', STDOUT_FILENO);
+		ft_putchar_fd('\n', STDERR_FILENO);
 	}
 	return (0);
 }
@@ -263,7 +242,7 @@ int	builtin_pwd(char **argv, t_shell_context *ctx)
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
 		return (print__errno_n_return("pwd", NULL, errno));
-	ft_putendl_fd(pwd, STDOUT_FILENO);
+	ft_putendl_fd(pwd, STDERR_FILENO);
 	free(pwd);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 18:43:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/07 18:51:59 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/08 17:02:24 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,13 @@ void	increment_shlvl(t_shell_context *sh_ctx)
 	{
 		env_var = env_var_from_node(node);
 		if (env_var && env_var->value)
-			level = ft_atoi(env_var->value)
+			level = ft_atoi(env_var->value);
 	}
 	// TODO: maybe need to ft_itoa_s
 	temp = ft_itoa(level + 1);
 	if (!temp)
 		return ;
-	env_set_value(sh_ctx, "SHLVL", temp, true, sh_ctx);
+	env_set_value(sh_ctx, "SHLVL", temp, true);
 	free(temp);
 }
 void	init_shell(t_shell_context *sh_ctx, char **envp)

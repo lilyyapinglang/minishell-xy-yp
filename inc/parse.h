@@ -2,6 +2,7 @@
 # define MINISHELLPARSE_H
 
 # include "../lib/ft_printf/ft_printf.h"
+# include "minishell.h"
 # include "parse.h"
 # include "safefunctions.h"
 # include <errno.h>
@@ -167,12 +168,12 @@ typedef struct s_expander
 	t_list					*wildcards_position;
 }							t_expander;
 
-typedef enum e_tracking_scope
-{
-	ONLY_CHECK,
-	SH,
-	PROMPT_S
-}							t_tracking_scope;
+// typedef enum e_tracking_scope
+// {
+// 	ONLY_CHECK,
+// 	SH,
+// 	PROMPT_S
+// }							t_tracking_scope;
 
 /********lexer functions********/
 int							lexer(char *input, t_list **token_list,

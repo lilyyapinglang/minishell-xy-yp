@@ -24,20 +24,22 @@ FT_PRINTF_A = $(FT_PRINTF_DIR)/libftprintf.a
 
 # Source files organized by module
 SRCS_MAIN = src/core/main.c \
-            src/core/core.c
+            src/core/shell_cleanup.c \
+			src/core/shell_init.c \
+			src/core/shell_loop.c 
 
-#SRCS_LEXER	= src/lexer/lexer.c \
+SRCS_LEXER	= src/lexer/lexer.c \
 			  src/lexer/lexer_utile.c \
 			  src/lexer/lexer_single_token.c \
 			  src/lexer/lexer_test.c \
 
-#SRCS_PARSER	= src/parser/parser.c \
+SRCS_PARSER	= src/parser/parser.c \
 			  src/parser/parser_utils.c \
 			  src/parser/command_builder.c \
 			  src/parser/redirect_parser.c \
 			  src/parser/syntax_checker.c
 
-#SRCS_EXPAND	= src/expander/expander.c \
+SRCS_EXPAND	= src/expander/expander.c \
 			  src/expander/variable_expand.c \
 			  src/expander/quote_removal.c \
 			  src/expander/field_split.c \
@@ -45,13 +47,13 @@ SRCS_MAIN = src/core/main.c \
 			  src/expander/split_quoted_token.c \
 			  src/expander/argv_expansion.c
 
-#SRCS_SAFE	= src/expander/expander.c \
-			  src/expander/variable_expand.c \
-			  src/expander/quote_removal.c \
-			  src/expander/field_split.c \
-			  src/expander/expansion_utils.c \
-			  src/expander/split_quoted_token.c \
-			  src/expander/argv_expansion.c
+SRCS_SAFE	= src/safe_functions/error.c \
+			  src/safe_functions/libft_list.c \
+			  src/safe_functions/quit_shell.c \
+			  src/safe_functions/safe_alloc.c \
+			  src/safe_functions/safe_list.c \
+			  src/safe_functions/secure_libft.c \
+			  src/expasafe_functions/secure_list.c
 
 SRCS_ENV	= src/env/env.c
 
@@ -75,7 +77,7 @@ SRCS_UTILS = src/utils/error_exe.c\
 
 #real all version 
 #SRCS        = $(SRCS_TEST_MAIN) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND)
-SRCS		= $(SRCS_MAIN) $(SRCS_ENV) $(SRCS_BUILTINS) $(SRCS_EXECUTION) $(SRCS_SIGNALS) $(SRCS_UTILS)
+SRCS		= $(SRCS_MAIN) $(SRCS_ENV) $(SRCS_BUILTINS) $(SRCS_EXECUTION) $(SRCS_SIGNALS) $(SRCS_UTILS) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND) $(SRCS_SAFE)
 
 #OBJS		= $(SRCS:.c=.o)
 

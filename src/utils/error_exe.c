@@ -98,12 +98,12 @@ void	fatal_errno_shell_quit(t_shell_context *sh_ctx, int code,
 		const char *cmd, const char *arg, int errnum)
 {
 	print_error(cmd, arg, strerror(errnum));
-	quit_shell(code, sh_ctx);
+	shell_exit(code, sh_ctx);
 }
 
 void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code,
 		const char *cmd, const char *arg, const char *msg)
 {
 	print_error(cmd, arg, msg);
-	quit_shell(code, sh_ctx);
+	shell_exit(code, sh_ctx);
 }
