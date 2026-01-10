@@ -29,84 +29,8 @@
 # define M_PROMPT "minishell$ "
 # define ERROR_PROMPT "minishell: "
 
-// structures
+/*-----Error-----*/
 
-/**
- * Doubly linked list node.
- *
- * Generic container used throughout the shell to store:
- * - environment variables
- * - pipeline command lists
- * - allocated resource tracking
- *
- * `content` ownership depends on the usage context.
- */
-
-// typedef struct s_env_var
-// {
-// 	char				*name;
-// 	char				*value;
-// 	bool				exported;
-// }						t_env_var;
-
-// ----- CORE ----- //
-/**
- * Shell runtime context.
- *
- * Holds all mutable state required during the shell execution:
- * - environment variables
- * - execution context (parent / child process)
- * - last command exit status
- * - resource tracking for safe cleanup
- *
- * This structure is shared across parsing, execution, and signal handling.
- */
-
-// typedef struct s_shell_context
-// {
-// 	/* ---------- Environment ---------- */
-// 	t_list *env; // environment variables (KEY=VALUE)
-// 	// char *home;  // cached $HOME value
-// 	/* ---------- Memory / Resource Tracking ---------- */
-// 	t_list				*allocated_pointers[3];
-// 	//// categorized allocation tracking (lifetime-based cleanup)
-// 	t_list				*temporary_files;
-// 	// heredoc files or other temp resources to unlink on exit
-// 	/* ---------- Parsing / Execution State ---------- */
-// 	char *parsing_error; // error message produced during parsing
-// 	bool				in_main_process;
-// 	// true: interactive shell process
-// 	// false: forked child (pipeline stage / subshell)
-// 	int					last_status;
-// 	// exit status of the last executed command ($?)
-// }						t_shell_context;
-
-// typedef enum s_prompt_mode
-// {
-// 	MAIN_PROMPT,
-// 	HEREDOC_PROMPT
-// }						t_prompt_mode;
-
-// -----Error
-
-// static void					print_error(const char *cmd, const char *arg,
-// const char *msg);
-// int							print__errno_n_return(const char *cmd,
-// 								const char *arg, int errnum);
-// void						fatal_errno_quit(t_shell_context *sh_ctx,
-// 								int exit_status, const char *cmd,
-// 								const char *arg, int errnum);
-
-// void						fatal_err_msg_quit(t_shell_context *sh_ctx,
-// 								int exit_status, const char *cmd,
-// 								const char *arg, const char *msg);
-// void						warn_errno(const char *cmd, const char *arg,
-// 								int errnum);
-// int							print_err_msg_n_return(const char *cmd,
-// 								const char *arg, const char *msg);
-// int							print__errno_n_return(const char *cmd,
-// 								const char *arg, int errnum);
-// new error
 void							print_errno(const char *cmd, const char *arg,
 									int errnum);
 void							print_msg(const char *cmd, const char *arg,
@@ -127,24 +51,6 @@ void							report_child_termination_signal(int wait_status,
 									const char *cmd_name, t_shell_context *ctx);
 
 int								wait_status_to_shell_status(int wait_status);
-
-// --list ops
-
-// t_list							*ft_lstnew(void *content);
-// void							ft_lstadd_front(t_list **lst, t_list *new);
-// int								ft_lstsize(t_list *lst);
-// t_list							*ft_lstlast(t_list *lst);
-// void							ft_lstadd_back(t_list **lst, t_list *new);
-// void					ft_lstdelone(t_list **lst, void (*del)(void *));
-// void					ft_lstclear(t_list **lst, void (*del)(void *));
-
-// // utils-general
-
-// int						ft_strcmp(const char *s1, const char *s2);
-// ssize_t					ft_write_fd(const char *s, int fd);
-// void					free_env_var(void *content);
-// int						check_all_digit(char *str);
-// int						is_only_n(char *str);
 
 // -----main-----
 
@@ -179,9 +85,6 @@ typedef enum e_exec_context
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
 
-// static int				collect_one_heredoc(t_ast *redir_node,
-// 							t_shell_context *sh_ctx);
-
 int								read_heredoc_lines(int fd,
 									const char *delimiter,
 									t_shell_context *sh_ctx);
@@ -201,10 +104,9 @@ int								execute_pipeline(t_ast *pipeline_node,
 									t_shell_context *shell_conetext);
 int								execute_redirection(t_ast *node,
 									t_shell_context *sh_ctx);
-// int						execute_subshell(t_ast_subshell *subshell_node,
-// 							t_shell_context *shell_conetext);
 int								execute_subshell(t_ast *node,
 									t_shell_context *shell_conetext);
+
 // builtin- new
 typedef int						(*t_builtin_func)(char **argv,
 							t_shell_context *ctx);
@@ -229,9 +131,6 @@ typedef struct s_builtin_entry
 
 // -----built-in
 
-// typedef int					(*t_builtin_func)(t_ast_command *,
-// 						t_shell_context *);
-
 typedef struct s_builtin
 {
 	char						*name;
@@ -239,14 +138,8 @@ typedef struct s_builtin
 	bool						stateful;
 }								t_builtin;
 
-// t_builtin_func				get_builtin_func(const char *name);
 bool							is_buildtin(char *cmd);
 bool							is_stateful_builtin(char *cmd);
-
-// int							execute_builtin(t_ast_command *cmd,
-// 								t_shell_context *ctx);
-// int							execute_external_or_die(t_ast_command *cmd,
-// 								t_shell_context *ctx);
 
 bool							is_builtin(char *cmd);
 
@@ -277,33 +170,7 @@ void							set_signal_in_heredoc_prompt_mode(void);
 void							set_signal_in_exe_main_process(void);
 void							set_signal_in_exe_child_process(void);
 
-//// ----- ENVIRONMENT ----- //
-
-// t_list					*init_env(char **envp, t_shell_context *sh_ctx);
-// void					print_env(bool export_format, t_shell_context *sh_ctx);
-// char					**build_envp_from_env_list(t_shell_context *sh_ctx);
-// void					add_new_env_var(t_list **env_list, const char *name,
-// 							const char *value, bool exported,
-// 							t_shell_context *sh_ctx);
-
-// t_list					*env_node_find(t_list *env, const char *name);
-// char					*env_get_value(t_list *env, const char *name);
-// int						env_set_value(t_shell_context *sh_ctx,
-//	const char *name,
-// 							const char *value, bool exported);
-// int						env_append_value(t_shell_context *sh_ctx,
-// 							const char *name, const char *append_str,
-// 							bool exported);
-// int						env_unset(t_shell_context *sh_ctx,
-//	const char *name);
-// int						env_mark_exported(t_shell_context *ctx,
-// 							const char *name);
-// t_env_var				*env_var_from_node(t_list *node);
-
 //---test
 t_ast_command					*build_fake_cmd_table_for_tests(void);
-// # define DEFAULT_PATH \
-// 	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
-// :/usr/local/sbin:/opt/bin:/opt/sbin"
 
 #endif

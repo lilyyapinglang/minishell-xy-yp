@@ -7,13 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 
-static void	dbg_stdin(const char *tag)
-{
-	errno = 0;
-	int rc = read(STDIN_FILENO, &(char){0}, 0); // does not consume input
-	fprintf(stderr, "[DBG] %s: isatty=%d read0=%d errno=%d (%s)\n", tag,
-		isatty(STDIN_FILENO), rc, errno, strerror(errno));
-}
 /*non interactive input handler for testing purpose*/
 // TODO:
 char	*non_interactive_input(void)
@@ -37,7 +30,7 @@ char	*prompt_listener(t_prompt_mode mode)
 	// 每次开始 read 输入之前 reset signal
 	g_latest_signal_status = 0;
 	errno = 0;
-	dbg_stdin("before readline");
+	// dbg_stdin("before readline");
 	if (isatty(STDIN_FILENO))
 	{
 		// rl_replace_line("", 0);
