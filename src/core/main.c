@@ -18,7 +18,12 @@ int	main(int argc, char **argv, char **envp)
 	set_signal_in_exe_main_process();
 	init_shell(&shell_context, envp);
 	// Shell main loop (REPL: Read–Eval–Print Loop)
+	/*
+	1. signal + 128
+	2. ?
+	3. ?
+	*/
 	exit_status = shell_repl_loop(&shell_context);
 	// final cleanup and exit
-	quit_shell(exit_status, &shell_context);
+	shell_exit(&shell_context, exit_status);
 }

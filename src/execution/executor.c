@@ -1,4 +1,14 @@
 #include "../inc/minishell.h"
+#include "expander.h"
+
+static int	finalize_status(int status, t_exec_context exe_ctx,
+		t_shell_context *sh_ctx)
+{
+	sh_ctx->last_status = status;
+	if (exe_ctx == RUN_IN_CHILD)
+		exit(status);
+	return (status);
+}
 
 // execute as dispatcher, recursively call execute
 /*
@@ -13,12 +23,13 @@
 // Expand node  should come from expander
 
 int	execute(t_ast *node, t_exec_context execution_context,
-		t_shell_context *shell_conetext)
+		t_shell_context *sh_ctx)
 {
 	int status;
 	status = EXIT_SUCCESS;
 	if (!node)
-		return (status);
+		return (finalize_status(0, execution_context, sh_ctx));
+
 	// 1. only ast_redirection and ast_commdn that actully has content *file and **argv to expand
 	// 2. Other types logicla, pipeline, subshell are just structure ,
 	// they don't have string sto expand
@@ -27,7 +38,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// 4. why not in side exeectuion_redir or execution_cmd ,
 	// to gurantee it will be only expanded once
 	if (node->type == AST_REDIRECTION || node->type == AST_COMMAND)
-		expand_node(node, shell);
+		expander(node, sh_ctx);
 	/*
 
 	typedef struct s_ast_logical
@@ -38,9 +49,9 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	}							t_ast_logical;
 	*/
 	if (node->type == AST_LOGICAL)
-		status = execute_logical(&(node->u_data.logical), execution_context,
-				shell);
-
+		// status = execute_logical(&(node->u_data.logical), execution_context,
+		// 		sh_ctx);
+		status = execute_logical(node, sh_ctx);
 	/*
 	typedef struct s_ast_pipeline
 	{
@@ -49,7 +60,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	}					t_ast_pipeline;
 	*/
 	else if (node->type == AST_PIPELINE)
-		status = execute_pipeline(node, shell);
+		status = execute_pipeline(node, sh_ctx);
 
 	/*
 	typedef struct s_ast_subshell
@@ -58,7 +69,8 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	}						t_ast_subshell;
 	*/
 	else if (node->type == AST_SUBSHELL)
-		status = execute_subshell(&(node->u_data.subshell), shell);
+		// status = execute_subshell(&(node->u_data.subshell), sh_ctx);
+		status = execute_subshell(node, sh_ctx);
 
 	/*
 	typedef struct s_ast_redirection
@@ -69,7 +81,8 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	}			t_ast_redirection;
 	*/
 	else if (node->type == AST_REDIRECTION)
-		status = execute_redirection(&(node->u_data.redirection), shell);
+		// status = execute_redirection(&(node->u_data.redirection), sh_ctx);
+		status = execute_redirection(node, sh_ctx);
 
 	/*
 	typedef struct s_ast_command
@@ -79,16 +92,15 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	*/
 	// until till command level we decide we we want this command to return to main shell by return or simply exit
 	else if (node->type == AST_COMMAND)
-		status = execute_command(&(node->u_data.command), execution_context,
-				shell);
+		// status = execute_command(&(node->u_data.command), execution_context,
+		// 		sh_ctx);
+		status = execute_command(node, execution_context, sh_ctx);
 	else
-	{
-		ft_printf("execute,illegal node type");
-		return (EXIT_FAILURE);
-	}
+		return (print_msg_n_return(1, "execute", NULL, "illegal node type"));
 	// should I exit current exection or should i return to main shell prompt
 	// if corrent exection is meanted to be exited, quit this shell
 	// if (exit_or_return == EXITAFTEREXE)
 	// 	quit_child_shell(status, shell);
-	return (status);
+	// return (status);
+	return (finalize_status(status, execution_context, sh_ctx));
 }

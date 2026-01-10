@@ -1,4 +1,8 @@
-#include "../inc/minishell.h"
+#include "../lib/libft/libft.h"
+#include "env.h"
+#include "safefunctions.h"
+#include "stdio.h" //testonly
+#include "utils.h"
 
 /*
 
@@ -6,40 +10,42 @@ env：打印 exported==true && value!=NULL
 
 export：打印 exported==true（value 可空）
 
-envp 导出：只导出 exported==true && value!=NULL
+envp 导出：只导出 exported==true && value!=NU
 
 export 的作用是：让某个变量进入将来子进程的 envp（即“导出”）。
 exported 的意义：
 这个变量是否应该被放进 env_to_char_array() 生成的 envp（传给 execve）。
 */
 
-static t_env_var	*env_var_from_node(t_list *node)
+
+void	free_env_var(void *content)
+{
+	t_env_var *var;
+
+	var = (t_env_var *)content;
+	free(var->name);
+	free(var->value);
+	free(var);
+}
+
+t_env_var	*env_var_from_node(t_list *node)
 {
 	return ((t_env_var *)node->content);
 }
-int	add_new_env_var(t_list **env, const char *name, const char *value,
-		bool exported)
-{
-	t_env_var	*env_var;
-	t_list		*node;
 
-	if (!env || !name || name[0] == '\0')
-		return (1);
-	env_var = malloc(sizeof(*env_var));
-	if (!env_var)
-		return (1);
-	env_var->name = ft_strdup(name);
-	if (!env_var->name)
-		return (free(env_var), 1);
-	env_var->value = value ? ft_strdup(value) : NULL;
-	if (value && !env_var->value)
-		return (free(env_var->name), free(env_var), 1);
-	env_var->exported = exported;
-	node = ft_lstnew(env_var);
-	if (!node)
-		return (free(env_var->value), free(env_var->name), free(env_var), 1);
-	ft_lstadd_back(env, node);
-	return (0);
+void	add_new_env_var(t_list **env_list, const char *name, const char *value,
+		bool exported, t_shell_context *sh_ctx)
+{
+	t_env_var	*var;
+
+	if (!env_list || !name || name[0] == '\0')
+		return ;
+	var = calloc_s(1, sizeof(*var), ALLOC_UNTRACKED, sh_ctx);
+	var->name = strdup_s(name, ALLOC_UNTRACKED, sh_ctx);
+	var->value = value ? strdup_s(value, ALLOC_UNTRACKED, sh_ctx) : NULL;
+	var->exported = exported;
+	// node = ft_listnew_s(var, TRACK_SHELL, sh_ctx);
+	lst_add_back_s(var, env_list, ALLOC_UNTRACKED, sh_ctx);
 }
 
 int	env_mark_exported(t_shell_context *ctx, const char *name)
@@ -49,26 +55,31 @@ int	env_mark_exported(t_shell_context *ctx, const char *name)
 
 	node = env_node_find(ctx->env, name);
 	if (!node)
-		return (add_new_env_var(&ctx->env, name, NULL, true));
+	// return (add_new_env_var(&ctx->env, name, NULL, true, ctx));
+	{
+		add_new_env_var(&ctx->env, name, NULL, true, ctx);
+		return (0);
+	}
 	env_var = env_var_from_node(node);
 	env_var->exported = true;
 	return (0);
 }
 
 // return env_node
-t_list	*env_node_find(t_list *env, const char *name)
+t_list	*env_node_find(t_list *env_list, const char *name)
 {
 	t_env_var	*env_var;
-	size_t		n;
+	t_list		*cur;
 
-	while (env)
+	if (!name || name[0] == '\0')
+		return (NULL);
+	cur = env_list;
+	while (cur)
 	{
-		env_var = env_var_from_node(env);
-		n = ft_strlen(env_var->name);
-		if (env_var && env_var->name && ft_strncmp(env_var->name, name, n) == 0
-			&& env_var->name[n] == '\0')
-			return (env);
-		env = env->next;
+		env_var = env_var_from_node(cur);
+		if (env_var && env_var->name && ft_strcmp(env_var->name, name) == 0)
+			return (cur);
+		cur = cur->next;
 	}
 	return (NULL);
 }
@@ -85,32 +96,38 @@ char	*env_get_value(t_list *env, const char *name)
 	return (env_var->value);
 }
 // set/rewrite value
-int	env_set_value(t_shell_context *shell_context, const char *name,
-		const char *value, bool exported)
+int	env_set_value(t_shell_context *sh_ctx, const char *name, const char *value,
+		bool exported)
 {
 	t_env_var	*env_var;
 	t_list		*node;
 	char		*old;
+	char		*new_value;
 
-	node = env_node_find(shell_context->env, name);
+	if (!sh_ctx || !name || name[0] == '\0')
+		return (1);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&shell_context->env, name, value, exported);
+		add_new_env_var(&sh_ctx->env, name, value, exported, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
 	// udpate exported is requested
 	if (exported)
 		env_var->exported = true;
+	new_value = value ? ft_strdup(value) : NULL;
+	if (value && !new_value)
+		return (1);
 	// repalce value
 	old = env_var->value;
-	env_var->value = value ? ft_strdup(value) : NULL;
+	env_var->value = new_value;
 	free(old);
 	return (0);
 }
 
 // append VAR +=
-int	env_append_value(t_shell_context *shell_context, const char *name,
+int	env_append_value(t_shell_context *sh_ctx, const char *name,
 		const char *append_str, bool exported)
 {
 	t_env_var	*env_var;
@@ -118,10 +135,10 @@ int	env_append_value(t_shell_context *shell_context, const char *name,
 	char		*base;
 	char		*new_value;
 
-	node = env_node_find(shell_context->env, name);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&shell_context->env, name, append_str, exported);
+		add_new_env_var(&sh_ctx->env, name, append_str, exported, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
@@ -138,12 +155,12 @@ int	env_append_value(t_shell_context *shell_context, const char *name,
 }
 
 // delete node
-int	env_unset(t_shell_context *shell_context, const char *name)
+int	env_unset(t_shell_context *sh_ctx, const char *name)
 {
 	t_list		*env;
 	t_env_var	*env_var;
 
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -151,7 +168,7 @@ int	env_unset(t_shell_context *shell_context, const char *name)
 		{
 			// detele this node from lsit
 			// TODO
-			ft_lstdelone(&shell_context->env, free);
+			ft_lstdelone(sh_ctx->env, free);
 			return (0);
 		}
 		env = env->next;
@@ -159,7 +176,7 @@ int	env_unset(t_shell_context *shell_context, const char *name)
 	return (1);
 }
 // envp 导出：只导出 exported==true && value!=NULL
-char	**build_envp_from_env_list(t_shell_context *shell_context)
+char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 {
 	t_list		*env;
 	int			count_strs;
@@ -170,7 +187,7 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 
 	count_strs = 0;
 	i = 0;
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -179,7 +196,7 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 		env = env->next;
 	}
 	envp = malloc(sizeof(char *) * (count_strs + 1)); // garde with malloc_s
-	env = shell_context->env;
+	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -195,56 +212,53 @@ char	**build_envp_from_env_list(t_shell_context *shell_context)
 	return (envp);
 }
 
-t_list	*init_env(char **envp, t_shell_context *shell_context)
+t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 {
 	t_list	*env_list;
-	char	*eq;
+	char	*equal_sign;
 	char	*name_tmp;
 
 	env_list = NULL;
-	if (!shell_context)
+	if (!sh_ctx)
 		return (NULL);
 	while (envp && *envp)
 	{
-		eq = ft_strchr(*envp, '=');
-		if (!eq)
+		equal_sign = ft_strchr(*envp, '=');
+		if (!equal_sign)
 		{
 			// No '=' -> name only, value NULL
 			// exported=true because it came from envp
-			add_new_env_var(&env_list, *envp, NULL, true);
+			add_new_env_var(&env_list, *envp, NULL, true, sh_ctx);
 		}
 		else
 		{
 			// name is left side
-			name_tmp = ft_substr(*envp, 0, (size_t)(eq - *envp));
+			// TODO: maybe need ft_substr_s
+			name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign - *envp));
 			if (name_tmp)
 			{
 				// value is right side (eq+1)
-				add_new_env_var(&env_list, name_tmp, eq + 1, true);
+				add_new_env_var(&env_list, name_tmp, equal_sign + 1, true,
+					sh_ctx);
 				free(name_tmp);
-			}
-			else
-			{
-				// if you have malloc_s/calloc_s that exits, you won't need this
-				// otherwise decide how you want to handle alloc failure
 			}
 		}
 		envp++;
 	}
-	shell_context->env = env_list;
+	sh_ctx->env = env_list;
 	// Recommendation: do NOT cache HOME here (avoids stale cache bugs)
 	// If you insist on caching:
-	// shell_context->home = env_get_value(env_list, "HOME");
+	// sh_ctx->home = env_get_value(env_list, "HOME");
 	if (!env_node_find(env_list, "PATH"))
-		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true);
+		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, sh_ctx);
 	return (env_list);
 }
 
 // called by on builtin-env or built-in export ?
-void	print_env(bool export_format, t_shell_context *shell_context)
+void	print_env(bool export_format, t_shell_context *sh_ctx)
 {
 	t_env_var *env_var;
-	t_list *env = shell_context->env;
+	t_list *env = sh_ctx->env;
 
 	while (env)
 	{

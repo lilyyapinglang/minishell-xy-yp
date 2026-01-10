@@ -1,133 +1,207 @@
-NAME		= minishell
+NAME := minishell
 
-INC_DIR := inc
-SRC_DIR := src
-BUILD_DIR = build
+CC := cc
+CFLAGS := -Wall -Wextra -Werror
+CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft
+LDFLAGS :=
+LDLIBS :=
 
-CC := cc 
-CFLAGS := -Wall -Wextra -Werror #-g
-INCLUDES	:= -I$(INC_DIR)
+# ------------------ Readline (Homebrew macOS) ------------------
+READLINE_PREFIX := $(shell brew --prefix readline 2>/dev/null)
+ifeq ($(READLINE_PREFIX),)
+  READLINE_INC :=
+  READLINE_LIB :=
+  READLINE_LDLIBS :=
+else
+  READLINE_INC := -I$(READLINE_PREFIX)/include
+  READLINE_LIB := -L$(READLINE_PREFIX)/lib
+  READLINE_LDLIBS := -lreadline -lhistory
+endif
+CPPFLAGS += $(READLINE_INC)
+LDFLAGS  += $(READLINE_LIB)
+$(NAME): LDLIBS   += $(READLINE_LDLIBS)
 
-# linker libs
-LDLIBS	:= -lreadline
+# ------------------ Build dirs ------------------
+BUILD_DIR := build
+OBJ_DIR   := $(BUILD_DIR)/obj
+DEP_DIR   := $(BUILD_DIR)/dep
+TEST_DIR  := $(BUILD_DIR)/tests
 
-#ft_printf & libft 
-FT_PRINTF_DIR := lib/ft_printf
-FT_PRINTF_A = $(FT_PRINTF_DIR)/libftprintf.a
+# ------------------ ft_printf ------------------
+FTPRINTF_A := $(BUILD_DIR)/libftprintf.a
 
-#Get next line
-#GNL_DIR     = get_next_line
-#GNL_SRCS    = $(GNL_DIR)/get_next_line.c \
-              $(GNL_DIR)/get_next_line_utils.c
-#GNL_OBJS    = $(GNL_SRCS:.c=.o)
+FTPRINTF_SRCS := \
+  lib/libft/ft_atoi.c \
+  lib/libft/ft_bzero.c \
+  lib/libft/ft_calloc.c \
+  lib/libft/ft_isalnum.c \
+  lib/libft/ft_isalpha.c \
+  lib/libft/ft_isascii.c \
+  lib/libft/ft_isdigit.c \
+  lib/libft/ft_isprint.c \
+  lib/libft/ft_itoa.c \
+  lib/libft/ft_memchr.c \
+  lib/libft/ft_memcmp.c \
+  lib/libft/ft_memcpy.c \
+  lib/libft/ft_memmove.c \
+  lib/libft/ft_memset.c \
+  lib/libft/ft_putchar_fd.c \
+  lib/libft/ft_putendl_fd.c \
+  lib/libft/ft_putnbr_fd.c \
+  lib/libft/ft_putstr_fd.c \
+  lib/libft/ft_split.c \
+  lib/libft/ft_strchr.c \
+  lib/libft/ft_strdup.c \
+  lib/libft/ft_striteri.c \
+  lib/libft/ft_strjoin.c \
+  lib/libft/ft_strlcat.c \
+  lib/libft/ft_strlcpy.c \
+  lib/libft/ft_strlen.c \
+  lib/libft/ft_strmapi.c \
+  lib/libft/ft_strncmp.c \
+  lib/libft/ft_strnstr.c \
+  lib/libft/ft_strrchr.c \
+  lib/libft/ft_strtrim.c \
+  lib/libft/ft_substr.c \
+  lib/libft/ft_tolower.c \
+  lib/libft/ft_toupper.c
+
+# ------------------ Project SRCS ------------------
+# 1) Parse world (used by minishell and tests)
+SRCS_LEXER := \
+  src/lexer/lexer.c \
+  src/lexer/lexer_single_token.c \
+  src/lexer/lexer_utile.c
+
+SRCS_PARSER := \
+  src/parser/parser.c \
+  src/parser/parser_basic_act.c \
+  src/parser/parser_build_node.c \
+  src/parser/parser_redir.c \
+  src/parser/parser_redir_next.c \
+  src/parser/parser_sub.c \
+  src/parser/parser_tk_type.c \
+  src/parser/parser_utile.c
+
+SRCS_EXPANDER := \
+  src/expander/expander_single_argv.c \
+  src/expander/expander_env.c \
+  src/expander/expander_utile.c \
+  src/expander/expander.c \
+  src/expander/expander_var.c
+
+SRCS_SAFE := \
+  src/safe_functions/error.c \
+  src/safe_functions/quitshell.c \
+  src/safe_functions/safe_alloc.c \
+  src/safe_functions/safe_list.c \
+  src/safe_functions/safe_libft_yp.c \
+  src/safe_functions/libft_list.c
+
+# 2) Runtime world (only for minishell binary)
+SRCS_RUNTIME := \
+  src/core/main.c \
+  src/core/shell_cleanup.c \
+  src/core/shell_init.c \
+  src/core/shell_loop.c \
+  src/signals/set_signal_handlers_to_mode.c \
+  src/utils/error_exe.c \
+  src/utils/ft_list_ops.c \
+  src/utils/safe_exe.c \
+  src/utils/utils_general.c \
+  src/env/env.c \
+  src/builtins/builtin_cmds.c \
+  src/builtins/builtin_utils.c \
+  src/execution/collect_heredoc.c \
+  src/execution/exec_command.c \
+  src/execution/exec_logical.c \
+  src/execution/exec_pipeline.c \
+  src/execution/exec_redirection.c \
+  src/execution/exec_subshell.c \
+  src/execution/executor.c
 
 
-# Source files organized by module
-SRCS_MAIN = src/core/main.c \
-            src/core/core.c
+SRCS := $(SRCS_RUNTIME) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE)
 
-#SRCS_LEXER	= src/lexer/lexer.c \
-			  src/lexer/lexer_utile.c \
-			  src/lexer/lexer_single_token.c \
-			  src/lexer/lexer_test.c \
+WITH_EXPANDER ?= 1
 
-#SRCS_PARSER	= src/parser/parser.c \
-			  src/parser/parser_utils.c \
-			  src/parser/command_builder.c \
-			  src/parser/redirect_parser.c \
-			  src/parser/syntax_checker.c
+ifeq ($(WITH_EXPANDER),1)
+  SRCS += $(SRCS_EXPANDER)
+else
+  SRCS += src/expander/expander_stub.c
+endif
 
-#SRCS_EXPAND	= src/expander/expander.c \
-			  src/expander/variable_expand.c \
-			  src/expander/quote_removal.c \
-			  src/expander/field_split.c \
-			  src/expander/expansion_utils.c \
-			  src/expander/split_quoted_token.c \
-			  src/expander/argv_expansion.c
+# Never compile tests/backup files into production binary
+SRCS := $(filter-out %_test.c %_tests.c %_backup.c %_old.c,$(SRCS))
 
-#SRCS_SAFE	= src/expander/expander.c \
-			  src/expander/variable_expand.c \
-			  src/expander/quote_removal.c \
-			  src/expander/field_split.c \
-			  src/expander/expansion_utils.c \
-			  src/expander/split_quoted_token.c \
-			  src/expander/argv_expansion.c
+# ------------------ Tests (standalone) ------------------
+LEXER_TEST_SRC    := src/lexer/lexer_test.c
+PARSER_TEST_SRC   := src/parser/parser_test.c
+EXPANDER_TEST_SRC := src/expander/expander_test.c
 
-SRCS_ENV	= src/env/env.c
+# For tests, do NOT link runtime modules by default
+LEXER_TEST_SRCS    := $(SRCS_LEXER) $(SRCS_SAFE) $(LEXER_TEST_SRC)
+PARSER_TEST_SRCS   := $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE) $(PARSER_TEST_SRC)
+EXPANDER_TEST_SRCS := $(SRCS_LEXER) $(SRCS_EXPANDER) $(SRCS_SAFE) $(EXPANDER_TEST_SRC)
 
-SRCS_BUILTINS = src/builtins/builtin_cmd.c \
-				src/builtins/builtin_utils.c
+# ------------------ Objects / deps ------------------
+OBJS := $(SRCS:%.c=$(OBJ_DIR)/%.o)
+DEPS := $(SRCS:%.c=$(DEP_DIR)/%.d)
 
-SRCS_EXECUTION = src/execution/collect_heredoc.c \
-				src/execution/exec_command.c\
-				src/execution/exec_logical.c\
-				src/execution/exec_pipeline.c\
-				src/execution/exec_redirection.c\
-				src/execution/exec_subshell.c\
-				src/execution/executor.c
+FTPRINTF_OBJS := $(FTPRINTF_SRCS:%.c=$(OBJ_DIR)/%.o)
+FTPRINTF_DEPS := $(FTPRINTF_SRCS:%.c=$(DEP_DIR)/%.d)
 
-SRCS_SIGNALS =  src/signal/set_signal_handlers_to_mode.c
+# Helper macro to make test objs from a list of sources
+define make_objs
+$(1:%.c=$(OBJ_DIR)/%.o)
+endef
 
-SRCS_UTILS = src/utils/error_exe.c\
-				src/utils/ft_list_ops.c\
-				src/utils/utils_general.c
+# ------------------ Targets ------------------
+all: $(NAME)
 
+$(NAME): $(FTPRINTF_A) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(FTPRINTF_A) $(LDFLAGS) $(LDLIBS) -o $@
 
-#real all version 
-#SRCS        = $(SRCS_TEST_MAIN) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_EXPAND)
-SRCS		= $(SRCS_MAIN) $(SRCS_ENV) $(SRCS_BUILTINS) $(SRCS_EXECUTION) $(SRCS_SIGNALS) $(SRCS_UTILS)
-
-#OBJS		= $(SRCS:.c=.o)
-
-OBJS = $(SRCS:src/%.c=$(BUILD_DIR)/%.o)
-
-
-# Colors for output
-GREEN		= \033[0;32m
-YELLOW		= \033[0;33m
-RESET		= \033[0m
-
-# Rules
-
-all :$(NAME)
-
-$(NAME): $(OBJS) $(FT_PRINTF_A)
-	@echo "$(YELLOW)Linking $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJS) $(FT_PRINTF_A) -o $(NAME) $(LDLIBS)
-	@echo "$(GREEN)$(NAME) created successfully!$(RESET)"
-
-#%.o: %.c
-#	@echo "Compiling $<..."
-#	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-# ft_printf
-$(FT_PRINTF_A):
-	$(MAKE) -C $(FT_PRINTF_DIR)
-
-$(BUILD_DIR)/%.o: src/%.c
-	@echo "Compiling $<..."
+$(FTPRINTF_A): $(FTPRINTF_OBJS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	ar rcs $@ $^
 
-val: $(NAME)
-	@if ! [ -f "ignore.supp" ]; then make ignore; fi
-	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
+# Compile rule with deps
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	@mkdir -p $(dir $(DEP_DIR)/$*.d)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -MF $(DEP_DIR)/$*.d -c $< -o $@
+
+# ------------------ Test targets ------------------
+test: test_lexer test_parser test_expander
+
+test_lexer: $(FTPRINTF_A) $(call make_objs,$(LEXER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(LEXER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/lexer_test
+	@echo "Built: $(TEST_DIR)/lexer_test"
+
+test_parser: $(FTPRINTF_A) $(call make_objs,$(PARSER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(PARSER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/parser_test
+	@echo "Built: $(TEST_DIR)/parser_test"
+
+test_expander: $(FTPRINTF_A) $(call make_objs,$(EXPANDER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(EXPANDER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/expander_test
+	@echo "Built: $(TEST_DIR)/expander_test"
 
 clean:
-	@echo "$(YELLOW)Removing object files...$(RESET)"
-	@rm -rf $(BUILD_DIR)
-	@$(MAKE) -C $(FT_PRINTF_DIR) clean
-	@echo "$(GREEN)Clean complete!$(RESET)"
+	rm -rf $(BUILD_DIR)
 
 fclean: clean
-	@echo "$(YELLOW)Removing $(NAME)...$(RESET)"
-	@rm -f $(NAME)
-	@$(MAKE) -C $(FT_PRINTF_DIR) fclean
-	@echo "$(GREEN)Full clean complete!$(RESET)"
-
-norm: 
-	norminette $(INC_DIR) $(SRC_DIR)
+	rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test test_lexer test_parser test_expander
+
+-include $(DEPS)
+-include $(FTPRINTF_DEPS)

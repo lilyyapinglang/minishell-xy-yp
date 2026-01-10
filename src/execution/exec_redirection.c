@@ -5,22 +5,6 @@
 // void	apply_all_redirs(t_cmd *cmd);
 #include "../inc/minishell.h"
 
-int	execute_redirection(t_ast_redirection *redir_node,
-		t_shell_context *shell_conetext)
-{
-	int	status;
-
-	status = 1;
-	if (redir_node->redir_type == TK_REDIRECT_IN
-		|| redir_node->redir_type == TK_HEREDOC)
-		status = exe_redirect_input(redir_node, shell);
-	else if (redir_node->redir_type == TK_REDIRECT_OUT)
-		status = exe_redirect_output(redir_node, shell);
-	else if (redir_node->redir_type == TK_APPEND_OUT)
-		status = execute_redirect_append_output(redir_node, shell);
-	return (status);
-}
-
 /*
 cat < input.txt
 redirection: let stdin point to input.txt
@@ -38,8 +22,7 @@ redirection 节点的职责是：
 
 回收环境
 */
-int	exe_redirect_input(t_ast_redirection *redir_node,
-		t_shell_context *shell_conetext)
+int	exe_redirect_input(t_ast_redirection *redir_node, t_shell_context *sh_ctx)
 {
 	int	input_fd;
 	int	status;
@@ -58,17 +41,16 @@ int	exe_redirect_input(t_ast_redirection *redir_node,
 	dup2(input_fd, 0);
 	// after dup2, fd=0 already point to file, input_fd becomes a useless alias
 	close(input_fd);
-	status = execute(redir_node->exe_child, EXEC_PARENT, shell);
+	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
 	// after executing child, need to change stdin back to terminal
 	// use backup orignal_stdio to link stdin(0) to original places
-	dup2(orignal_stdin, STDIN_FILENO);
+	dup2(original_stdin, STDIN_FILENO);
 	// after recover to terminal, close the temp fd
 	close(original_stdin);
 	return (status);
 }
 
-int	exe_redirect_output(t_ast_redirection *redir_node,
-		t_shell_context *shell_conetext)
+int	exe_redirect_output(t_ast_redirection *redir_node, t_shell_context *sh_ctx)
 {
 	int	output_fd;
 	int	status;
@@ -80,28 +62,45 @@ int	exe_redirect_output(t_ast_redirection *redir_node,
 	original_stdout = dup(STDOUT_FILENO);
 	dup2(output_fd, 0);
 	close(output_fd);
-	status = execute(redir_node->exe_child, EXEC_PARENT, shell);
+	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
 	dup2(original_stdout, STDOUT_FILENO);
 	close(original_stdout);
 	return (status);
 }
 
 int	execute_redirect_append_output(t_ast_redirection *redir_node,
-		t_shell_context *shell_conetext)
+		t_shell_context *sh_ctx)
 {
-	int append_fd;
-	int status;
-	int original_stdout;
+	int	append_fd;
+	int	status;
+	int	original_stdout;
 
 	append_fd = open(redir_node->file_path, O_WRONLY | O_CREAT | O_APPEND,
 			0644);
-	if (output_fd == -1)
+	if (append_fd == -1)
 		return (1); // need to return detailed error info too
 	original_stdout = dup(STDOUT_FILENO);
 	dup2(append_fd, 0);
 	close(append_fd);
-	status = execute(redir_node->child, EXEC_PARENT, shell);
+	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
 	dup2(original_stdout, STDOUT_FILENO);
 	close(original_stdout);
+	return (status);
+}
+
+int	execute_redirection(t_ast *node, t_shell_context *sh_ctx)
+{
+	int					status;
+	t_ast_redirection	*redir_node;
+
+	redir_node = &node->u_data.redirection;
+	status = 1;
+	if (redir_node->redir_type == REDIR_INPUT
+		|| redir_node->redir_type == REDIR_HEREDOC)
+		status = exe_redirect_input(redir_node, sh_ctx);
+	else if (redir_node->redir_type == REDIR_OUTPUT)
+		status = exe_redirect_output(redir_node, sh_ctx);
+	else if (redir_node->redir_type == REDIR_APPEND)
+		status = execute_redirect_append_output(redir_node, sh_ctx);
 	return (status);
 }
