@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishellparse.h                                   :+:      :+:    :+:   */
+/*   minishellparse_nouse.h                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 16:13:39 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 19:01:48 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/10 20:00:33 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,17 +320,17 @@ void				error(const char *context, char *description,
 						int exit_status, t_shell_context *sh);
 
 /*****************safe functions *******************/
-t_list				*ft_lstnew(void *content);
-int					ft_lstsize(t_list *lst);
-t_list				*ft_lstlast(t_list *lst);
-void				ft_lstadd_front(t_list **lst, t_list *n);
-void				ft_lstadd_back(t_list **lst, t_list *n);
-void				ft_lstiter(t_list *lst, void (*f)(void *));
-void				ft_lstdelone(t_list *lst, void (*del)(void *));
-void				ft_lstclear(t_list **lst, void (*del)(void *));
+// t_list				*ft_lstnew(void *content);
+// int					ft_lstsize(t_list *lst);
+// t_list				*ft_lstlast(t_list *lst);
+// void				ft_lstadd_front(t_list **lst, t_list *n);
+// void				ft_lstadd_back(t_list **lst, t_list *n);
+// void				ft_lstiter(t_list *lst, void (*f)(void *));
+// void				ft_lstdelone(t_list *lst, void (*del)(void *));
+// void				ft_lstclear(t_list **lst, void (*del)(void *));
 
-t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
-						void (*del)(void *));
+// t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
+// 						void (*del)(void *));
 
 /*safe alloc*/
 
