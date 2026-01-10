@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   test_lexer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: you                                           +#+  +:+       +#+        */
+/*   By: you                                           +#+  +:+
+	+#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30                                #+#    #+#             */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <string.h> /* memset */
-#include <stdlib.h>
-
-#include "safefunctions.h"
+#include "lexer.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "safefunctions.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> /* memset */
 
 /*
    适配你“当前版本”的 token_type：
@@ -63,7 +63,6 @@ static void	print_one_token_pretty(int i, t_list *node)
 
 	tk = (t_token *)node->content;
 	val = (tk && tk->value) ? tk->value : "(null)";
-
 	/* 一行彩色：value + type */
 	printf("Token[%02d]: \033[0;36m%-20s\033[0m  Type: \033[0;35m%-18s\033[0m\n",
 		i, val, (tk ? get_token_type_name(tk->type) : "(null-token)"));
@@ -108,10 +107,9 @@ void	print_token_list(t_list *tokens)
 	while (cur)
 	{
 		tk = (t_token *)cur->content;
-		printf("[%02d] Type: %-18s  Value: %s\n",
-			index,
-			(tk ? get_token_type_name(tk->type) : "(null-token)"),
-			(tk && tk->value) ? tk->value : "(null)");
+		printf("[%02d] Type: %-18s  Value: %s\n", index,
+			(tk ? get_token_type_name(tk->type) : "(null-token)"), (tk
+				&& tk->value) ? tk->value : "(null)");
 		cur = cur->next;
 		index++;
 	}
@@ -164,25 +162,21 @@ void	run_test(const char *input)
 	printf("\n==============================\n");
 	printf("Input: \"%s\"\n", input);
 	printf("==============================\n");
-
 	memset(&sh, 0, sizeof(sh));
 	tokens = NULL;
-
 	ret = lexer((char *)input, &tokens, &sh);
 	printf("[lexer return] %d\n", ret);
-
 	print_token_list(tokens);
 	display_tokens(tokens);
-
 	/* 释放：如果你工程用 tracking，请换成 free_scope(PROMPT, &sh) 之类 */
-	//free_tokens_manual(&tokens);
+	// free_tokens_manual(&tokens);
 }
 
 /* main 两种模式：
    1) argv 模式：./lexer_test "cmd..."
    2) 内置用例模式：不传参就跑一组测试
 */
-/*
+
 int	main(int argc, char **argv)
 {
 	if (argc == 2)
@@ -190,8 +184,6 @@ int	main(int argc, char **argv)
 		run_test(argv[1]);
 		return (0);
 	}
-
-
 	run_test("ls -l | grep 'file.c' > output");
 	run_test("echo \"Hello\" && echo World");
 	run_test("echo a||echo b");
@@ -199,8 +191,6 @@ int	main(int argc, char **argv)
 	run_test("cat << EOF | wc >> out");
 	run_test("cmd&&(echo x||echo y)|grep z");
 	run_test("single_quotes_unclosed_start'");
-	run_test("echo a & echo b");  
-
+	run_test("echo a & echo b");
 	return (0);
 }
-*/

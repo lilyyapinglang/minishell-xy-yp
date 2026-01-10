@@ -135,9 +135,9 @@ endif
 SRCS := $(filter-out %_test.c %_tests.c %_backup.c %_old.c,$(SRCS))
 
 # ------------------ Tests (standalone) ------------------
-LEXER_TEST_SRC    := src/lexer/lexer_test.c
-PARSER_TEST_SRC   := src/parser/parser_test.c
-EXPANDER_TEST_SRC := src/expander/expander_test.c
+LEXER_TEST_SRC    := tests/unit/lexer_test.c
+PARSER_TEST_SRC   := tests/unit/parser_test.c
+EXPANDER_TEST_SRC := tests/unit/expander_test.c
 
 # For tests, do NOT link runtime modules by default
 LEXER_TEST_SRCS    := $(SRCS_LEXER) $(SRCS_SAFE) $(LEXER_TEST_SRC)
@@ -193,6 +193,16 @@ test_expander: $(FTPRINTF_A) $(call make_objs,$(EXPANDER_TEST_SRCS))
 		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/expander_test
 	@echo "Built: $(TEST_DIR)/expander_test"
 
+run_test_lexer: test_lexer
+	./$(TEST_DIR)/lexer_test
+
+run_test_parser: test_parser
+	./$(TEST_DIR)/parser_test
+
+run_test_expander: test_expander
+	./$(TEST_DIR)/expander_test
+
+run_test: run_test_lexer run_test_parser run_test_expander
 clean:
 	rm -rf $(BUILD_DIR)
 
@@ -201,7 +211,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test test_lexer test_parser test_expander
-
+.PHONY: all clean fclean re test test_lexer test_parser test_expander \
+        run_test run_test_lexer run_test_parser run_test_expander
 -include $(DEPS)
 -include $(FTPRINTF_DEPS)
