@@ -1,5 +1,6 @@
 
-#include "../inc/minishell.h"
+#include "../lib/libft/libft.h"
+#include "utils.h"
 
 // TODO
 int	ft_strcmp(const char *s1, const char *s2)

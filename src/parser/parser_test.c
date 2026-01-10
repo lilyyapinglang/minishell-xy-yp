@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parse.h"
-#include "minishellparse.h"
-#include "safefunctions.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 int         lexer(char *input, t_list **token_list, t_shell_context *sh);
 int         parser(t_list *token_list, t_ast **ast, t_shell_context *sh);

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_sub.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 23:45:41 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:24:53 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 14:53:43 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
-#include "minishellparse.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 t_ast *parse_and_or(t_list **token, t_shell_context *sh)
 {
@@ -103,7 +103,7 @@ t_ast *parse_command(t_list **token, t_shell_context *sh)
     if (argc == 0)
         return (NULL);
 
-    argv = calloc_s(argc + 1, sizeof(char *), PROMPT_S, sh);
+    argv = calloc_s(argc + 1, sizeof(char *), ALLOC_PROMPT, sh);
 
     i = 0;
     while (i < argc)

@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 18:43:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/08 17:02:24 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/10 16:54:37 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "minishell.h"
 
 // increment shell level at each initiation
 void	increment_shlvl(t_shell_context *sh_ctx)

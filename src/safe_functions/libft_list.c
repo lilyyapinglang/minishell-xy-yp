@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   libft_list.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 14:37:54 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 17:14:04 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 15:51:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "safefunctions.h"
 #include "parse.h"
-#include "minishellparse.h"
+//#include "minishellparse.h"
 
 void	ft_lstadd_back(t_list **lst, t_list *n)
 {

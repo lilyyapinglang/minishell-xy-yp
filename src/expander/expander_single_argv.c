@@ -1,22 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_single_argv.c                               :+:      :+:    :+:   */
+/*   expander_single_argv.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:09:47 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:09:59 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 16:44:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
+#include "../libft/libft.h"
+#include "expander.h"
+#include "ms_error.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "safefunctions.h"
+#include "shell_context.h"
 
-void expand_one_arg(char *str, t_list **expanded_args, t_shell_context *sh)
+void	expand_one_arg(char *str, t_list **expanded_args, t_shell_context *sh)
 {
-	t_expander exp;
+	t_expander	exp;
 
 	init_expander(&exp, str, expanded_args, sh);
 	while (str[exp.i])
@@ -35,7 +38,7 @@ void expand_one_arg(char *str, t_list **expanded_args, t_shell_context *sh)
 	add_token_to_list(&exp, sh);
 }
 
-void no_quote_state(char *str, t_expander *exp, t_shell_context *sh)
+void	no_quote_state(char *str, t_expander *exp, t_shell_context *sh)
 {
 	if (str[exp->i] == '~')
 		expand_tilde(str, exp, sh);
@@ -43,7 +46,8 @@ void no_quote_state(char *str, t_expander *exp, t_shell_context *sh)
 		expand_var(str, exp, sh);
 	else if (str[exp->i] == ' ')
 		add_token_to_list(exp, sh);
-	else if (str[exp->i] == '\"') // here we are using \ to interprete " as a ", not \ itself
+	else if (str[exp->i] == '\"') // here we are using \ to interprete " as a ",
+		// not \ itself
 		exp->context = IN_DOUBLE_QUOTE;
 	else if (str[exp->i] == '\'')
 		exp->context = IN_SINGLE_QUOTE;
@@ -51,7 +55,7 @@ void no_quote_state(char *str, t_expander *exp, t_shell_context *sh)
 		exp->buf[exp->buf_i++] = str[exp->i];
 }
 
-void single_quote_state(char *str, t_expander *exp)
+void	single_quote_state(char *str, t_expander *exp)
 {
 	if (str[exp->i] == '\'')
 	{
@@ -63,7 +67,7 @@ void single_quote_state(char *str, t_expander *exp)
 		exp->buf[exp->buf_i++] = str[exp->i];
 }
 
-void double_quote_state(char *str, t_expander *exp, t_shell_context *sh)
+void	double_quote_state(char *str, t_expander *exp, t_shell_context *sh)
 {
 	if (str[exp->i] == '$')
 		expand_var(str, exp, sh);

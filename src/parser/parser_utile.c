@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utile.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:16:00 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:24:33 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 14:53:50 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
-#include "minishellparse.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 void init_ast_node(t_ast **node, t_ast_type type, t_shell_context *sh)
 {
-    *node = calloc_s(1, sizeof(t_ast), PROMPT_S, sh);
+    *node = calloc_s(1, sizeof(t_ast), ALLOC_PROMPT, sh);
     (*node)->type = type;
 }
 

@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   safe_list.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:47:00 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:28:55 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:38:45 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "parse_error.h"
+#include "safefunctions.h"
+
+// #include "minishellparse.h"
 
 void	lst_add_front_s(void *content, t_list **lst, t_tracking_scope scope,
 		t_shell_context *sh)
@@ -45,7 +47,6 @@ void	check_node_alloc(t_list *new_node, void *pointer, t_shell_context *sh)
 	}
 }
 
-
 void	remove_list_node(t_list **node, t_list **head,
 		void (*free_function)(void *), bool free_node)
 {
@@ -64,12 +65,22 @@ void	remove_list_node(t_list **node, t_list **head,
 		ft_lstdelone(to_remove, free_function);
 }
 
+int	count_strs(char **argv)
+{
+	int	i;
+
+	i = 0;
+	while (argv && argv[i])
+		i++;
+	return (i);
+}
 void	add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh)
 {
 	char	**new_array;
 	int		i;
 
-	new_array = calloc_s(count_strs(*array) + 2, sizeof(char *), PROMPT_S, sh);
+	new_array = calloc_s(count_strs(*array) + 2, sizeof(char *), ALLOC_PROMPT,
+			sh);
 	i = 0;
 	while (array && (*array)[i])
 	{
@@ -79,14 +90,4 @@ void	add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh)
 	new_array[i] = new_arg;
 	new_array[i + 1] = NULL;
 	*array = new_array;
-}
-
-int	count_strs(char **argv)
-{
-	int	i;
-
-	i = 0;
-	while (argv && argv[i])
-		i++;
-	return (i);
 }

@@ -3,22 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   expander_env.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:09:02 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:09:04 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:12:27 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
+#include "../libft/libft.h"
+#include "env.h"
+#include "expander.h"
+#include "ms_error.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "safefunctions.h"
+#include "shell_context.h"
 
-
-char *expand_env_var(char *str, t_expander *exp, t_shell_context *sh)
+char	*expand_env_var(char *str, t_expander *exp, t_shell_context *sh)
 {
-	char *name;
-	char *env_value;
+	char	*name;
+	char	*env_value;
 
 	name = get_valid_name(str, exp, sh);
 	if (name == NULL)
@@ -27,21 +30,24 @@ char *expand_env_var(char *str, t_expander *exp, t_shell_context *sh)
 		exp->buf[exp->buf_i] = '\0';
 		return (NULL);
 	}
-	env_value = value(env_var(name, sh->env));
+	// env_value = value(env_var(name, sh->env)); // lily changed
+	//char					*env_get_value(t_list *env, const char *name);
+	env_value = env_get_value(sh->env,name);
 	exp->i += ft_strlen(name);
 	return (env_value);
 }
 
-char *get_valid_name(char *str, t_expander *exp, t_shell_context *sh)
+char	*get_valid_name(char *str, t_expander *exp, t_shell_context *sh)
 {
-	int j;
-	char *name;
+	int		j;
+	char	*name;
 
 	j = exp->i + 1;
 	if (!ft_isalpha(str[j]) && str[j] != '_')
 		return (NULL);
 	while (ft_isalnum(str[j]) || str[j] == '_')
 		j++;
-	name = s_alloc(ft_substr(str, exp->i + 1, j - exp->i - 1), PROMPT, sh);
+	name = s_alloc(ft_substr(str, exp->i + 1, j - exp->i - 1), ALLOC_PROMPT,
+			sh);
 	return (name);
 }

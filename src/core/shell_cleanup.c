@@ -1,5 +1,6 @@
 #include "../inc/minishell.h"
 #include "../inc/safefunctions.h"
+#include "env.h"
 
 static void	cleanup_temp_files(t_shell_context *sh_ctx)
 {
@@ -45,7 +46,7 @@ void	shell_destroy(t_shell_context *sh_ctx)
 	// clear t_list shell_context->allocated_pointers[TRACK_SHELL]
 	/* shell-lifetime tracked allocations */
 	ft_lstclear(&sh_ctx->allocated_pointers[ALLOC_SHELL], free);
-	//rl_clear_history();
+	// rl_clear_history();
 }
 
 void	shell_exit(t_shell_context *sh_ctx, int status)

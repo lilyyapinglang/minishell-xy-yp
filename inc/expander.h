@@ -1,12 +1,54 @@
-
 #ifndef EXPANDER_H
-#define EXPANDER_H
+# define EXPANDER_H
 
-#include "minishell.h"
-#include "parse.h"
-typedef struct s_ast t_ast;
-typedef struct s_shell_context t_shell_context;
-t_ast *expand_node(t_ast *node, t_shell_context *sh);
+# include "env.h"
+# include "parse.h"
+# include "shell_context.h"
+/*expander*/
 
+typedef enum e_exp_context
+{
+	NO_QUOTE,
+	IN_SINGLE_QUOTE,
+	IN_DOUBLE_QUOTE
+}					t_exp_context;
 
+typedef struct s_expander
+{
+	t_exp_context	context;
+	int				i;
+	char			*buf;
+	int				buf_size;
+	int				buf_i;
+	t_list			**tokens;
+	bool			empty_quotes;
+	t_list			*wildcards_position;
+}					t_expander;
+
+t_ast	*expander(t_ast *node, t_shell_context *sh); // or expander()
+void				expand_one_arg(char *str, t_list **expanded_args,
+						t_shell_context *sh);
+void				init_expander(t_expander *exp, char *str,
+						t_list **expanded_args, t_shell_context *sh);
+void				no_quote_state(char *str, t_expander *exp,
+						t_shell_context *sh);
+void				single_quote_state(char *str, t_expander *exp);
+void				double_quote_state(char *str, t_expander *exp,
+						t_shell_context *sh);
+
+char				*expand_env_var(char *str, t_expander *exp,
+						t_shell_context *sh);
+
+char				*get_valid_name(char *str, t_expander *exp,
+						t_shell_context *sh);
+void				expand_tilde(char *str, t_expander *exp,
+						t_shell_context *sh);
+void				expand_var(char *str, t_expander *exp, t_shell_context *sh);
+void				*add_token_to_list(t_expander *exp, t_shell_context *sh);
+
+char				**convert_list_to_array(t_list **lst, t_shell_context *sh);
+void				add_variable_to_buffer(char *value, t_expander *exp,
+						t_shell_context *sh);
+char				*word_splitting(t_expander *exp, char *value,
+						t_shell_context *sh);
 #endif

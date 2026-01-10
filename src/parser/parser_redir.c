@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_redir.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:20:22 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 16:48:36 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 14:50:41 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
-#include "minishellparse.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 t_ast *parse_redir(t_list **token, t_shell_context *sh)
 {

@@ -1,6 +1,7 @@
+#include "../inc/lexer.h"
 #include "../inc/minishell.h"
-#include <readline/history.h>
-#include <readline/readline.h>
+#include "ms_readline.h"
+#include "parser.h"
 
 /*non interactive input handler for testing purpose*/
 // TODO:

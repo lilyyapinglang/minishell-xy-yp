@@ -3,23 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   expander_utile.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:10:31 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 19:10:41 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 17:45:49 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
+#include "../libft/libft.h"
+#include "expander.h"
+#include "ms_error.h"
 #include "parse.h"
-#include "minishellparse.h"
+#include "safefunctions.h"
+#include "shell_context.h"
+#include "utils.h"
 
-void init_expander(t_expander *exp, char *str, t_list **expanded_args,
-				   t_shell_context *sh)
+void	init_expander(t_expander *exp, char *str, t_list **expanded_args,
+		t_shell_context *sh)
 {
 	exp->i = 0;
 	exp->buf_size = ft_strlen(str) + 1;
-	exp->buf = calloc_s(ft_strlen(str) + 1, sizeof(char), PROMPT, sh);
+	exp->buf = calloc_s(ft_strlen(str) + 1, sizeof(char), ALLOC_PROMPT, sh);
 	exp->buf_i = 0;
 	exp->context = NO_QUOTE;
 	exp->tokens = expanded_args;
@@ -27,50 +31,56 @@ void init_expander(t_expander *exp, char *str, t_list **expanded_args,
 	exp->wildcards_position = NULL;
 }
 
-void *add_token_to_list(t_expander *exp, t_shell_context *sh)
+static void	filename_expansion(t_expander *exp, t_shell_context *sh)
 {
-	char *content;
+	(void)exp;
+	(void)sh;
+}
+void	*add_token_to_list(t_expander *exp, t_shell_context *sh)
+{
+	char	*content;
 
 	if (exp->wildcards_position)
 		filename_expansion(exp, sh);
 	if (exp->buf_i != 0)
 	{
 		exp->buf[exp->buf_i] = '\0';
-		content = strdup_s(exp->buf, PROMPT, sh);
-		lst_add_back_s(content, exp->tokens, PROMPT, sh);
+		content = strdup_s(exp->buf, ALLOC_PROMPT, sh);
+		lst_add_back_s(content, exp->tokens, ALLOC_PROMPT, sh);
 		exp->buf_i = 0;
 	}
 	else if (exp->empty_quotes)
 	{
-		content = strdup_s("", PROMPT, sh);
-		lst_add_back_s(content, exp->tokens, PROMPT, sh);
+		content = strdup_s("", ALLOC_PROMPT, sh);
+		lst_add_back_s(content, exp->tokens, ALLOC_PROMPT, sh);
 		exp->empty_quotes = false;
 	}
 	return (NULL);
 }
 
-void add_variable_to_buffer(char *value, t_expander *exp, t_shell_context *sh)
+void	add_variable_to_buffer(char *value, t_expander *exp,
+		t_shell_context *sh)
 {
-	char *buf_replace;
+	char	*buf_replace;
 
 	exp->buf_size += ft_strlen(value);
-	buf_replace = calloc_s(exp->buf_size, sizeof(char), PROMPT, sh);
+	buf_replace = calloc_s(exp->buf_size, sizeof(char), ALLOC_PROMPT, sh);
 	ft_strlcpy(buf_replace, exp->buf, exp->buf_i + 1);
 	ft_strlcat(buf_replace, value, exp->buf_i + ft_strlen(value) + 1);
 	exp->buf = buf_replace;
 	exp->buf_i += ft_strlen(value);
 }
 
-char **convert_list_to_array(t_list **lst, t_shell_context *sh)
+char	**convert_list_to_array(t_list **lst, t_shell_context *sh)
 {
-	t_list *current;
-	char **args;
-	int i;
+	t_list	*current;
+	char	**args;
+	int		i;
 
 	i = 0;
 	current = *lst;
-	args = (char **)calloc_s(ft_lstsize(current) + 1, sizeof(char *), PROMPT,
-							 sh);
+	args = (char **)calloc_s(ft_lstsize(current) + 1, sizeof(char *),
+			ALLOC_PROMPT, sh);
 	while (current != NULL)
 	{
 		args[i++] = (char *)current->content;
@@ -80,13 +90,13 @@ char **convert_list_to_array(t_list **lst, t_shell_context *sh)
 	return (args);
 }
 
-char *word_splitting(t_expander *exp, char *value, t_shell_context *sh)
+char	*word_splitting(t_expander *exp, char *value, t_shell_context *sh)
 {
-	char **split;
+	char	**split;
 
-	if (strlen(value) == 0)
+	if (ft_strlen(value) == 0)
 		return (value);
-	split = split_s(value, ' ', PROMPT, sh);
+	split = split_s(value, ' ', ALLOC_PROMPT, sh);
 	if (!*split)
 		return (add_token_to_list(exp, sh));
 	if (ft_strcmp(value, split[0]) == 0)
@@ -104,7 +114,7 @@ char *word_splitting(t_expander *exp, char *value, t_shell_context *sh)
 		add_token_to_list(exp, sh);
 		if (!*(split + 1) && value[ft_strlen(value) - 1] != ' ')
 			return (*split);
-		lst_add_back_s(*split++, exp->tokens, PROMPT, sh);
+		lst_add_back_s(*split++, exp->tokens, ALLOC_PROMPT, sh);
 	}
 	return (NULL);
 }

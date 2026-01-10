@@ -1,4 +1,5 @@
 #include "../inc/minishell.h"
+#include "expander.h"
 
 static int	finalize_status(int status, t_exec_context exe_ctx,
 		t_shell_context *sh_ctx)
@@ -37,7 +38,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// 4. why not in side exeectuion_redir or execution_cmd ,
 	// to gurantee it will be only expanded once
 	if (node->type == AST_REDIRECTION || node->type == AST_COMMAND)
-		expand_node(node, sh_ctx);
+		expander(node, sh_ctx);
 	/*
 
 	typedef struct s_ast_logical

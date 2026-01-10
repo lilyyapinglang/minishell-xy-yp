@@ -2,15 +2,18 @@
 # define MINISHELL_H
 
 // define a comman table as a result of parsing and as a execution plan for execution
-# include "../lib/ft_printf/ft_printf.h"
-#include"list.h"
-#include "tracking.h"
-# include "expander.h"
+# include "../lib/libft/libft.h"
+# include "env.h"
+# include "lexer.h"
+# include "list.h"
 # include "parse.h"
+# include "parser.h"
 # include "safefunctions.h"
+# include "shell_context.h"
+# include "tracking.h"
+# include "utils.h"
 # include <errno.h>
 # include <fcntl.h>
-
 # include <signal.h>
 # include <stdbool.h>
 # include <stddef.h>
@@ -26,10 +29,6 @@
 # define M_PROMPT "minishell$ "
 # define ERROR_PROMPT "minishell: "
 
-typedef struct s_ast			t_ast;
-typedef struct s_ast_command	t_ast_command;
-typedef struct s_shell_context	t_shell_context;
-
 // structures
 
 /**
@@ -43,12 +42,12 @@ typedef struct s_shell_context	t_shell_context;
  * `content` ownership depends on the usage context.
  */
 
-typedef struct s_env_var
-{
-	char						*name;
-	char						*value;
-	bool						exported;
-}								t_env_var;
+// typedef struct s_env_var
+// {
+// 	char				*name;
+// 	char				*value;
+// 	bool				exported;
+// }						t_env_var;
 
 // ----- CORE ----- //
 /**
@@ -82,12 +81,11 @@ typedef struct s_env_var
 // 	// exit status of the last executed command ($?)
 // }						t_shell_context;
 
-
-typedef enum s_prompt_mode
-{
-	MAIN_PROMPT,
-	HEREDOC_PROMPT
-}								t_prompt_mode;
+// typedef enum s_prompt_mode
+// {
+// 	MAIN_PROMPT,
+// 	HEREDOC_PROMPT
+// }						t_prompt_mode;
 
 // -----Error
 
@@ -132,21 +130,22 @@ int								wait_status_to_shell_status(int wait_status);
 
 // --list ops
 
-t_list							*ft_lstnew(void *content);
-void							ft_lstadd_front(t_list **lst, t_list *new);
-int								ft_lstsize(t_list *lst);
-t_list							*ft_lstlast(t_list *lst);
-void							ft_lstadd_back(t_list **lst, t_list *new);
+// t_list							*ft_lstnew(void *content);
+// void							ft_lstadd_front(t_list **lst, t_list *new);
+// int								ft_lstsize(t_list *lst);
+// t_list							*ft_lstlast(t_list *lst);
+// void							ft_lstadd_back(t_list **lst, t_list *new);
 // void					ft_lstdelone(t_list **lst, void (*del)(void *));
-void							ft_lstclear(t_list **lst, void (*del)(void *));
+// void					ft_lstclear(t_list **lst, void (*del)(void *));
 
-// utils-general
+// // utils-general
 
-int								ft_strcmp(const char *s1, const char *s2);
-ssize_t							ft_write_fd(const char *s, int fd);
-void							free_env_var(void *content);
-int								check_all_digit(char *str);
-int								is_only_n(char *str);
+// int						ft_strcmp(const char *s1, const char *s2);
+// ssize_t					ft_write_fd(const char *s, int fd);
+// void					free_env_var(void *content);
+// int						check_all_digit(char *str);
+// int						is_only_n(char *str);
+
 // -----main-----
 
 void							init_shell(t_shell_context *sh_ctx,
@@ -268,7 +267,7 @@ int								execute_builtin(t_ast_command *cmd,
 
 //-----  signal-----
 
-volatile sig_atomic_t			g_latest_signal_status = 0;
+extern volatile sig_atomic_t	g_latest_signal_status;
 int								set_signal_handler(int sig_num,
 									void (*signal_handler)(int), int flags);
 void							handle_sigint_in_heredoc_mode(int sig_num);
@@ -280,32 +279,31 @@ void							set_signal_in_exe_child_process(void);
 
 //// ----- ENVIRONMENT ----- //
 
-t_list							*init_env(char **envp, t_shell_context *sh_ctx);
-void							print_env(bool export_format,
-									t_shell_context *sh_ctx);
-char							**build_envp_from_env_list(t_shell_context *sh_ctx);
-void							add_new_env_var(t_list **env_list,
-									const char *name, const char *value,
-									bool exported, t_shell_context *sh_ctx);
+// t_list					*init_env(char **envp, t_shell_context *sh_ctx);
+// void					print_env(bool export_format, t_shell_context *sh_ctx);
+// char					**build_envp_from_env_list(t_shell_context *sh_ctx);
+// void					add_new_env_var(t_list **env_list, const char *name,
+// 							const char *value, bool exported,
+// 							t_shell_context *sh_ctx);
 
-t_list							*env_node_find(t_list *env, const char *name);
-char							*env_get_value(t_list *env, const char *name);
-int								env_set_value(t_shell_context *sh_ctx,
-									const char *name, const char *value,
-									bool exported);
-int								env_append_value(t_shell_context *sh_ctx,
-									const char *name, const char *append_str,
-									bool exported);
-int								env_unset(t_shell_context *sh_ctx,
-									const char *name);
-int								env_mark_exported(t_shell_context *ctx,
-									const char *name);
-t_env_var						*env_var_from_node(t_list *node);
+// t_list					*env_node_find(t_list *env, const char *name);
+// char					*env_get_value(t_list *env, const char *name);
+// int						env_set_value(t_shell_context *sh_ctx,
+//	const char *name,
+// 							const char *value, bool exported);
+// int						env_append_value(t_shell_context *sh_ctx,
+// 							const char *name, const char *append_str,
+// 							bool exported);
+// int						env_unset(t_shell_context *sh_ctx,
+//	const char *name);
+// int						env_mark_exported(t_shell_context *ctx,
+// 							const char *name);
+// t_env_var				*env_var_from_node(t_list *node);
 
 //---test
 t_ast_command					*build_fake_cmd_table_for_tests(void);
-# define DEFAULT_PATH \
-	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
-:/usr/local/sbin:/opt/bin:/opt/sbin"
+// # define DEFAULT_PATH \
+// 	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
+// :/usr/local/sbin:/opt/bin:/opt/sbin"
 
 #endif

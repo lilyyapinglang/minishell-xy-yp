@@ -1,4 +1,8 @@
-#include "../inc/minishell.h"
+#include "../lib/libft/libft.h"
+#include "env.h"
+#include "safefunctions.h"
+#include "stdio.h" //testonly
+#include "utils.h"
 
 /*
 
@@ -12,6 +16,17 @@ export 的作用是：让某个变量进入将来子进程的 envp（即“导�
 exported 的意义：
 这个变量是否应该被放进 env_to_char_array() 生成的 envp（传给 execve）。
 */
+
+
+void	free_env_var(void *content)
+{
+	t_env_var *var;
+
+	var = (t_env_var *)content;
+	free(var->name);
+	free(var->value);
+	free(var);
+}
 
 t_env_var	*env_var_from_node(t_list *node)
 {

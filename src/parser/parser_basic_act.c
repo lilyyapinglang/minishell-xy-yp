@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_basic_act.c                                  :+:      :+:    :+:   */
+/*   parser_basic_act.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 23:28:51 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 16:30:53 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 14:50:31 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
-#include "minishellparse.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 t_token_type peek_list(t_list *tok)
 {

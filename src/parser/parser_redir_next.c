@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_redir_next.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:21:22 by xuewang           #+#    #+#             */
-/*   Updated: 2025/12/30 16:30:47 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/01/10 14:50:38 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
-#include "parse.h"
-#include "minishellparse.h"
+#include "parser.h"
+#include "parse_error.h"   // only if it uses set_syntax_error/report_syntax_error
+#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 t_ast	*build_redirected_command(t_ast *prefix, t_ast *suffix, t_ast *command)
 {
