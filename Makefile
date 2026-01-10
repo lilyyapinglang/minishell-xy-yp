@@ -203,8 +203,14 @@ run_test_expander: test_expander
 	./$(TEST_DIR)/expander_test
 
 run_test: run_test_lexer run_test_parser run_test_expander
+
+val: $(NAME)
+	@if ! [ -f "ignore.supp" ]; then make ignore; fi
+	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
+  
 clean:
 	rm -rf $(BUILD_DIR)
+
 
 fclean: clean
 	rm -f $(NAME)
