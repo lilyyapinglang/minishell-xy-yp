@@ -21,6 +21,12 @@ CPPFLAGS += $(READLINE_INC)
 LDFLAGS  += $(READLINE_LIB)
 $(NAME): LDLIBS   += $(READLINE_LDLIBS)
 
+# ------------------ Readline (Linux/WSL fallback) ------------------
+# If brew readline not found, assume system readline
+ifeq ($(READLINE_PREFIX),)
+  LDLIBS += -lreadline -lhistory -lncurses
+endif
+
 # ------------------ Build dirs ------------------
 BUILD_DIR := build
 OBJ_DIR   := $(BUILD_DIR)/obj
