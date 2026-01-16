@@ -2,7 +2,7 @@ NAME := minishell
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
-CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft
+CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 
@@ -72,6 +72,13 @@ FTPRINTF_SRCS := \
   lib/libft/ft_tolower.c \
   lib/libft/ft_toupper.c
 
+# ------------------ get_next_line ------------------
+GNL_DIR := lib/get_next_line
+
+GNL_SRCS := \
+  $(GNL_DIR)/get_next_line.c \
+  $(GNL_DIR)/get_next_line_utils.c
+
 # ------------------ Project SRCS ------------------
 # 1) Parse world (used by minishell and tests)
 SRCS_LEXER := \
@@ -127,7 +134,7 @@ SRCS_RUNTIME := \
   src/execution/executor.c
 
 
-SRCS := $(SRCS_RUNTIME) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE)
+SRCS := $(SRCS_RUNTIME) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE) $(GNL_SRCS)
 
 WITH_EXPANDER ?= 1
 
