@@ -255,7 +255,10 @@ int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
 		set_signal_in_exe_child_process();
 		/// reuse run in child logic
 		// status = execute(node, RUN_IN_CHILD, sh_ctx);
+		printf("i'm in fork_and_run_in_child, before execute \n");
+		printf("node now is: %s\n", node->u_data.command.args[1]);
 		execute(node, RUN_IN_CHILD, sh_ctx);
+		printf("i'm in fork_and_run_in_child, after execute \n");
 		exit(sh_ctx->last_status); // should be unreachable, safety net
 	}
 	while (waitpid(pid, &wait_status, 0) == -1)
@@ -267,6 +270,7 @@ int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
 	report_child_termination_signal(wait_status, NULL, sh_ctx);
 	return (wait_status_to_shell_status(wait_status));
 }
+
 int	execute_command(t_ast *node, t_exec_context exe_ctx,
 		t_shell_context *sh_ctx)
 {
@@ -303,7 +307,10 @@ int	execute_command(t_ast *node, t_exec_context exe_ctx,
 		// return (127);
 	}
 	else if (exe_ctx == RUN_FORK_WAIT)
+	{
+		printf("I am in run_fork_wait\n ");
 		return (fork_and_run_cmd_in_child(node, sh_ctx));
+	}
 	// has to be executed in parent process,shell process
 	else if (exe_ctx == RUN_IN_SHELL)
 	{
@@ -314,5 +321,6 @@ int	execute_command(t_ast *node, t_exec_context exe_ctx,
 	}
 	// need to fork , parent fork, child exe as run in child, parent wait
 	// default folk
+	printf("I am in default fork \n ");
 	return (fork_and_run_cmd_in_child(node, sh_ctx));
 }
