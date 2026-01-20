@@ -32,13 +32,15 @@ int	exe_redirect_input(t_ast_redirection *redir_node, t_shell_context *sh_ctx)
 	// now i have a file pipe, not not yet stdin (fd=0)
 	input_fd = open(redir_node->file_path, O_RDONLY);
 	if (input_fd == -1)
-		return (1); // need to return detailed error info too
+		// need to return detailed error info too. eg bash: input.txt: No such file or directory
+		return (print_errno_n_return(1, "minishell", redir_node->file_path,
+				errno));
 	// let orignal_stdii point to the current stdin,
 	//		which is terminal input, because we are doing to chagne stdin,
 	// so have to save it becasue we need tp return to terminal prompt.
 	original_stdin = dup(STDIN_FILENO);
 	// link stdin behavior to inputfile
-	dup2(input_fd, 0);
+	dup2(input_fd, STDIN_FILENO);
 	// after dup2, fd=0 already point to file, input_fd becomes a useless alias
 	close(input_fd);
 	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
@@ -56,11 +58,13 @@ int	exe_redirect_output(t_ast_redirection *redir_node, t_shell_context *sh_ctx)
 	int	status;
 	int	original_stdout;
 
-	output_fd = open(redir_node->file_path, O_WRONLY);
+	output_fd = open(redir_node->file_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (output_fd == -1)
-		return (1); // need to return detailed error info too
+		// need to return detailed error info too. eg bash: input.txt: No such file or directory
+		return (print_errno_n_return(1, "minishell", redir_node->file_path,
+				errno));
 	original_stdout = dup(STDOUT_FILENO);
-	dup2(output_fd, 0);
+	dup2(output_fd, STDOUT_FILENO);
 	close(output_fd);
 	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
 	dup2(original_stdout, STDOUT_FILENO);

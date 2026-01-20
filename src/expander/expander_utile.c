@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_utile.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:10:31 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 17:45:49 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/12 18:00:01 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,17 +31,10 @@ void	init_expander(t_expander *exp, char *str, t_list **expanded_args,
 	exp->wildcards_position = NULL;
 }
 
-static void	filename_expansion(t_expander *exp, t_shell_context *sh)
-{
-	(void)exp;
-	(void)sh;
-}
 void	*add_token_to_list(t_expander *exp, t_shell_context *sh)
 {
 	char	*content;
 
-	if (exp->wildcards_position)
-		filename_expansion(exp, sh);
 	if (exp->buf_i != 0)
 	{
 		exp->buf[exp->buf_i] = '\0';

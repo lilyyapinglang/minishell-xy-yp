@@ -1,5 +1,6 @@
 #include "../inc/lexer.h"
 #include "../inc/minishell.h"
+#include "get_next_line.h"
 #include "ms_readline.h"
 #include "parser.h"
 #include <errno.h>
@@ -11,7 +12,15 @@
 // TODO:
 char	*non_interactive_input(void)
 {
-	return (NULL);
+	char	*line;
+	char	*trimmed;
+
+	line = get_next_line(STDIN_FILENO);
+	if (!line)
+		return (NULL);
+	trimmed = ft_strtrim(line, "\n");
+	free(line);
+	return (trimmed);
 }
 // TODO
 // void	track_alloc(char *line, t_tracking_scope scope,
@@ -67,7 +76,7 @@ int	prompt_execution(char *user_input, t_shell_context *sh_ctx)
 		status = parser(token_list, &ast, sh_ctx);
 		if (status == EXIT_SUCCESS && ast)
 		{
-			printf("i got ast , ready for exection ! : ) \n");
+			//printf("i got ast , ready for exection ! : ) \n");
 			status = collect_all_heredocs(ast, sh_ctx);
 			if (status == EXIT_SUCCESS)
 				status = execute(ast, RUN_IN_SHELL, sh_ctx);

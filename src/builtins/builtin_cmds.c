@@ -203,18 +203,19 @@ int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 	// argv[1] = xxx ?
 	if (!argv[1])
 	{
-		ft_putchar_fd('\n', STDERR_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 		return (0);
 	}
-	if (ft_strcmp(argv[1], "-n") == 0 && is_only_n(&argv[1][1]))
+	if (ft_strncmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
 	{
 		// write each char to stardard ouput
 		// printf("with -n options \n");
 		strs = &argv[2];
 		while (*strs)
 		{
-			ft_putstr_fd(*strs, STDERR_FILENO);
-			ft_putchar_fd(' ', STDERR_FILENO);
+			ft_putstr_fd(*strs, STDOUT_FILENO);
+			if (*(strs + 1)) // not last one, add space
+				ft_putchar_fd(' ', STDOUT_FILENO);
 			strs++;
 		}
 	}
@@ -224,11 +225,12 @@ int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 		strs = &argv[1];
 		while (*strs)
 		{
-			ft_putstr_fd(*strs, STDERR_FILENO);
-			ft_putchar_fd(' ', STDERR_FILENO);
+			ft_putstr_fd(*strs, STDOUT_FILENO);
+			if (*(strs + 1)) // not last one, add space
+				ft_putchar_fd(' ', STDOUT_FILENO);
 			strs++;
 		}
-		ft_putchar_fd('\n', STDERR_FILENO);
+		ft_putchar_fd('\n', STDOUT_FILENO);
 	}
 	return (0);
 }

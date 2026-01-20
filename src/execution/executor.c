@@ -27,6 +27,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 {
 	int status;
 	status = EXIT_SUCCESS;
+
 	if (!node)
 		return (finalize_status(0, execution_context, sh_ctx));
 
@@ -38,7 +39,13 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// 4. why not in side exeectuion_redir or execution_cmd ,
 	// to gurantee it will be only expanded once
 	if (node->type == AST_REDIRECTION || node->type == AST_COMMAND)
+	{
+		// if (node->type == AST_COMMAND)
+		// 	printf("node->type == AST_COMMDN\n");
+		// printf("I entered node->type expander \n");
 		expander(node, sh_ctx);
+		// printf("haha %s\n", node->u_data.command.args[1]);
+	}
 	/*
 
 	typedef struct s_ast_logical
