@@ -11,40 +11,18 @@
 int	execute_logical(t_ast *node, t_shell_context *sh_ctx)
 {
 	int				left_status;
-	int				right_status;
+	int				result_status;
 	t_ast_logical	*logical_node;
 
 	logical_node = &node->u_data.logical;
 	left_status = execute(logical_node->left, RUN_IN_SHELL, sh_ctx);
-	sh_ctx->last_status = left_status;
-	if (logical_node->operator== TOKEN_AND)
+	result_status = left_status;
+	if (logical_node->operator== TOKEN_AND && left_status == 0)
+		result_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
+	else if (logical_node->operator== TOKEN_OR && left_status != 0)
 	{
-		// execute left first
-		if (left_status != 0)
-			return (1);
-		// left exit with 0; try execute right too
-		if (left_status == 0)
-		{
-			right_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
-			if (right_status == 0)
-				return (0);
-			else
-				return (1);
-		}
+		result_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
 	}
-	else if (logical_node->operator== TOKEN_OR)
-	{
-		// execute left first
-		if (left_status == 0)
-			return (0); // no need to execute right
-		if (left_status != 0)
-		{
-			right_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
-			if (right_status == 0)
-				return (0);
-			else
-				return (1);
-		}
-	}
-	return (sh_ctx->last_status);
+	sh_ctx->last_status = result_status;
+	return (result_status);
 }
