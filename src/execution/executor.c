@@ -40,11 +40,11 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// to gurantee it will be only expanded once
 	if (node->type == AST_REDIRECTION || node->type == AST_COMMAND)
 	{
-		if (node->type == AST_COMMAND)
-			printf("node->type == AST_COMMDN\n");
-		printf("I entered node->type expander \n");
+		// if (node->type == AST_COMMAND)
+		// 	printf("node->type == AST_COMMDN\n");
+		// printf("I entered node->type expander \n");
 		expander(node, sh_ctx);
-		printf("haha %s\n", node->u_data.command.args[1]);
+		// printf("haha %s\n", node->u_data.command.args[1]);
 	}
 	/*
 
