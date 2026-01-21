@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/08 18:18:38 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/21 18:40:43 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,9 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	char	*clean_delim;
 
 	raw_delim = node->u_data.redirection.file_path;
+	printf("raw_delim is %s \n", raw_delim);
 	clean_delim = heredoc_delimiter_strip(raw_delim, NULL, sh_ctx);
+	printf("clean_delim is %s\n", clean_delim);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
 	/* build /tmp/minishell_heredoc_N */
@@ -197,6 +199,7 @@ char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
 	start = 0;
 	end = len;
 	/* strip exactly one matching pair of outer quotes */
+	//Should be not only first one \' but also and the  end if there is paring double quote or signle quote 
 	if (len >= 2 && (raw[0] == '\'' || raw[0] == '"') && raw[len - 1] == raw[0])
 	{
 		if (quoted)
