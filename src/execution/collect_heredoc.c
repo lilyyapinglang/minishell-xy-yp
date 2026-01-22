@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/21 18:40:43 by ylang            ###   ########.fr       */
+/*   Updated: 2026/01/22 22:51:37 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,10 +164,6 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 (cat << EOF
 	hello
 	EOF)
-
-
-
-
 echo hi > a > b
 
 REDIR (>)
@@ -176,7 +172,6 @@ REDIR (>)
 │   └── file: "a"
 └── file: "b"
 */
-
 /*return a newlly allocated string,
 	must be freed by caller or
 	here
@@ -188,29 +183,56 @@ char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
 		t_shell_context *sh_ctx)
 {
 	char	*out;
+	int		j;
 
-	size_t len, i, o, start, end;
+	size_t len, i, o, quote_start, quote_end;
 	(void)sh_ctx;
 	if (quoted)
 		*quoted = false;
 	if (!raw)
 		return (NULL);
 	len = ft_strlen(raw);
-	start = 0;
-	end = len;
+	quote_start = 0;
+	quote_end = len - 1;
+	// end = len;
 	/* strip exactly one matching pair of outer quotes */
-	//Should be not only first one \' but also and the  end if there is paring double quote or signle quote 
-	if (len >= 2 && (raw[0] == '\'' || raw[0] == '"') && raw[len - 1] == raw[0])
+	// Should be not only first one \' but also and the  end if there is paring double quote or signle quote
+	//""""
+	i = 0;
+	while (i < len)
 	{
-		if (quoted)
-			*quoted = true;
-		start = 1;
-		end = len - 1; /* exclusive */
+		if (raw[i] == '\'' || raw[i] == '"')
+		{
+			// start to search from the end, from index len-1
+			j = len - 1;
+			while (j < len && j > i)
+			{
+				if (raw[j] == raw[i])
+				{
+					quote_start = i;
+					quote_end = j;
+					if (quoted)
+						*quoted = true;
+					break ;
+				}
+			}
+		}
+		else if (raw[i] == '\\' && i + 1 < end)
+			i++;
+		out[o++] = raw[i++];
 	}
-	out = malloc((end - start) + 1);
+	// if (len >= 2 && (raw[0] == '\'' || raw[0] == '"') && raw[len
+	//- 1] == raw[0])
+	// {
+	// 	if (quoted)
+	// 		*quoted = true;
+	// 	start = 1;
+	// 	end = len - 1; /* exclusive */
+	// }
+	// out = malloc((end - start) + 1);
 	if (!out)
 		return (NULL);
-	i = start;
+	i = 0;
 	o = 0;
 	while (i < end)
 	{
