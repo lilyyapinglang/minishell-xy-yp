@@ -88,8 +88,10 @@ int								collect_all_heredocs(t_ast *root,
 int								read_heredoc_lines(int fd,
 									const char *delimiter,
 									t_shell_context *sh_ctx);
+// char							*heredoc_delimiter_strip(const char *raw,
+// 									bool *quoted, t_shell_context *sh_ctx);
 char							*heredoc_delimiter_strip(const char *raw,
-									bool *quoted, t_shell_context *sh_ctx);
+									bool *quoted);
 
 // executor
 int								execute(t_ast *node,

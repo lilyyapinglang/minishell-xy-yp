@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/22 22:51:37 by ylang            ###   ########.fr       */
+/*   Updated: 2026/01/23 23:08:55 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,67 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 		free(line);
 	}
 }
+char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted)
+{
+	t_quote_state	mode;
+	char			*ptr;
+	char			*result;
+	char			*result_ptr;
 
+	if (!raw)
+		return (NULL);
+	if (is_quoted)
+		*is_quoted = false;
+	mode = QUOTE_NONE;
+	ptr = (char *)raw;
+	result = malloc(ft_strlen(raw) + 1);
+	if (!result)
+		return (NULL);
+	result_ptr = result;
+	while (*ptr)
+	{
+		if (mode == QUOTE_NONE)
+		{
+			if (*ptr == '\'')
+			{
+				mode = QUOTE_SINGLE;
+				if (is_quoted)
+					*is_quoted = true;
+			}
+			else if (*ptr == '"')
+			{
+				mode = QUOTE_DOUBLE;
+				if (is_quoted)
+					*is_quoted = true;
+			}
+			else
+				*result++ = *ptr;
+		}
+		else if (mode == QUOTE_SINGLE)
+		{
+			if (*ptr == '\'')
+				mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
+		else if (mode == QUOTE_DOUBLE)
+		{
+			if (*ptr == '"')
+				mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
+		ptr++;
+	}
+	if (mode != QUOTE_NONE)
+	{
+		free(result_ptr);
+		printf("syntax error (unclosed quote)\n");
+		return (NULL);
+	}
+	*result = '\0';
+	return (result_ptr);
+}
 /*
 cat << EOF
 hello
@@ -81,7 +141,8 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 
 	raw_delim = node->u_data.redirection.file_path;
 	printf("raw_delim is %s \n", raw_delim);
-	clean_delim = heredoc_delimiter_strip(raw_delim, NULL, sh_ctx);
+	// clean_delim = heredoc_delimiter_strip(raw_delim, NULL, sh_ctx);
+	clean_delim = heredoc_delimiter_strip(raw_delim, NULL);
 	printf("clean_delim is %s\n", clean_delim);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
@@ -179,67 +240,66 @@ REDIR (>)
 	// need to remove quote and escape\
 //'EOF' "EOF"  E"OF" \EOF E\"OF
 */
-char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
-		t_shell_context *sh_ctx)
-{
-	char	*out;
-	int		j;
+// char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
+// 		t_shell_context *sh_ctx)
+// {
+// 	char	*out;
+// 	int		j;
 
-	size_t len, i, o, quote_start, quote_end;
-	(void)sh_ctx;
-	if (quoted)
-		*quoted = false;
-	if (!raw)
-		return (NULL);
-	len = ft_strlen(raw);
-	quote_start = 0;
-	quote_end = len - 1;
-	// end = len;
-	/* strip exactly one matching pair of outer quotes */
-	// Should be not only first one \' but also and the  end if there is paring double quote or signle quote
-	//""""
-	i = 0;
-	while (i < len)
-	{
-		if (raw[i] == '\'' || raw[i] == '"')
-		{
-			// start to search from the end, from index len-1
-			j = len - 1;
-			while (j < len && j > i)
-			{
-				if (raw[j] == raw[i])
-				{
-					quote_start = i;
-					quote_end = j;
-					if (quoted)
-						*quoted = true;
-					break ;
-				}
-			}
-		}
-		else if (raw[i] == '\\' && i + 1 < end)
-			i++;
-		out[o++] = raw[i++];
-	}
-	// if (len >= 2 && (raw[0] == '\'' || raw[0] == '"') && raw[len
-	//- 1] == raw[0])
-	// {
-	// 	if (quoted)
-	// 		*quoted = true;
-	// 	start = 1;
-	// 	end = len - 1; /* exclusive */
-	// }
-	// out = malloc((end - start) + 1);
-	if (!out)
-		return (NULL);
-	i = 0;
-	o = 0;
-	while (i < end)
-	{
-		if (raw[i] == '\\' && i + 1 < end)
-			i++;
-		out[o++] = raw[i++];
-	}
-	out[o] = '\0';
-	return (out);
-}
+// 	size_t len, i, o, quote_start, quote_end;
+// 	(void)sh_ctx;
+// 	if (quoted)
+// 		*quoted = false;
+// 	if (!raw)
+// 		return (NULL);
+// 	len = ft_strlen(raw);
+// 	quote_start = 0;
+// 	quote_end = len - 1;
+// 	// end = len;
+// 	/* strip exactly one matching pair of outer quotes */
+// 	// Should be not only first one \' but also and the  end if there is paring double quote or signle quote
+// 	// E"OF"\h
+// 	i = 0;
+// 	// I need to know the size of out to allocate memory
+// 	while (i < len)
+// 	{
+// 		if (raw[i] == '\'' || raw[i] == '"')
+// 		{
+// 			// start to search from the end, from the last index len-1 till i+1
+// 			j = len - 1;
+// 			while (j < len && j > i)
+// 			{
+// 				// if i find one matching one, i mark i and j,
+// 				if (raw[j] == raw[i] && nootherquoteafter(j, raw[i]), raw)
+// 				{
+// 					quote_start = i;
+// 					quote_end = j;
+// 					new_str = xxx ? ;
+// 					if (quoted)
+// 						*quoted = true;
+// 					break ;
+// 				}
+// 				// if i don't find it,
+// 				j--;
+// 			}
+// 		}
+// 	}
+// 	if (*quoted = true && new_str)
+// 		out = new_str;
+// 	else
+// 	{
+// 		out = malloc(len + 1);
+// 		if (!out)
+// 			return (NULL);
+// 	}
+// 	i = 0;
+// 	o = 0;
+// 	while (i < end)
+// 	{
+// 		if (raw[i] == '\\' && i + 1 < end)
+// 			i++;
+// 		out[o++] = raw[i++];
+// 	}
+// 	out[o] = '\0';
+// 	return (out);
+// }
