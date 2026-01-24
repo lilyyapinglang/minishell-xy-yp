@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/23 23:08:55 by ylang            ###   ########.fr       */
+/*   Updated: 2026/01/24 17:27:10 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ finish read, close the tmp file desciption
 */
 
 int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
-		t_shell_context *sh_ctx)
+		t_shell_context *sh_ctx, bool is_quoted)
 {
 	char	*line;
 
@@ -49,22 +49,61 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 			return (EXIT_SUCCESS);
 		}
 		/* LAST: write content */
-		if (write(tmp_file_des, line, ft_strlen(line)) == -1
-			|| write(tmp_file_des, "\n", 1) == -1)
+		// how to integrate expander logic here ?
+		if (is_quoted)
 		{
+			if (write(tmp_file_des, line, ft_strlen(line)) == -1
+				|| write(tmp_file_des, "\n", 1) == -1)
+			{
+				free(line);
+				return (EXIT_FAILURE);
+			}
 			free(line);
-			return (EXIT_FAILURE);
 		}
-		free(line);
+		else // need to check for expand
+		{
+			// expande variables, and then write
+			// TODO
+			if (write(tmp_file_des, line, ft_strlen(line)) == -1
+				|| write(tmp_file_des, "\n", 1) == -1)
+			{
+				free(line);
+				return (EXIT_FAILURE);
+			}
+			free(line);
+		}
 	}
 }
-char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted)
+
+/*
+(cat << EOF
+	hello
+	EOF)
+echo hi > a > b
+
+REDIR (>)
+├── child: REDIR (>)
+│   ├── child: COMMAND(echo hi)
+│   └── file: "a"
+└── file: "b"
+*/
+/*return a newlly allocated string,
+	must be freed by caller or
+	here
+	// right_hand_side is raw string
+	// need to remove quote and escape\
+//'EOF' "EOF"  E"OF" \EOF E\"OF
+*/
+
+char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
+		t_shell_context *sh_ctx)
 {
 	t_quote_state	mode;
 	char			*ptr;
 	char			*result;
 	char			*result_ptr;
 
+	(void)sh_ctx;
 	if (!raw)
 		return (NULL);
 	if (is_quoted)
@@ -113,7 +152,7 @@ char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted)
 	if (mode != QUOTE_NONE)
 	{
 		free(result_ptr);
-		printf("syntax error (unclosed quote)\n");
+		print_msg("heredoc", raw, "syntax error (unclosed quote)\n");
 		return (NULL);
 	}
 	*result = '\0';
@@ -138,12 +177,10 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	t_list	*lstnode;
 	char	*raw_delim;
 	char	*clean_delim;
+	bool	is_quoted;
 
 	raw_delim = node->u_data.redirection.file_path;
-	printf("raw_delim is %s \n", raw_delim);
-	// clean_delim = heredoc_delimiter_strip(raw_delim, NULL, sh_ctx);
-	clean_delim = heredoc_delimiter_strip(raw_delim, NULL);
-	printf("clean_delim is %s\n", clean_delim);
+	clean_delim = heredoc_delimiter_strip(raw_delim, &is_quoted, sh_ctx);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
 	/* build /tmp/minishell_heredoc_N */
@@ -171,7 +208,7 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 		return (1);
 	}
 	ft_lstadd_back(&sh_ctx->temporary_files, lstnode);
-	status = read_heredoc_lines(fd, clean_delim, sh_ctx);
+	status = read_heredoc_lines(fd, clean_delim, sh_ctx, is_quoted);
 	free(clean_delim);
 	close(fd);
 	if (status != EXIT_SUCCESS)
@@ -220,86 +257,3 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 	/* AST_COMMAND: nothing to collect */
 	return (EXIT_SUCCESS);
 }
-
-/*
-(cat << EOF
-	hello
-	EOF)
-echo hi > a > b
-
-REDIR (>)
-├── child: REDIR (>)
-│   ├── child: COMMAND(echo hi)
-│   └── file: "a"
-└── file: "b"
-*/
-/*return a newlly allocated string,
-	must be freed by caller or
-	here
-	// right_hand_side is raw string
-	// need to remove quote and escape\
-//'EOF' "EOF"  E"OF" \EOF E\"OF
-*/
-// char	*heredoc_delimiter_strip(const char *raw, bool *quoted,
-// 		t_shell_context *sh_ctx)
-// {
-// 	char	*out;
-// 	int		j;
-
-// 	size_t len, i, o, quote_start, quote_end;
-// 	(void)sh_ctx;
-// 	if (quoted)
-// 		*quoted = false;
-// 	if (!raw)
-// 		return (NULL);
-// 	len = ft_strlen(raw);
-// 	quote_start = 0;
-// 	quote_end = len - 1;
-// 	// end = len;
-// 	/* strip exactly one matching pair of outer quotes */
-// 	// Should be not only first one \' but also and the  end if there is paring double quote or signle quote
-// 	// E"OF"\h
-// 	i = 0;
-// 	// I need to know the size of out to allocate memory
-// 	while (i < len)
-// 	{
-// 		if (raw[i] == '\'' || raw[i] == '"')
-// 		{
-// 			// start to search from the end, from the last index len-1 till i+1
-// 			j = len - 1;
-// 			while (j < len && j > i)
-// 			{
-// 				// if i find one matching one, i mark i and j,
-// 				if (raw[j] == raw[i] && nootherquoteafter(j, raw[i]), raw)
-// 				{
-// 					quote_start = i;
-// 					quote_end = j;
-// 					new_str = xxx ? ;
-// 					if (quoted)
-// 						*quoted = true;
-// 					break ;
-// 				}
-// 				// if i don't find it,
-// 				j--;
-// 			}
-// 		}
-// 	}
-// 	if (*quoted = true && new_str)
-// 		out = new_str;
-// 	else
-// 	{
-// 		out = malloc(len + 1);
-// 		if (!out)
-// 			return (NULL);
-// 	}
-// 	i = 0;
-// 	o = 0;
-// 	while (i < end)
-// 	{
-// 		if (raw[i] == '\\' && i + 1 < end)
-// 			i++;
-// 		out[o++] = raw[i++];
-// 	}
-// 	out[o] = '\0';
-// 	return (out);
-// }

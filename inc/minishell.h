@@ -85,13 +85,11 @@ typedef enum e_exec_context
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
 
-int								read_heredoc_lines(int fd,
+int								read_heredoc_lines(int tmp_file_des,
 									const char *delimiter,
-									t_shell_context *sh_ctx);
-// char							*heredoc_delimiter_strip(const char *raw,
-// 									bool *quoted, t_shell_context *sh_ctx);
+									t_shell_context *sh_ctx, bool is_quoted);
 char							*heredoc_delimiter_strip(const char *raw,
-									bool *quoted);
+									bool *quoted, t_shell_context *sh_ctx);
 
 // executor
 int								execute(t_ast *node,
