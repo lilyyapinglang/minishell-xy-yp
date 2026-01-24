@@ -38,7 +38,8 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// it guarranteed it will be expanded before actual exection
 	// 4. why not in side exeectuion_redir or execution_cmd ,
 	// to gurantee it will be only expanded once
-	if (node->type == AST_REDIRECTION || node->type == AST_COMMAND)
+	if ((node->type == AST_REDIRECTION || node->type == AST_COMMAND)
+		&& execution_context != RUN_IN_CHILD)
 	{
 		// if (node->type == AST_COMMAND)
 		// 	printf("node->type == AST_COMMDN\n");
