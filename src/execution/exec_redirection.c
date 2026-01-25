@@ -84,7 +84,7 @@ int	execute_redirect_append_output(t_ast_redirection *redir_node,
 	if (append_fd == -1)
 		return (1); // need to return detailed error info too
 	original_stdout = dup(STDOUT_FILENO);
-	dup2(append_fd, 0);
+	dup2(append_fd, STDOUT_FILENO);//Xueyan changed dup2(append_fd, 0) to dup2(append_fd, STDOUT_FILENO)
 	close(append_fd);
 	status = execute(redir_node->exe_child, RUN_IN_SHELL, sh_ctx);
 	dup2(original_stdout, STDOUT_FILENO);
