@@ -195,6 +195,7 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 {
 	char	**strs;
+	int		i;
 
 	(void)sh_ctx;
 	// echo -n hello world
@@ -206,20 +207,7 @@ int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 		ft_putchar_fd('\n', STDOUT_FILENO);
 		return (0);
 	}
-	if (ft_strncmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1]))
-	{
-		// write each char to stardard ouput
-		// printf("with -n options \n");
-		strs = &argv[2];
-		while (*strs)
-		{
-			ft_putstr_fd(*strs, STDOUT_FILENO);
-			if (*(strs + 1)) // not last one, add space
-				ft_putchar_fd(' ', STDOUT_FILENO);
-			strs++;
-		}
-	}
-	else
+	if (!(ft_strncmp(argv[1], "-n", 2) == 0 && is_only_n(&argv[1][1])))
 	{
 		// write each char to standard output and add \n
 		strs = &argv[1];
@@ -231,6 +219,21 @@ int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 			strs++;
 		}
 		ft_putchar_fd('\n', STDOUT_FILENO);
+	}
+	else // if from 1 -> n-1 no -n
+	{    // write each char to stardard ouput
+		// printf("with -n options \n");
+		i = 1;
+		while (ft_strncmp(argv[i], "-n", 2) == 0 && is_only_n(&argv[i][1]))
+			i++;
+		strs = &argv[i];
+		while (*strs)
+		{
+			ft_putstr_fd(*strs, STDOUT_FILENO);
+			if (*(strs + 1)) // not last one, add space
+				ft_putchar_fd(' ', STDOUT_FILENO);
+			strs++;
+		}
 	}
 	return (0);
 }
