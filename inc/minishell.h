@@ -90,6 +90,8 @@ int								read_heredoc_lines(int tmp_file_des,
 									t_shell_context *sh_ctx, bool is_quoted);
 char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
+char							*heredoc_expand_line(const char *line, 
+									t_shell_context *sh);//xueyan added for hdexpander
 
 // executor
 int								execute(t_ast *node,

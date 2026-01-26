@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/01/24 17:27:10 by ylang            ###   ########.fr       */
+/*   Updated: 2026/01/25 15:56:10 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 		t_shell_context *sh_ctx, bool is_quoted)
 {
 	char	*line;
-
+	char	*expanded;//xueyan add for hdexpander
+	
 	(void)sh_ctx;
 	g_latest_signal_status = 0;
 	while (1)
@@ -64,12 +65,20 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 		{
 			// expande variables, and then write
 			// TODO
-			if (write(tmp_file_des, line, ft_strlen(line)) == -1
-				|| write(tmp_file_des, "\n", 1) == -1)
+			expanded = heredoc_expand_line(line, sh_ctx);//xueyan add for hdexpander
+			if (!expanded)//xueyan add for hdexpander
 			{
+				free(line);//xueyan add for hdexpander
+				return (EXIT_FAILURE);//xueyan add for hdexpander
+			}
+			if (write(tmp_file_des, expanded, ft_strlen(expanded)) == -1
+				|| write(tmp_file_des, "\n", 1) == -1)	//xueyan changed write(tmp_file_des, line, ft_strlen(line)) to write(tmp_file_des, expanded, ft_strlen(expanded))
+			{
+				free(expanded);//xueyan add for hdexpander
 				free(line);
 				return (EXIT_FAILURE);
 			}
+			free(expanded);//xueyan add for expander
 			free(line);
 		}
 	}
