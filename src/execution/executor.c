@@ -39,12 +39,13 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	// 4. why not in side exeectuion_redir or execution_cmd ,
 	// to gurantee it will be only expanded once
 	if ((node->type == AST_REDIRECTION || node->type == AST_COMMAND)
-		&& execution_context != RUN_IN_CHILD)
+		&& node->is_expanded == false)
 	{
 		// if (node->type == AST_COMMAND)
 		// 	printf("node->type == AST_COMMDN\n");
 		// printf("I entered node->type expander \n");
 		expander(node, sh_ctx);
+		node->is_expanded = true;
 		// printf("haha %s\n", node->u_data.command.args[1]);
 	}
 	/*

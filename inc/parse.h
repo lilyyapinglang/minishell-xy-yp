@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 21:22:47 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 13:35:36 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/26 19:01:44 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define PARSE_H
 
 // # include "../inc/minishellparse.h"
+# include "stdbool.h"
 /*token part*/
 
 typedef enum e_token_type
@@ -110,6 +111,7 @@ typedef struct s_ast
 		t_ast_subshell		subshell;
 		t_ast_syntax_error	s_error;
 	} u_data;
+	bool					is_expanded;
 }							t_ast;
 
 #endif
