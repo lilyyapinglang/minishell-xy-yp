@@ -17,10 +17,9 @@ exported 的意义：
 这个变量是否应该被放进 env_to_char_array() 生成的 envp（传给 execve）。
 */
 
-
 void	free_env_var(void *content)
 {
-	t_env_var *var;
+	t_env_var	*var;
 
 	var = (t_env_var *)content;
 	free(var->name);
@@ -77,6 +76,7 @@ t_list	*env_node_find(t_list *env_list, const char *name)
 	while (cur)
 	{
 		env_var = env_var_from_node(cur);
+		// printf("eng_Var");
 		if (env_var && env_var->name && ft_strcmp(env_var->name, name) == 0)
 			return (cur);
 		cur = cur->next;
@@ -153,7 +153,30 @@ int	env_append_value(t_shell_context *sh_ctx, const char *name,
 	env_var->value = new_value;
 	return (0);
 }
-
+void	del_node_from_env(t_list *env, t_shell_context *sh_ctx)
+{
+	// head node
+	if (env->prev == NULL)
+	{
+		if (env->next)
+		{
+			sh_ctx->env = env->next;
+			env->next->prev = NULL;
+		}
+		else
+			sh_ctx->env = NULL;
+	}
+	// last node
+	else if (env->next == NULL)
+		env->prev->next = NULL;
+	else // middle node
+	{
+		env->prev->next = env->next;
+		env->next->prev = env->prev;
+	}
+	free(env->content);
+	free(env);
+}
 // delete node
 int	env_unset(t_shell_context *sh_ctx, const char *name)
 {
@@ -164,17 +187,19 @@ int	env_unset(t_shell_context *sh_ctx, const char *name)
 	while (env)
 	{
 		env_var = env_var_from_node(env);
-		if (ft_strncmp(env_var->name, name, ft_strlen(name)) == 0)
+		if (ft_strcmp(env_var->name, name) == 0)
 		{
 			// detele this node from lsit
-			// TODO
-			ft_lstdelone(sh_ctx->env, free);
+			// need to handle delete at head, at middle or at the en
+			// ft_lstdelone(sh_ctx->env, free);
+			del_node_from_env(env, sh_ctx);
 			return (0);
 		}
 		env = env->next;
 	}
 	return (1);
 }
+
 // envp 导出：只导出 exported==true && value!=NULL
 char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 {
