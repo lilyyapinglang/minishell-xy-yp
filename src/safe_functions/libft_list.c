@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   libft_list.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 14:37:54 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 15:51:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/01/29 21:26:40 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "safefunctions.h"
 #include "parse.h"
+#include "safefunctions.h"
+
 //#include "minishellparse.h"
 
 void	ft_lstadd_back(t_list **lst, t_list *n)
@@ -50,7 +51,6 @@ void	ft_lstclear(t_list **lst, void (*del)(void *))
 	}
 	*lst = NULL;
 }
-
 
 void	ft_lstdelone(t_list *lst, void (*del)(void *))
 {
@@ -119,7 +119,7 @@ t_list	*ft_lstnew(void *content)
 
 int	ft_lstsize(t_list *lst)
 {
-	int	size;
+	int size;
 
 	size = 0;
 	while (lst)
