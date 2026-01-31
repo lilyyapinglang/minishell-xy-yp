@@ -107,7 +107,10 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 		env = env->next;
 	}
 	if (!path_ptr)
-		return (NULL);
+	{ // try ./cmd
+		full_path = ft_strjoin("./", cmd);
+		return (full_path);
+	}
 	if (*path_ptr == '\0')
 		// return (print_msg_n_return(127, cmd, NULL,
 		//	"No such file or directory"));
