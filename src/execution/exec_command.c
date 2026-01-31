@@ -112,9 +112,12 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 		return (full_path);
 	}
 	if (*path_ptr == '\0')
-		// return (print_msg_n_return(127, cmd, NULL,
-		//	"No such file or directory"));
+	// return (print_msg_n_return(127, cmd, NULL,
+	//	"No such file or directory"));
+	{
+		printf("i'm here \n");
 		return (NULL);
+	}
 	dirs = ft_split(path_ptr, ':');
 	if (!dirs)
 		return (NULL);
@@ -162,6 +165,7 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	char		**envp;
 	struct stat	st;
 
+	// cmd->args[0] ==""
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
 	// contains '/'
@@ -176,17 +180,24 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 			if (errno == ENOENT)
 				return (print_errno_n_return(127, cmd->args[0], NULL, errno));
 			if (errno == EACCES)
+			{
 				return (print_errno_n_return(126, cmd->args[0], NULL, errno));
+			}
 			return (print_errno_n_return(126, cmd->args[0], NULL, errno));
 		}
 		if (S_ISDIR(st.st_mode))
 			return (print_msg_n_return(126, path, NULL, "Is a directory"));
 		if (access(path, X_OK) == -1)
+		{
 			return (print_msg_n_return(126, path, NULL, "Permission denied"));
+		}
 	}
 	// external via PATH
 	else
 	{
+		if (*cmd->args[0] == '\0')
+			return (print_msg_n_return(127, cmd->args[0], NULL,
+					"command not found"));
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
 		if (!path)
 			return (print_msg_n_return(127, cmd->args[0], NULL,
@@ -216,6 +227,7 @@ int	wait_status_to_shell_status(int wait_status)
 	// Fallback: should not happen in normal minishell execution
 	return (1);
 }
+
 void	report_child_termination_signal(int wait_status, const char *cmd_name,
 		t_shell_context *ctx)
 {
