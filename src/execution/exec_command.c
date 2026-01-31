@@ -162,6 +162,7 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	char		**envp;
 	struct stat	st;
 
+	// cmd->args[0] ==""
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
 	// contains '/'
@@ -187,6 +188,9 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	// external via PATH
 	else
 	{
+		if (*cmd->args[0] == '\0')
+			return (print_msg_n_return(127, cmd->args[0], NULL,
+					"command not found"));
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
 		if (!path)
 			return (print_msg_n_return(127, cmd->args[0], NULL,
@@ -216,6 +220,7 @@ int	wait_status_to_shell_status(int wait_status)
 	// Fallback: should not happen in normal minishell execution
 	return (1);
 }
+
 void	report_child_termination_signal(int wait_status, const char *cmd_name,
 		t_shell_context *ctx)
 {
