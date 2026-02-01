@@ -157,7 +157,7 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 		if (!is_valid_ident(argv[i]))
 		{
 			print_msg_n_return(1, "unset", argv[i], "not a valid identifier");
-			status = 1;
+			status = 0;
 		}
 		else
 		{
