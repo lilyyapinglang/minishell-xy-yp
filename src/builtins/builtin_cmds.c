@@ -223,7 +223,8 @@ int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 	{    // write each char to stardard ouput
 		// printf("with -n options \n");
 		i = 1;
-		while (ft_strncmp(argv[i], "-n", 2) == 0 && is_only_n(&argv[i][1]))
+		while (argv[i] && ft_strncmp(argv[i], "-n", 2) == 0
+			&& is_only_n(&argv[i][1]))
 			i++;
 		strs = &argv[i];
 		while (*strs)
