@@ -171,23 +171,22 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 // exit, but exit which process ???
 int	builtin_exit(char **argv, t_shell_context *ctx)
 {
-	(void)ctx;
 	/* no args => exit with last status */
 	if (!argv[1])
 		exit(ctx->last_status);
-	/* too many args => error, DO NOT exit (matches common shell behavior) */
-	if (argv[2])
-		return (print_msg_n_return(1, "exit", NULL, "too many arguments"));
 	/* non-numeric => error, exit 255 is common in bash;
-		if you want strictly your old behavior, keep return 1 + no exit,
-		but that differs from bash. Here I won't invent: keep your behavior
-		style unless you decide otherwise. */
+	if you want strictly your old behavior, keep return 1 + no exit,
+	but that differs from bash. Here I won't invent: keep your behavior
+	style unless you decide otherwise. */
 	if (!check_all_digit(argv[1]))
 	{
 		print_msg_n_return(255, "exit", argv[1], "numeric argument required");
 		/* Keep your previous behavior: return 1 (no exit). */
-		return (1);
+		return (2);
 	}
+	/* too many args => error, DO NOT exit (matches common shell behavior) */
+	if (argv[2])
+		return (print_msg_n_return(1, "exit", NULL, "too many arguments"));
 	exit(ft_atoi(argv[1]));
 }
 

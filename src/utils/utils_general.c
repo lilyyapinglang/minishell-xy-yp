@@ -21,6 +21,8 @@ int	ft_strcmp(const char *s1, const char *s2)
 // TODO
 int	check_all_digit(char *str)
 {
+	if (!str || *str == '\0')
+		return (0);
 	while (*str)
 	{
 		if (ft_isdigit(*str) != 1)
