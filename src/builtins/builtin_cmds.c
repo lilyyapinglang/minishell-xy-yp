@@ -48,18 +48,20 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 	return (0);
 }
 
-static int	is_valid_ident(const char *s)
+static int	is_valid_ident(const char *str)
 {
 	int	i;
 
-	if (!s || !s[0])
+	// str = null or str = ""
+	if (!str || !str[0])
 		return (0);
-	if (ft_isdigit((unsigned char)s[0]))
+	// str =9 etc
+	if (ft_isdigit((unsigned char)str[0]))
 		return (0);
 	i = 0;
-	while (s[i])
+	while (str[i])
 	{
-		if (!(ft_isalnum((unsigned char)s[i]) || s[i] == '_'))
+		if (!(ft_isalnum((unsigned char)str[i]) || str[i] == '_'))
 			return (0);
 		i++;
 	}
@@ -154,15 +156,8 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 		return (0);
 	while (argv[i])
 	{
-		if (!is_valid_ident(argv[i]))
-		{
-			print_msg_n_return(1, "unset", argv[i], "not a valid identifier");
-			status = 0;
-		}
-		else
-		{
+		if (is_valid_ident(argv[i]))
 			env_unset(ctx, argv[i]);
-		}
 		i++;
 	}
 	return (status);
