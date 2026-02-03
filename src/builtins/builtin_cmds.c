@@ -248,9 +248,40 @@ int	builtin_pwd(char **argv, t_shell_context *ctx)
 	return (0);
 }
 
+t_ast	*new_ast_command(char **args)
+{
+	t_ast	*node;
+
+	// 1. Allocate memory for the generic AST node
+	node = malloc(sizeof(t_ast));
+	if (!node)
+		return (NULL);
+	// 2. Set the type tag so we know which union member to access later
+	node->type = AST_COMMAND;
+	// 3. Initialize the specific union data
+	node->u_data.command.args = args;
+	// 4. Set default flags
+	node->is_expanded = false;
+	return (node);
+}
+
 int	builtin_env(char **argv, t_shell_context *ctx)
 {
-	(void)argv;
-	print_env(false, ctx);
-	return (0);
+	t_ast	*cmd_node;
+	int		status;
+
+	if (!argv[1])
+	{
+		print_env(false, ctx);
+		return (0);
+	}
+	else // env what  , run what with env ,
+	{
+		cmd_node = new_ast_command(&argv[1]);
+		if (!cmd_node)
+			return (EXIT_FAILURE);
+		status = execute_command(cmd_node, RUN_IN_CHILD, ctx);
+		free(cmd_node);
+		return (status);
+	}
 }
