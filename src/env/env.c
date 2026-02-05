@@ -240,7 +240,7 @@ char	**build_envp_from_env_list(t_shell_context *sh_ctx)
 t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 {
 	t_list	*env_list;
-	char	*equal_sign;
+	char	*equal_sign_loc;
 	char	*name_tmp;
 
 	env_list = NULL;
@@ -248,22 +248,23 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 		return (NULL);
 	while (envp && *envp)
 	{
-		equal_sign = ft_strchr(*envp, '=');
-		if (!equal_sign)
+		equal_sign_loc = ft_strchr(*envp, '=');
+		// i think it already ensures it only searches for the 1st =
+		if (!equal_sign_loc) // no =
 		{
 			// No '=' -> name only, value NULL
 			// exported=true because it came from envp
 			add_new_env_var(&env_list, *envp, NULL, true, sh_ctx);
 		}
-		else
+		else // there is =
 		{
 			// name is left side
 			// TODO: maybe need ft_substr_s
-			name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign - *envp));
+			name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign_loc - *envp));
 			if (name_tmp)
 			{
 				// value is right side (eq+1)
-				add_new_env_var(&env_list, name_tmp, equal_sign + 1, true,
+				add_new_env_var(&env_list, name_tmp, equal_sign_loc + 1, true,
 					sh_ctx);
 				free(name_tmp);
 			}
@@ -271,8 +272,8 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 		envp++;
 	}
 	sh_ctx->env = env_list;
-	// Recommendation: do NOT cache HOME here (avoids stale cache bugs)
-	// If you insist on caching:
+	// choose not to cache HOME here (avoids stale cache bugs)
+	// or  insist on caching:
 	// sh_ctx->home = env_get_value(env_list, "HOME");
 	if (!env_node_find(env_list, "PATH"))
 		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, sh_ctx);

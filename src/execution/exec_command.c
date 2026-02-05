@@ -191,6 +191,9 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 		if (*cmd->args[0] == '\0')
 			return (print_msg_n_return(127, cmd->args[0], NULL,
 					"command not found"));
+		// if (ft_strcmp(cmd->args[0], "."))
+		// 	return (print_msg_n_return(2, cmd->args[0], NULL,
+		// 			"filename argument required"));
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
 		if (!path)
 			return (print_msg_n_return(127, cmd->args[0], NULL,
