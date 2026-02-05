@@ -73,10 +73,11 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 	int		i;
 	int		status;
 	char	*arg;
-	char	*eq;
+	char	*equal_sign_loc;
 	char	*name;
 	char	*val;
 	char	*plus_eq;
+	int		j;
 
 	i = 1;
 	status = 0;
@@ -85,20 +86,32 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 		print_env(true, ctx);
 		return (0);
 	}
-	while (argv[i])
+	while (argv[i]) // check each if --test=100
 	{
 		arg = argv[i];
-		eq = ft_strchr(arg, '=');
+		// check - valid options
+		if (arg[0] == '-')
+		{
+			j = 1;
+			while (arg[j])
+			{
+				if (arg[j] != 'f' || arg[j] != 'n' || arg[j] != 'p')
+					return (print_msg_n_return(2, "export", arg,
+							"invalid option"));
+				j++;
+			}
+		}
+		equal_sign_loc = ft_strchr(arg, '=');
 		/* Detect NAME+=VALUE safely:
 			only when there is an '=' and the char right before '=' is '+' */
 		plus_eq = NULL;
-		if (eq && eq > arg && eq[-1] == '+')
-			plus_eq = eq - 1;
+		if (equal_sign_loc && equal_sign_loc > arg && equal_sign_loc[-1] == '+')
+			plus_eq = equal_sign_loc - 1;
 		if (plus_eq)
 		{
 			/* NAME+=VALUE */
 			name = ft_substr(arg, 0, (size_t)(plus_eq - arg));
-			val = eq + 1; /* value starts after '=' */
+			val = equal_sign_loc + 1; /* value starts after '=' */
 			if (!name || !is_valid_ident(name))
 			{
 				print_msg_n_return(1, "export", arg, "not a valid identifier");
@@ -111,11 +124,11 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 			}
 			free(name);
 		}
-		else if (eq)
+		else if (equal_sign_loc)
 		{
 			/* NAME=VALUE */
-			name = ft_substr(arg, 0, (size_t)(eq - arg));
-			val = eq + 1;
+			name = ft_substr(arg, 0, (size_t)(equal_sign_loc - arg));
+			val = equal_sign_loc + 1;
 			if (!name || !is_valid_ident(name))
 			{
 				print_msg_n_return(1, "export", arg, "not a valid identifier");
@@ -179,7 +192,8 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 		/* Keep your previous behavior: return 1 (no exit). */
 		return (2);
 	}
-	/* too many args => error, DO NOT exit (matches common shell behavior) */
+	/* too many args => error,
+		DO NOT exit (matches common shell behavior) */
 	if (argv[2])
 		return (print_msg_n_return(1, "exit", NULL, "too many arguments"));
 	exit(ft_atoi(argv[1]));
