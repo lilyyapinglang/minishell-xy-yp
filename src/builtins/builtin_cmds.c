@@ -83,6 +83,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 	status = 0;
 	if (!argv[1])
 	{
+		// need to sort and print 
 		print_env(true, ctx);
 		return (0);
 	}

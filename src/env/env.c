@@ -41,7 +41,8 @@ void	add_new_env_var(t_list **env_list, const char *name, const char *value,
 		return ;
 	var = calloc_s(1, sizeof(*var), ALLOC_UNTRACKED, sh_ctx);
 	var->name = strdup_s(name, ALLOC_UNTRACKED, sh_ctx);
-	var->value = value ? strdup_s(value, ALLOC_UNTRACKED, sh_ctx) : NULL;
+	var->value = value ? strdup_s(value, ALLOC_UNTRACKED, sh_ctx) : strdup_s("",
+			ALLOC_UNTRACKED, sh_ctx);
 	var->exported = exported;
 	// node = ft_listnew_s(var, TRACK_SHELL, sh_ctx);
 	lst_add_back_s(var, env_list, ALLOC_UNTRACKED, sh_ctx);
@@ -279,42 +280,77 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, true, sh_ctx);
 	return (env_list);
 }
+t_list	*sort_by_lexicographical(t_list *head)
+{
+	int			swapped;
+	t_list		*curr;
+	t_list		*last;
+	t_env_var	*env_var_curr;
+	t_env_var	*env_var_next;
+	void		*content_tmp;
 
+	// sorting a double linked list
+	if (head == NULL)
+		return (head);
+	last = NULL;
+	// keep going until no swaps occur in a pass
+	do
+	{
+		swapped = 0;
+		curr = head;
+		// traserce through the list and swap adjacent nodes if they are in the wrong order
+		while (curr->next != last)
+		{
+			env_var_curr = env_var_from_node(curr);
+			env_var_next = env_var_from_node(curr->next);
+			if (ft_strcmp(env_var_curr->name, env_var_next->name) > 0)
+			{
+				// swap pointer, no need to change data i guess
+				// i need to save a pointer
+				content_tmp = curr->content;
+				curr->content = curr->next->content;
+				curr->next->content = content_tmp;
+				swapped = 1;
+			}
+			curr = curr->next;
+		}
+		last = curr;
+	} while (swapped);
+	return (head);
+}
 // called by on builtin-env or built-in export ?
 void	print_env(bool export_format, t_shell_context *sh_ctx)
 {
 	t_env_var *env_var;
 	t_list *env = sh_ctx->env;
+	t_list *sorted_env;
 
-	while (env)
-	{
-		// env , exporte_format = false, only print exporetd && value!=NULL
-		env_var = env_var_from_node(env);
-		if (!export_format)
+	if (!export_format)
+	{ // print_env
+		while (env)
 		{
-			// env builtin
-			if (env_var->exported == false || env_var->value == NULL)
-			{
-				env = env->next;
-				continue ;
-			}
+			env_var = env_var_from_node(env);
+			// not sure if "" will be displayed , let's see
 			printf("%s=%s\n", env_var->name, env_var->value);
+			env = env->next;
 		}
-		// export , export_formate = true, only print exported,
-		//	value could be NULL,
+	}
+	else
+	{ // print_export , need to sort, need to
+		// sort by env->name
 		// in format "declare -x"
-		else
+		// pay attention to value = ""
+		sorted_env = sort_by_lexicographical(env);
+		while (sorted_env)
 		{
-			if (!env_var->exported)
+			env_var = env_var_from_node(sorted_env);
+			if (!env_var->exported || ft_strcmp(env_var->name, "_") == 0)
 			{
-				env = env->next;
+				sorted_env = sorted_env->next;
 				continue ;
 			}
-			if (env_var->value == NULL)
-				printf("declare -x %s\n", env_var->name);
-			else
-				printf("declare -x %s=\"%s\"\n", env_var->name, env_var->value);
+			printf("declare -x %s=\"%s\"\n", env_var->name, env_var->value);
+			sorted_env = sorted_env->next;
 		}
-		env = env->next;
 	}
 }
