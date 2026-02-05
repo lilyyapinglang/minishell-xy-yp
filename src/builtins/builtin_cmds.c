@@ -83,7 +83,7 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 	status = 0;
 	if (!argv[1])
 	{
-		// need to sort and print 
+		// need to sort and print
 		print_env(true, ctx);
 		return (0);
 	}
@@ -161,8 +161,10 @@ int	builtin_export(char **argv, t_shell_context *ctx)
 
 int	builtin_unset(char **argv, t_shell_context *ctx)
 {
-	int	i;
-	int	status;
+	int		i;
+	int		status;
+	char	*arg;
+	int		j;
 
 	i = 1;
 	status = 0;
@@ -170,6 +172,18 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 		return (0);
 	while (argv[i])
 	{
+		arg = argv[i];
+		if (arg[0] == '-')
+		{
+			j = 1;
+			while (arg[j])
+			{
+				if (arg[j] != 'f' || arg[j] != 'v' || arg[j] != 'n')
+					return (print_msg_n_return(2, "unset", arg,
+							"invalid option"));
+				j++;
+			}
+		}
 		if (is_valid_ident(argv[i]))
 			env_unset(ctx, argv[i]);
 		i++;
