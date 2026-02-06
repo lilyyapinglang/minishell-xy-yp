@@ -190,7 +190,18 @@ int	builtin_unset(char **argv, t_shell_context *ctx)
 	}
 	return (status);
 }
-
+int	is_numeric(char *str)
+{
+	if (str[0] == '+' || str[0] == '-')
+	{
+		if (check_all_digit(&str[1]))
+			return (1);
+		else
+			return (0);
+	}
+	else
+		return (check_all_digit(str));
+}
 // exit, but exit which process ???
 int	builtin_exit(char **argv, t_shell_context *ctx)
 {
@@ -201,7 +212,7 @@ int	builtin_exit(char **argv, t_shell_context *ctx)
 	if you want strictly your old behavior, keep return 1 + no exit,
 	but that differs from bash. Here I won't invent: keep your behavior
 	style unless you decide otherwise. */
-	if (!check_all_digit(argv[1]))
+	if (!is_numeric(argv[1]))
 	{
 		print_msg_n_return(255, "exit", argv[1], "numeric argument required");
 		/* Keep your previous behavior: return 1 (no exit). */
