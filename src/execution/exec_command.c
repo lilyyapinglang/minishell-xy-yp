@@ -165,6 +165,9 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	// cmd->args[0] ==""
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
+	if (ft_strcmp(cmd->args[0], ".") == 0)
+		return (print_msg_n_return(127, cmd->args[0], NULL,
+				"filename argument required"));
 	// contains '/'
 	if (ft_strchr(cmd->args[0], '/'))
 	{
@@ -191,9 +194,6 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 		if (*cmd->args[0] == '\0')
 			return (print_msg_n_return(127, cmd->args[0], NULL,
 					"command not found"));
-		// if (ft_strcmp(cmd->args[0], "."))
-		// 	return (print_msg_n_return(2, cmd->args[0], NULL,
-		// 			"filename argument required"));
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
 		if (!path)
 			return (print_msg_n_return(127, cmd->args[0], NULL,
