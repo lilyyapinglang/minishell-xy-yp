@@ -84,11 +84,15 @@ int	execute_redirect_append_output(t_ast_redirection *redir_node,
 	int	append_fd;
 	int	status;
 	int	original_stdout;
+	int	flags;
 
-	append_fd = open(redir_node->file_path, O_WRONLY | O_CREAT | O_APPEND,
-			0644);
+	flags = O_WRONLY;
+	if (strcmp(redir_node->file_path, "/dev/null") != 0)
+		flags |= O_CREAT | O_APPEND;
+	append_fd = open(redir_node->file_path, flags, 0644);
 	if (append_fd == -1)
-		return (1); // need to return detailed error info too
+		return (print_errno_n_return(1, "minishell", redir_node->file_path,
+				errno));
 	original_stdout = dup(STDOUT_FILENO);
 	dup2(append_fd, STDOUT_FILENO); // Xueyan changed dup2(append_fd,
 									// 0) to dup2(append_fd, STDOUT_FILENO)
