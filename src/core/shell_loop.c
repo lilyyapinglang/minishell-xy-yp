@@ -76,7 +76,7 @@ int	prompt_execution(char *user_input, t_shell_context *sh_ctx)
 		status = parser(token_list, &ast, sh_ctx);
 		if (status == EXIT_SUCCESS && ast)
 		{
-			//printf("i got ast , ready for exection ! : ) \n");
+			// printf("i got ast , ready for exection ! : ) \n");
 			status = collect_all_heredocs(ast, sh_ctx);
 			if (status == EXIT_SUCCESS)
 				status = execute(ast, RUN_IN_SHELL, sh_ctx);
@@ -88,30 +88,48 @@ int	prompt_execution(char *user_input, t_shell_context *sh_ctx)
 // Shell main loop (REPL: Read–Eval–Print Loop).
 int	shell_repl_loop(t_shell_context *sh_ctx)
 {
-	char	*user_intput;
+	char	*user_input;
+	char	**lines;
+	char	**cursor;
+	int		status;
 
 	while (1)
 	{
-		user_intput = prompt_listener(MAIN_PROMPT);
-		// ctrl-c pressed at prompt: handler sets g_singal_value
+		user_input = prompt_listener(MAIN_PROMPT);
+		// Ctrl-C pressed at prompt
 		if (g_latest_signal_status == SIGINT)
 		{
 			sh_ctx->last_status = 130;
-			/* readline may return NULL or "" depending on behavior */
-			if (user_intput)
-				track_alloc(user_intput, ALLOC_PROMPT, sh_ctx);
+			if (user_input)
+				track_alloc(user_input, ALLOC_PROMPT, sh_ctx);
 			shell_clear_iteration(sh_ctx);
 			continue ;
 		}
-		/* Ctrl-D / EOF , user_input == NULL */
-		if (!user_intput)
+		// Ctrl-D / EOF
+		if (!user_input)
 			shell_exit(sh_ctx, sh_ctx->last_status);
-		/*normal line */
-		track_alloc(user_intput, ALLOC_PROMPT, sh_ctx);
-		if (user_intput[0] != '\0')
+		track_alloc(user_input, ALLOC_PROMPT, sh_ctx);
+		if (user_input[0] != '\0')
 		{
-			add_history(user_intput);
-			sh_ctx->last_status = prompt_execution(user_intput, sh_ctx);
+			add_history(user_input);
+			// Split pasted/multi-line input into separate commands
+			lines = ft_split(user_input, '\n');
+			cursor = lines;
+			while (*cursor)
+			{
+				// skip empty lines
+				if ((*cursor)[0] != '\0')
+				{
+					status = prompt_execution(*cursor, sh_ctx);
+					// only overwrite last_status if a real command run
+					// or if previous status was not a syntax error
+					if (status != 0 || !sh_ctx->last_status)
+						sh_ctx->last_status = status;
+				}
+				cursor++;
+			}
+			// Free the split array
+			free_strs(lines);
 		}
 		shell_clear_iteration(sh_ctx);
 	}
