@@ -155,6 +155,7 @@ int	execve_errno_to_status(int err)
 		return (127);
 	return (126);
 }
+
 int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 {
 	int			status;
@@ -162,46 +163,47 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	char		**envp;
 	struct stat	st;
 
-	// cmd->args[0] ==""
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
+	// cmd->arg[0]=="."
 	if (ft_strcmp(cmd->args[0], ".") == 0)
 		return (print_msg_n_return(127, cmd->args[0], NULL,
 				"filename argument required"));
-	// contains '/'
+	// cmd->args[0] ==".."
+	if (ft_strcmp(cmd->args[0], "..") == 0)
+		return (print_msg_n_return(127, cmd->args[0], NULL,
+				"command not found"));
+	// cmd->args[0] ==""
+	if (*cmd->args[0] == '\0')
+		return (print_msg_n_return(127, cmd->args[0], NULL,
+				"command not found"));
+	// contains '/', search for cmd from current directory
 	if (ft_strchr(cmd->args[0], '/'))
-	{
 		// permission denied
 		// the direcotry
 		path = cmd->args[0];
-		if (stat(cmd->args[0], &st) == -1)
-		{
-			path = cmd->args[0];
-			if (errno == ENOENT)
-				return (print_errno_n_return(127, cmd->args[0], NULL, errno));
-			if (errno == EACCES)
-				return (print_errno_n_return(126, cmd->args[0], NULL, errno));
-			return (print_errno_n_return(126, cmd->args[0], NULL, errno));
-		}
-		if (S_ISDIR(st.st_mode))
-			return (print_msg_n_return(126, path, NULL, "Is a directory"));
-		if (access(path, X_OK) == -1)
-			return (print_msg_n_return(126, path, NULL, "Permission denied"));
-	}
-	// external via PATH
+	// no / present, so need to search and execute external via PATH,
 	else
-	{
-		if (*cmd->args[0] == '\0')
-			return (print_msg_n_return(127, cmd->args[0], NULL,
-					"command not found"));
 		path = resolve_cmd_path(cmd->args[0], sh_ctx);
-		if (!path)
+	if (stat(path, &st) == -1)
+	{
+		if (errno == ENOENT)
+			return (print_errno_n_return(127, path, NULL, errno));
+		if (errno == EACCES)
+		{
+			return (print_errno_n_return(126, path, NULL, errno));
+		}
+		if (errno == EISDIR)
+			return (print_errno_n_return(126, path, NULL, errno));
+		if (errno == EFAULT)
 			return (print_msg_n_return(127, cmd->args[0], NULL,
 					"command not found"));
+		return (print_errno_n_return(127, path, NULL, errno));
 	}
 	envp = env_list_to_envp(sh_ctx->env);
 	if (!envp)
-		return (1);
+		return (print_msg_n_return(1, cmd->args[0], NULL,
+				"fail to convert env_list to envp"));
 	execve(path, cmd->args, envp);
 	status = execve_errno_to_status(errno);
 	free_strs(envp);
