@@ -47,7 +47,7 @@ char	*prompt_listener(t_prompt_mode mode)
 		if (mode == MAIN_PROMPT)
 		{
 			set_signal_in_main_prompt_mode();
-			user_input = readline("minishell >");
+			user_input = readline("minishell > ");
 			// fprintf(stderr, "[DBG] readline=%s errno=%d (%s)\n",
 			// 	user_input ? "NON-NULL" : "NULL", errno, strerror(errno));
 			set_signal_in_exe_main_process();
@@ -76,7 +76,7 @@ int	prompt_execution(char *user_input, t_shell_context *sh_ctx)
 		status = parser(token_list, &ast, sh_ctx);
 		if (status == EXIT_SUCCESS && ast)
 		{
-			//printf("i got ast , ready for exection ! : ) \n");
+			// printf("i got ast , ready for exection ! : ) \n");
 			status = collect_all_heredocs(ast, sh_ctx);
 			if (status == EXIT_SUCCESS)
 				status = execute(ast, RUN_IN_SHELL, sh_ctx);
