@@ -5,6 +5,7 @@
 // void	apply_all_redirs(t_cmd *cmd);
 #include "../inc/minishell.h"
 
+
 /*
 cat < input.txt
 redirection: let stdin point to input.txt
@@ -59,9 +60,7 @@ int	exe_redirect_output(t_ast_redirection *redir_node, t_shell_context *sh_ctx)
 	int	original_stdout;
 	int	flags;
 
-	flags = O_WRONLY;
-	if (strcmp(redir_node->file_path, "/dev/null") != 0)
-		flags |= O_CREAT | O_TRUNC;
+	flags = O_WRONLY | O_CREAT | O_TRUNC;
 	output_fd = open(redir_node->file_path, flags, 0644);
 	// output_fd = open(redir_node->file_path, O_WRONLY | O_CREAT | O_TRUNC,
 	//	0644);
@@ -86,9 +85,9 @@ int	execute_redirect_append_output(t_ast_redirection *redir_node,
 	int	original_stdout;
 	int	flags;
 
-	flags = O_WRONLY;
-	if (strcmp(redir_node->file_path, "/dev/null") != 0)
-		flags |= O_CREAT | O_APPEND;
+	flags = O_WRONLY | O_CREAT | O_APPEND;
+	// if (strcmp(redir_node->file_path, "/dev/null") != 0)
+	// 	flags |= O_CREAT | O_APPEND;
 	append_fd = open(redir_node->file_path, flags, 0644);
 	if (append_fd == -1)
 		return (print_errno_n_return(1, "minishell", redir_node->file_path,

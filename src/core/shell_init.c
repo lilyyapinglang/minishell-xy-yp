@@ -6,11 +6,12 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 18:43:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/05 19:20:04 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/09 23:10:27 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include "ms_readline.h"
 
 // increment shell level at each initiation
 void	increment_shlvl(t_shell_context *sh_ctx)
@@ -35,6 +36,12 @@ void	increment_shlvl(t_shell_context *sh_ctx)
 	env_set_value(sh_ctx, "SHLVL", temp, true);
 	free(temp);
 }
+
+int	readline_hack(void)
+{
+	return (0);
+}
+
 void	init_shell(t_shell_context *sh_ctx, char **envp)
 {
 	errno = 0;
@@ -42,6 +49,7 @@ void	init_shell(t_shell_context *sh_ctx, char **envp)
 	sh_ctx->last_status = EXIT_SUCCESS;
 	sh_ctx->allocated_pointers[ALLOC_SHELL] = NULL;
 	sh_ctx->allocated_pointers[ALLOC_PROMPT] = NULL;
+	rl_event_hook = &readline_hack;
 	// allocated_pointers[TRACK_NONE] is unused because ONLY_CHECK allocations are not tracked
 	sh_ctx->temporary_files = NULL;
 	sh_ctx->env = init_env(envp, sh_ctx);
