@@ -52,26 +52,7 @@ void	shell_destroy(t_shell_context *sh_ctx)
 void	shell_exit(t_shell_context *sh_ctx, int status)
 {
 	if (sh_ctx && sh_ctx->in_main_process && isatty(STDIN_FILENO))
-		ft_putendl_fd("exit\n", STDERR_FILENO);
+		ft_putendl_fd("exit", STDOUT_FILENO);
 	shell_destroy(sh_ctx);
 	exit(status);
 }
-
-// void	quit_shell(int exit_status, t_shell_context *sh_ctx)
-// {
-// 	if (shell_context)
-// 	{
-// 		if (shell_context->in_main_process && isatty(STDIN_FILENO))
-// 			ft_putendl_fd("exit\n", STDERR_FILENO);
-// 		clear_prompt(shell_context);
-// 		// clear all t_list shell_context->env
-// 		/* env is manually owned */
-// 		ft_lstclear(t_shell_context->env, free_env_var);
-// 		// clear t_list shell_context->allocated_pointers[TRACK_SHELL]
-// 		/* shell-lifetime tracked allocations */
-// 		ft_lstclear(shell_context->allocated_pointers[ALLOC_SHELL], free);
-// 	}
-// 	rl_clear_history();
-// 	//?why exit status
-// 	exit(exit_status);
-// }

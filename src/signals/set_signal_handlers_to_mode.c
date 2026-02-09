@@ -63,18 +63,19 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 	g_latest_signal_status = SIGINT;
 	// change to new line because it's ugly to start new prompt on the same line
 	// write is signal safe
-	write(STDOUT_FILENO, "\n", 1);
+	// write(STDOUT_FILENO, "\n", 1);
 	// write(STDOUT_FILENO, "h", 1);
 	// if (write(1, "\n", 1) == -1)
 	// 	return ;
 	// drop what users has entered into buffer of readline
 	// clear current readline buffer, not adding to history
-	rl_replace_line("", 0);
-	// fix readline inernal status, location of cursur, line start info,
-	//	need to redisplay prompt or not
-	rl_on_new_line();
-	// redraw clean prompt
-	rl_redisplay();
+	// rl_replace_line("", 0);
+	// // fix readline inernal status, location of cursur, line start info,
+	// //	need to redisplay prompt or not
+	// rl_on_new_line();
+	// // redraw clean prompt
+	// rl_redisplay();
+	rl_done = 1;
 }
 /*
 should stop collecting heredoc immediately, drop content of current heredoc,
