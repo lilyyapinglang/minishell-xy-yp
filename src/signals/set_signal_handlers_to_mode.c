@@ -1,4 +1,5 @@
 #include "../inc/minishell.h"
+#include "ms_readline.h"
 
 // ssize_t read(int fd, void *buf, size_t count);
 
@@ -8,7 +9,7 @@ ask kernel to send signal SIGINT to current process
 .asyn singnal
 press ctrl-\ will trigger special char,
 	ask kernel to send signal SIGQUIT to current process.async signal
- press ctrl-D will not tigger signal,
+press ctrl-D will not tigger signal,
 	it represents EOF- "I'm no longer input any thing"
 it does not represent a char, it will not enter buf,
 	it will not trigger signal ctrl-d -> read() return (0); stdin reach eof,
@@ -63,16 +64,17 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 	// change to new line because it's ugly to start new prompt on the same line
 	// write is signal safe
 	write(STDOUT_FILENO, "\n", 1);
+	// write(STDOUT_FILENO, "h", 1);
 	// if (write(1, "\n", 1) == -1)
 	// 	return ;
-	// // drop what users has entered into buffer of readline
-	// // clear current readline buffer, not adding to history
-	// rl_replace_line("", 0);
-	// // fix readline inernal status, location of cursur, line start info,
-	// //	need to redisplay prompt or not
-	// rl_on_new_line();
-	// // redraw clean prompt
-	// rl_redisplay();
+	// drop what users has entered into buffer of readline
+	// clear current readline buffer, not adding to history
+	rl_replace_line("", 0);
+	// fix readline inernal status, location of cursur, line start info,
+	//	need to redisplay prompt or not
+	rl_on_new_line();
+	// redraw clean prompt
+	rl_redisplay();
 }
 /*
 should stop collecting heredoc immediately, drop content of current heredoc,
