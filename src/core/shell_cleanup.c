@@ -52,7 +52,7 @@ void	shell_destroy(t_shell_context *sh_ctx)
 void	shell_exit(t_shell_context *sh_ctx, int status)
 {
 	if (sh_ctx && sh_ctx->in_main_process && isatty(STDIN_FILENO))
-		ft_putendl_fd("exit\n", STDERR_FILENO);
+		ft_putendl_fd("exit", STDERR_FILENO);
 	shell_destroy(sh_ctx);
 	exit(status);
 }
