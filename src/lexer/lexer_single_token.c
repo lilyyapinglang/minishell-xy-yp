@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_single_token.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 00:45:18 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/01/10 14:35:55 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/13 16:12:21 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,36 +73,4 @@ t_token_type	token_redir(char *input, char c, size_t *len,
 		return (REDIR_APPEND);
 	set_syntax_error(input, sh);
 	return (TOKEN_INVALID);
-}
-
-t_token_type	token_word(char *input, size_t *len, t_shell_context *sh)
-{
-	char	c;
-	bool	in_quote;
-
-	in_quote = false;
-	c = 0;
-	while (input[*len])
-	{
-		if (input[*len] == '\"' || input[*len] == '\'')
-		{
-			if (!in_quote)
-			{
-				c = input[*len];
-				in_quote = true;
-			}
-			else if (input[*len] == c)
-				in_quote = false;
-		}
-		else if (!in_quote && (ft_istoken(input[*len])
-				|| ft_isspace(input[*len])))
-			break ;
-		*len += 1;
-	}
-	if (in_quote)
-	{
-		set_syntax_error("unclosed quote", sh);
-		return (TOKEN_INVALID);
-	}
-	return (TOKEN_WORD);
 }
