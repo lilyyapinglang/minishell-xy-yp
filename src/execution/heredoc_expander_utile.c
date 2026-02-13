@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_expander_utile.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 21:27:26 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/02/10 22:24:27 by xueyan_wang      ###   ########.fr       */
+/*   Updated: 2026/02/13 16:34:58 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,7 @@ size_t	hd_copy_str(char *out, size_t j, const char *s)
 	return (j);
 }
 
-size_t	hd_fill_dollar(char *out, size_t j, const char *line,
-	t_shell_context *sh, const char *st)
+void	hd_fill_dollar(t_hd_fillctx *ctx, const char *line)
 {
 	size_t	n;
 	char	*name;
@@ -73,17 +72,19 @@ size_t	hd_fill_dollar(char *out, size_t j, const char *line,
 	n = hd_var_name_len(line + 1);
 	if (n == 0)
 	{
-		out[j++] = '$';
-		return (j);
+		ctx->out[ctx->j++] = '$';
+		return ;
 	}
 	if (n == 1 && line[1] == '?')
-		return (hd_copy_str(out, j, st));
-	name = hd_name_sub(line, 0, n, sh);
+	{
+		ctx->j = hd_copy_str(ctx->out, ctx->j, ctx->st);
+		return ;
+	}
+	name = hd_name_sub(line, 0, n, ctx->sh);
 	if (!name)
-		return (j);
-	val = env_get_value(sh->env, name);
+		return ;
+	val = env_get_value(ctx->sh->env, name);
 	free(name);
 	if (val)
-		j = hd_copy_str(out, j, val);
-	return (j);
+		ctx->j = hd_copy_str(ctx->out, ctx->j, val);
 }

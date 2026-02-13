@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_expander.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 11:17:13 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/10 21:49:38 by xueyan_wang      ###   ########.fr       */
+/*   Updated: 2026/02/13 16:34:53 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-			
+
 static size_t	hd_value_len_at(const char *line, size_t i,
 	t_shell_context *sh, const char *st)
 {
@@ -26,7 +26,7 @@ static size_t	hd_value_len_at(const char *line, size_t i,
 		return (ft_strlen(st));
 	name = hd_name_sub(line, i, n, sh);
 	if (!name)
-		return ((size_t)-1);
+		return ((size_t) - 1);
 	val = env_get_value(sh->env, name);
 	free(name);
 	if (!val)
@@ -34,7 +34,8 @@ static size_t	hd_value_len_at(const char *line, size_t i,
 	return (ft_strlen(val));
 }
 
-static size_t	hd_compute_len(const char *line, t_shell_context *sh, const char *st)
+static size_t	hd_compute_len(const char *line, t_shell_context *sh,
+								const char *st)
 {
 	size_t	i;
 	size_t	len;
@@ -52,8 +53,8 @@ static size_t	hd_compute_len(const char *line, t_shell_context *sh, const char *
 		else
 		{
 			add = hd_value_len_at(line, i, sh, st);
-			if (add == (size_t)-1)
-				return ((size_t)-1);
+			if (add == (size_t) - 1)
+				return ((size_t) - 1);
 			len += add;
 			i += 1 + hd_var_name_len(line + i + 1);
 		}
@@ -64,22 +65,25 @@ static size_t	hd_compute_len(const char *line, t_shell_context *sh, const char *
 static void	hd_fill(char *out, const char *line,
 	t_shell_context *sh, const char *st)
 {
-	size_t	i;
-	size_t	j;
+	size_t			i;
+	t_hd_fillctx	ctx;
 
 	i = 0;
-	j = 0;
+	ctx.out = out;
+	ctx.j = 0;
+	ctx.sh = sh;
+	ctx.st = st;
 	while (line[i])
 	{
 		if (line[i] != '$')
-			out[j++] = line[i++];
+			ctx.out[ctx.j++] = line[i++];
 		else
 		{
-			j = hd_fill_dollar(out, j, line + i, sh, st);
+			hd_fill_dollar(&ctx, line + i);
 			i += 1 + hd_var_name_len(line + i + 1);
 		}
 	}
-	out[j] = '\0';
+	ctx.out[ctx.j] = '\0';
 }
 
 /* main heredoc expander */

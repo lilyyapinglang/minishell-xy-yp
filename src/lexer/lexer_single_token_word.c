@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_single_token_word.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 20:48:56 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/02/10 20:50:14 by xueyan_wang      ###   ########.fr       */
+/*   Updated: 2026/02/13 16:12:19 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
