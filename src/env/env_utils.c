@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:34:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 20:41:27 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/13 18:37:38 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,42 +45,4 @@ int	env_mark_exported(t_shell_context *ctx, const char *name)
 	env_var = env_var_from_node(node);
 	env_var->exported = true;
 	return (0);
-}
-
-// envp 导出：只导出 exported==true && value!=NULL
-// TODO: garde with malloc_s
-char	**build_envp_from_env_list(t_shell_context *sh_ctx)
-{
-	t_list		*env;
-	int			count_strs;
-	char		**envp;
-	int			i;
-	char		*tmp;
-	t_env_var	*env_var;
-
-	count_strs = 0;
-	i = 0;
-	env = sh_ctx->env;
-	while (env)
-	{
-		env_var = env_var_from_node(env);
-		if (env_var->exported && env_var->value)
-			count_strs++;
-		env = env->next;
-	}
-	envp = malloc(sizeof(char *) * (count_strs + 1));
-	env = sh_ctx->env;
-	while (env)
-	{
-		env_var = env_var_from_node(env);
-		if (env_var->exported && env_var->value)
-		{
-			tmp = ft_strjoin(env_var->name, "=");
-			envp[i++] = ft_strjoin(tmp, env_var->value);
-			free(tmp);
-		}
-		env = env->next;
-	}
-	envp[i] = NULL;
-	return (envp);
 }

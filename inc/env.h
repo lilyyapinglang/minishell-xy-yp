@@ -9,8 +9,7 @@
 :/usr/local/sbin:/opt/bin:/opt/sbin"
 
 t_list		*init_env(char **envp, t_shell_context *sh_ctx);
-void		print_env(bool export_format, t_shell_context *sh_ctx);
-char		**build_envp_from_env_list(t_shell_context *sh_ctx);
+void		print_env_or_export(bool export_format, t_shell_context *sh_ctx);
 void		add_new_env_var(t_list **env_list, const char *name,
 				const char *value, bool exported, t_shell_context *sh_ctx);
 // env apis

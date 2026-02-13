@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/13 20:50:22 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/13 21:00:50 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 #include "../inc/parse.h"
 
@@ -29,12 +41,16 @@ static t_builtin_func	lookup_builtin_func(const char *name)
 		return (NULL);
 	while (table[i].name)
 	{
-		if (ft_strcmp(name, table[i].name) == 0) // exact match!
+		if (ft_strcmp(name, table[i].name) == 0)
 			return (table[i].func);
 		i++;
 	}
 	return (NULL);
 }
+// 这里理论上不应该发生（外面已经判断 is_builtin）
+// 但为了鲁棒性，返回 1 或 0 都行；通常返回 1 更像“内部错误”
+// 注意：builtin 函数自己负责打印错误并返回对应 status
+// execute_builtin 不要 exit（除了 builtin_exit 自己 exit）
 
 int	execute_builtin(t_ast_command *cmd, t_shell_context *ctx)
 {
@@ -44,12 +60,6 @@ int	execute_builtin(t_ast_command *cmd, t_shell_context *ctx)
 		return (0);
 	func = lookup_builtin_func(cmd->args[0]);
 	if (!func)
-	{
-		// 这里理论上不应该发生（外面已经判断 is_builtin）
-		// 但为了鲁棒性，返回 1 或 0 都行；通常返回 1 更像“内部错误”
 		return (1);
-	}
-	// 注意：builtin 函数自己负责打印错误并返回对应 status
-	// execute_builtin 不要 exit（除了 builtin_exit 自己 exit）
 	return (func(cmd->args, ctx));
 }

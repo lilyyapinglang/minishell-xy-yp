@@ -3,54 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 19:44:51 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/13 21:35:22 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-/*a function to readline read input from terminal heredoc line by line to terminal
+/*a function to readline read input from terminal
+ heredoc line by line to terminal
 finish read, close the tmp file desciption
 */
+// i need to know if it is main prompt or if is heredoc prompt,
+/* Ctrl-C: abort heredoc AND cancel whole command line */
+/*  FIRST: did Ctrl-C happen? */
+/* EOF: stop heredoc early (optional warning) */
+/*  SECOND: did we hit EOF (Ctrl-D)? */
+// errno("error collecting ");
+/* THIRD: delimiter match */
+/* LAST: write content */
+// how to integrate expander logic here ?
+// need to check for expand
 
+// expande variables, and then write
+// xueyan changed write(tmp_file_des, line,
+// ft_strlen(line)) to write(tmp_file_des, expanded,
+// ft_strlen(expanded))
 int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 		t_shell_context *sh_ctx, bool is_quoted)
 {
 	char	*line;
+	char	*expanded;
 
-	char *expanded; // xueyan add for hdexpander
 	(void)sh_ctx;
 	g_latest_signal_status = 0;
 	while (1)
 	{
-		// i need to know if it is main prompt or if is heredoc prompt,
 		line = prompt_listener(HEREDOC_PROMPT);
-		/* Ctrl-C: abort heredoc AND cancel whole command line */
-		/*  FIRST: did Ctrl-C happen? */
 		if (g_latest_signal_status == SIGINT)
 		{
 			if (line)
 				free(line);
 			return (130);
 		}
-		/* EOF: stop heredoc early (optional warning) */
-		/*  SECOND: did we hit EOF (Ctrl-D)? */
 		if (!line)
-		{
-			// errno("error collecting ");
 			return (EXIT_SUCCESS);
-		}
-		/* THIRD: delimiter match */
 		if (ft_strcmp(line, delimiter) == 0)
 		{
 			free(line);
 			return (EXIT_SUCCESS);
 		}
-		/* LAST: write content */
-		// how to integrate expander logic here ?
 		if (is_quoted)
 		{
 			if (write(tmp_file_des, line, ft_strlen(line)) == -1
@@ -61,29 +65,22 @@ int	read_heredoc_lines(int tmp_file_des, const char *delimiter,
 			}
 			free(line);
 		}
-		else // need to check for expand
+		else
 		{
-			// expande variables, and then write
-			// TODO
 			expanded = heredoc_expand_line(line, sh_ctx);
-			// xueyan add for hdexpander
 			if (!expanded)
-			// xueyan add for hdexpander
 			{
-				free(line);            // xueyan add for hdexpander
-				return (EXIT_FAILURE); // xueyan add for hdexpander
-			}
-			if (write(tmp_file_des, expanded, ft_strlen(expanded)) == -1
-				|| write(tmp_file_des, "\n", 1) == -1)
-			// xueyan changed write(tmp_file_des, line,
-			// ft_strlen(line)) to write(tmp_file_des, expanded,
-			// ft_strlen(expanded))
-			{
-				free(expanded); // xueyan add for hdexpander
 				free(line);
 				return (EXIT_FAILURE);
 			}
-			free(expanded); // xueyan add for expander
+			if (write(tmp_file_des, expanded, ft_strlen(expanded)) == -1
+				|| write(tmp_file_des, "\n", 1) == -1)
+			{
+				free(expanded);
+				free(line);
+				return (EXIT_FAILURE);
+			}
+			free(expanded);
 			free(line);
 		}
 	}
@@ -172,6 +169,7 @@ char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
 	*result = '\0';
 	return (result_ptr);
 }
+
 /*
 cat << EOF
 hello
@@ -181,7 +179,10 @@ minishell$
 to turn all cmd << EOF to cmd < /tmp/minishell_heredoc_X.
 Handle current heredocs node, and turn it into temp file input,
 */
-
+/* build /tmp/minishell_heredoc_N */
+// Tod: open_s?
+/* register tmp_name for later unlink+free */
+/* success: replace delimiter with temp file path */
 static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 {
 	int		fd;
@@ -197,21 +198,18 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	clean_delim = heredoc_delimiter_strip(raw_delim, &is_quoted, sh_ctx);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
-	/* build /tmp/minishell_heredoc_N */
 	suffix = s_alloc(ft_itoa(ft_lstsize(sh_ctx->temporary_files)),
 			ALLOC_UNTRACKED, sh_ctx);
 	if (!suffix)
 		return (free(clean_delim), 1);
-	// TODO: ft_strjoin_s?
-	tmp_name = ft_strjoin("/tmp/minishell_heredoc_", suffix);
+	tmp_name = strjoin_s("/tmp/minishell_heredoc_", suffix, ALLOC_PROMPT,
+			sh_ctx);
 	free(suffix);
 	if (!tmp_name)
 		return (free(clean_delim), 1);
-	// TODO: open_s?
 	fd = open(tmp_name, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	if (fd == -1)
 		return (free(clean_delim), free(tmp_name), 1);
-	/* register tmp_name for later unlink+free */
 	lstnode = ft_lstnew(tmp_name);
 	if (!lstnode)
 	{
@@ -227,12 +225,14 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 	close(fd);
 	if (status != EXIT_SUCCESS)
 		return (status);
-	/* success: replace delimiter with temp file path */
 	node->u_data.redirection.file_path = tmp_name;
 	return (EXIT_SUCCESS);
 }
 
 /*scan from root to collect heredocs */
+/* collect inside first (keeps left-to-right order for nested redirs) */
+/* AST_COMMAND: nothing to collect */
+
 int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 {
 	int	status;
@@ -259,7 +259,6 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 		return (collect_all_heredocs(node->u_data.subshell.child, sh_ctx));
 	if (node->type == AST_REDIRECTION)
 	{
-		/* collect inside first (keeps left-to-right order for nested redirs) */
 		status = collect_all_heredocs(node->u_data.redirection.exe_child,
 				sh_ctx);
 		if (status != EXIT_SUCCESS)
@@ -268,6 +267,5 @@ int	collect_all_heredocs(t_ast *node, t_shell_context *sh_ctx)
 			return (collect_one_heredoc(node, sh_ctx));
 		return (EXIT_SUCCESS);
 	}
-	/* AST_COMMAND: nothing to collect */
 	return (EXIT_SUCCESS);
 }

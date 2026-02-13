@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_exe.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/13 21:16:34 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/13 21:20:41 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /*
@@ -30,6 +42,7 @@ static void	put_raw(const char *str)
 	if (str && *str)
 		ft_putstr_fd((char *)str, STDERR_FILENO);
 }
+
 static void	put_segment(const char *str)
 {
 	if (str && *str)
@@ -49,7 +62,11 @@ static void	print_error(const char *cmd, const char *arg, const char *msg)
 	put_raw(": ");
 	put_segment(cmd);
 	put_segment(arg);
-	put_raw(msg ? msg : "");
+	if (msg)
+		msg = msg;
+	else
+		msg = "";
+	put_raw(msg);
 	put_raw("\n");
 }
 
