@@ -13,6 +13,10 @@ void		print_env(bool export_format, t_shell_context *sh_ctx);
 char		**build_envp_from_env_list(t_shell_context *sh_ctx);
 void		add_new_env_var(t_list **env_list, const char *name,
 				const char *value, bool exported, t_shell_context *sh_ctx);
+// env apis
+
+void		del_node_from_env(t_list *env, t_shell_context *sh_ctx);
+t_list		*sort_by_lexicographical(t_list *head);
 
 t_list		*env_node_find(t_list *env, const char *name);
 char		*env_get_value(t_list *env, const char *name);

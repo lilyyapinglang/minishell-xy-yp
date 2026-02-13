@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_var.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:08:17 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/25 15:51:52 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/11 19:45:05 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ void	expand_var(char *str, t_expander *exp, t_shell_context *sh)
 
 	if (str[exp->i + 1] == '?')
 		expand_last_status(exp, sh);
-	else if (exp->context == NO_QUOTE
-		&& (str[exp->i + 1] == '\"' || str[exp->i + 1] == '\''))//Xueyan add to handle $"..."
+	else if (exp->context == NO_QUOTE && (str[exp->i + 1] == '\"' || str[exp->i
+			+ 1] == '\'')) // Xueyan add to handle $"..."
 		return ;
 	else
 	{

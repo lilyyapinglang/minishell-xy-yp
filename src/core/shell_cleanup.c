@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   shell_cleanup.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/11 19:47:20 by lilypad           #+#    #+#             */
+/*   Updated: 2026/02/11 19:56:27 by lilypad          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 #include "../inc/safefunctions.h"
 #include "env.h"
@@ -15,7 +27,6 @@ static void	cleanup_temp_files(t_shell_context *sh_ctx)
 			print_errno("unlink", path, errno);
 		node = node->next;
 	}
-	// free (path) + free(node)
 	ft_lstclear(&sh_ctx->temporary_files, free);
 	sh_ctx->temporary_files = NULL;
 }
@@ -25,7 +36,6 @@ clear heredoc
 cycle allocations
 parsing_error
 */
-
 void	shell_clear_iteration(t_shell_context *sh_ctx)
 {
 	if (!sh_ctx)
@@ -35,18 +45,18 @@ void	shell_clear_iteration(t_shell_context *sh_ctx)
 	sh_ctx->parsing_error = NULL;
 }
 
+/*
+clear all t_list shell_context->env, env is manually owned
+clear t_list shell_context->allocated_pointers[TRACK_SHELL]
+shell-lifetime tracked allocations
+*/
 void	shell_destroy(t_shell_context *sh_ctx)
 {
 	if (!sh_ctx)
 		return ;
 	shell_clear_iteration(sh_ctx);
-	// clear all t_list shell_context->env
-	/* env is manually owned */
 	ft_lstclear(&sh_ctx->env, free_env_var);
-	// clear t_list shell_context->allocated_pointers[TRACK_SHELL]
-	/* shell-lifetime tracked allocations */
 	ft_lstclear(&sh_ctx->allocated_pointers[ALLOC_SHELL], free);
-	// rl_clear_history();
 }
 
 void	shell_exit(t_shell_context *sh_ctx, int status)
