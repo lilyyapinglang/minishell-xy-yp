@@ -3,60 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_expander.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 11:17:13 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/25 15:52:59 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/10 21:49:38 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-
-static int	hd_is_var_first(int c)
-{
-	return (c == '_' || ft_isalpha((unsigned char)c));
-}
-
-static int	hd_is_var_char(int c)
-{
-	return (c == '_' || ft_isalnum((unsigned char)c));
-}
-
-
-/* After '$', valid names:
-    '?' (special) => len 1
-    legal word=> len
-    else => 0 (treat '$' literally) 
-*/
-
-static size_t	hd_var_name_len(const char *s)
-{
-	size_t	i;
-
-	if (!s || !*s)
-		return (0);
-	if (*s == '?')
-		return (1);
-	if (!hd_is_var_first(*s))
-		return (0);
-	i = 1;
-	while (s[i] && hd_is_var_char(s[i]))
-		i++;
-	return (i);
-}
-
-static char	*hd_name_sub(const char *line, size_t i, size_t n, t_shell_context *sh)
-{
-	char	*tmp;
-
-	tmp = ft_substr(line, (unsigned int)(i + 1), n);
-	return (s_alloc(tmp, ALLOC_UNTRACKED, sh));
-    
-}
-/*Compute how many characters the VAR(thing after $) will expand into*/
-
-static size_t	hd_value_len(const char *line, size_t i,
-				t_shell_context *sh, const char *st)
+			
+static size_t	hd_value_len_at(const char *line, size_t i,
+	t_shell_context *sh, const char *st)
 {
 	size_t	n;
 	char	*name;
@@ -77,13 +34,6 @@ static size_t	hd_value_len(const char *line, size_t i,
 	return (ft_strlen(val));
 }
 
-/*
-*hd_compute_len:
-* Compute the final expanded length for this line. return final length
-*(to malloc once for the output string
-*
-*/
-
 static size_t	hd_compute_len(const char *line, t_shell_context *sh, const char *st)
 {
 	size_t	i;
@@ -98,53 +48,21 @@ static size_t	hd_compute_len(const char *line, t_shell_context *sh, const char *
 		{
 			len++;
 			i++;
-			continue ;
 		}
-		add = hd_value_len(line, i, sh, st);
-		if (add == (size_t)-1)
-			return ((size_t)-1);
-		len += add;
-		i += 1 + hd_var_name_len(line + i + 1);
-		if (hd_var_name_len(line + i) == 0 && line[i - 1] == '$')
-			;
+		else
+		{
+			add = hd_value_len_at(line, i, sh, st);
+			if (add == (size_t)-1)
+				return ((size_t)-1);
+			len += add;
+			i += 1 + hd_var_name_len(line + i + 1);
+		}
 	}
 	return (len);
 }
 
-static size_t	hd_copy_str(char *out, size_t j, const char *s)
-{
-	size_t	k;
-
-	k = 0;
-	while (s && s[k])
-		out[j++] = s[k++];
-	return (j);
-}
-/*handle $*/
-static size_t	hd_fill_dollar(char *out, size_t j, const char *line,
-				t_shell_context *sh, const char *st)
-{
-	size_t	n;
-	char	*name;
-	char	*val;
-
-	n = hd_var_name_len(line + 1);
-	if (n == 0)
-		return (out[j++] = '$', j);
-	if (n == 1 && line[1] == '?')
-		return (hd_copy_str(out, j, st));
-	name = hd_name_sub(line, 0, n, sh);
-	if (!name)
-		return (j);
-	val = env_get_value(sh->env, name);
-	free(name);
-	if (val)
-		j = hd_copy_str(out, j, val);
-	return (j);
-}
-
-/*fill things in final output*/
-static void	hd_fill(char *out, const char *line, t_shell_context *sh, const char *st)
+static void	hd_fill(char *out, const char *line,
+	t_shell_context *sh, const char *st)
 {
 	size_t	i;
 	size_t	j;
@@ -159,12 +77,12 @@ static void	hd_fill(char *out, const char *line, t_shell_context *sh, const char
 		{
 			j = hd_fill_dollar(out, j, line + i, sh, st);
 			i += 1 + hd_var_name_len(line + i + 1);
-			if (hd_var_name_len(line + i) == 0 && line[i - 1] == '$')
-				;
 		}
 	}
 	out[j] = '\0';
 }
+
+/* main heredoc expander */
 
 char	*heredoc_expand_line(const char *line, t_shell_context *sh)
 {

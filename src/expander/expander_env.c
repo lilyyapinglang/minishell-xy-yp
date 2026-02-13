@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_env.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:09:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 17:12:27 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/10 20:59:54 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,14 @@ char	*expand_env_var(char *str, t_expander *exp, t_shell_context *sh)
 		exp->buf[exp->buf_i] = '\0';
 		return (NULL);
 	}
-	// env_value = value(env_var(name, sh->env)); // lily changed
-	//char					*env_get_value(t_list *env, const char *name);
-	env_value = env_get_value(sh->env,name);
+	env_value = env_get_value(sh->env, name);
 	exp->i += ft_strlen(name);
 	return (env_value);
 }
+
+//before env_value = env get...
+// env_value = value(env_var(name, sh->env)); // lily changed
+	//char					*env_get_value(t_list *env, const char *name);
 
 char	*get_valid_name(char *str, t_expander *exp, t_shell_context *sh)
 {

@@ -92,7 +92,12 @@ char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
 char							*heredoc_expand_line(const char *line, 
 									t_shell_context *sh);//xueyan added for hdexpander
-
+size_t							hd_var_name_len(const char *s);//xueyan added for hdexpander
+char							*hd_name_sub(const char *line, size_t i, size_t n,
+									t_shell_context *sh);//xueyan added for hdexpander
+size_t							hd_copy_str(char *out, size_t j, const char *s);//xueyan added for hdexpander
+size_t							hd_fill_dollar(char *out, size_t j, const char *line,
+									t_shell_context *sh, const char *st);//xueyan added for hdexpander
 // executor
 int								execute(t_ast *node,
 									t_exec_context execution_context,

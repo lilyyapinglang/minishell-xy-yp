@@ -84,6 +84,7 @@ GNL_SRCS := \
 SRCS_LEXER := \
   src/lexer/lexer.c \
   src/lexer/lexer_single_token.c \
+  src/lexer/lexer_single_token_word.c \
   src/lexer/lexer_utile.c
 
 SRCS_PARSER := \
@@ -132,8 +133,8 @@ SRCS_RUNTIME := \
   src/execution/exec_redirection.c \
   src/execution/exec_subshell.c \
   src/execution/heredoc_expander.c\
+  src/execution/heredoc_expander_utile.c\
   src/execution/executor.c
-
 
 SRCS := $(SRCS_RUNTIME) $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE) $(GNL_SRCS)
 
