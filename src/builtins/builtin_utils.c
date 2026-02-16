@@ -3,15 +3,49 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 20:50:22 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/13 21:00:50 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/16 18:05:15 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 #include "../inc/parse.h"
+
+// str = null or str = ""
+// str =9 etc
+int	is_valid_ident(const char *str)
+{
+	int	i;
+
+	if (!str || !str[0])
+		return (0);
+	if (ft_isdigit((unsigned char)str[0]))
+		return (0);
+	i = 0;
+	while (str[i])
+	{
+		if (!(ft_isalnum((unsigned char)str[i]) || str[i] == '_'))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int	check_valid_options(char *arg, char *cmd, char *valid_options)
+{
+	int	j;
+
+	j = 1;
+	while (arg[j])
+	{
+		if (ft_strchr(valid_options, arg[j]))
+			return (print_msg_n_return(2, "export", arg, "invalid option"));
+		j++;
+	}
+	return (0);
+}
 
 bool	is_builtin(char *cmd)
 {
