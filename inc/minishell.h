@@ -82,6 +82,17 @@ typedef enum e_exec_context
 # define WRITE_END 1
 
 // heredocs
+
+	//heredoc_expander to ensure argv <5 xueyan added
+typedef struct s_hd_fillctx
+{
+	char			*out;//buffer for output
+	size_t			j;//current writing-in position
+	t_shell_context	*sh;//to get env and last_status
+	const char		*st; //string for $?
+}	t_hd_fillctx;
+
+
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
 
@@ -92,7 +103,11 @@ char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
 char							*heredoc_expand_line(const char *line, 
 									t_shell_context *sh);//xueyan added for hdexpander
-
+size_t							hd_var_name_len(const char *s);//xueyan added for hdexpander
+char							*hd_name_sub(const char *line, size_t i, size_t n,
+									t_shell_context *sh);//xueyan added for hdexpander
+size_t							hd_copy_str(char *out, size_t j, const char *s);//xueyan added for hdexpander
+void							hd_fill_dollar(t_hd_fillctx *ctx, const char *line);//xueyan added for hdexpander
 // executor
 int								execute(t_ast *node,
 									t_exec_context execution_context,

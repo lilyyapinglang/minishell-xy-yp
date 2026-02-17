@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_single_argv.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:09:47 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 16:44:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/13 16:12:34 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,16 @@ void	no_quote_state(char *str, t_expander *exp, t_shell_context *sh)
 		expand_var(str, exp, sh);
 	else if (str[exp->i] == ' ')
 		add_token_to_list(exp, sh);
-	else if (str[exp->i] == '\"') // here we are using \ to interprete " as a ",
-		// not \ itself
+	else if (str[exp->i] == '\"')
 		exp->context = IN_DOUBLE_QUOTE;
 	else if (str[exp->i] == '\'')
 		exp->context = IN_SINGLE_QUOTE;
 	else
 		exp->buf[exp->buf_i++] = str[exp->i];
 }
+
+//  '\"' and '\'' here we are using \ to interprete " as a ",
+		// not \ itself
 
 void	single_quote_state(char *str, t_expander *exp)
 {
