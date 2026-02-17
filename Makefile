@@ -123,7 +123,9 @@ SRCS_RUNTIME := \
   src/utils/ft_list_ops.c \
   src/utils/safe_exe.c \
   src/utils/utils_general.c \
-  src/env/env.c \
+  src/env/env_apis.c \
+  src/env/env_init.c\
+  src/env/env_utils.c\
   src/builtins/builtin_cmds.c \
   src/builtins/builtin_utils.c \
   src/execution/collect_heredoc.c \

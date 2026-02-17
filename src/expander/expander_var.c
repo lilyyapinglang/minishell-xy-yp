@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   expander_var.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 19:08:17 by xuewang           #+#    #+#             */
 /*   Updated: 2026/02/13 16:12:47 by xuewang          ###   ########.fr       */
