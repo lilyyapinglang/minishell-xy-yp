@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:06:19 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/19 18:38:49 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 20:15:53 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,35 +103,15 @@ int	env_append_value(t_shell_context *sh_ctx, const char *name,
 	return (0);
 }
 
-// unset env
-int	env_unset(t_shell_context *sh_ctx, const char *name)
-{
-	t_list		*env;
-	t_env_var	*env_var;
-
-	env = sh_ctx->env;
-	while (env)
-	{
-		env_var = env_var_from_node(env);
-		if (ft_strcmp(env_var->name, name) == 0)
-		{
-			del_node_from_env(env, sh_ctx);
-			return (0);
-		}
-		env = env->next;
-	}
-	return (1);
-}
-
-void	add_env_var_with_value(char **envp, char *equal_sign_loc,
-		t_list *env_list, t_shell_context *sh_ctx)
+void	add_env_var_with_value(char *envp, char *equal_sign_loc,
+		t_list **env_list, t_shell_context *sh_ctx)
 {
 	char	*name_tmp;
 
-	name_tmp = ft_substr(*envp, 0, (size_t)(equal_sign_loc - *envp));
+	name_tmp = ft_substr(envp, 0, (size_t)(equal_sign_loc - envp));
 	if (name_tmp)
 	{
-		add_new_env_var(&env_list, name_tmp, equal_sign_loc + 1, true, sh_ctx);
+		add_new_env_var(env_list, name_tmp, equal_sign_loc + 1, true, sh_ctx);
 		free(name_tmp);
 	}
 }
@@ -152,7 +132,7 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 		if (!equal_sign_loc)
 			add_new_env_var(&env_list, *envp, NULL, true, sh_ctx);
 		else
-			add_env_var_with_value(envp, equal_sign_loc, env_list, sh_ctx);
+			add_env_var_with_value(*envp, equal_sign_loc, &env_list, sh_ctx);
 		envp++;
 	}
 	sh_ctx->env = env_list;

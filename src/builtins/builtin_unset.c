@@ -6,11 +6,31 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:48:12 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/19 18:46:44 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 19:59:29 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
+
+// unset env
+int	env_unset(t_shell_context *sh_ctx, const char *name)
+{
+	t_list		*env;
+	t_env_var	*env_var;
+
+	env = sh_ctx->env;
+	while (env)
+	{
+		env_var = env_var_from_node(env);
+		if (ft_strcmp(env_var->name, name) == 0)
+		{
+			del_node_from_env(env, sh_ctx);
+			return (0);
+		}
+		env = env->next;
+	}
+	return (1);
+}
 
 int	builtin_unset(char **argv, t_shell_context *sh_ctx)
 {
