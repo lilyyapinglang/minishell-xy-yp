@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   safe_list.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:47:00 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 17:38:45 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/19 23:23:24 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ int	count_strs(char **argv)
 		i++;
 	return (i);
 }
+
 void	add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh)
 {
 	char	**new_array;

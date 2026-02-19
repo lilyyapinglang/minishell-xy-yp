@@ -119,13 +119,16 @@ SRCS_RUNTIME := \
   src/core/shell_init.c \
   src/core/shell_loop.c \
   src/signals/set_signal_handlers_to_mode.c \
+  src/signals/handle_sigint.c\
   src/utils/error_exe.c \
+  src/utils/print_error.c \
   src/utils/ft_list_ops.c \
   src/utils/safe_exe.c \
   src/utils/utils_general.c \
   src/env/env_apis.c \
   src/env/env_init.c\
   src/env/env_utils.c\
+  src/env/env_export.c\
   src/builtins/builtin_cd.c \
   src/builtins/builtin_echo.c \
   src/builtins/builtin_env.c \

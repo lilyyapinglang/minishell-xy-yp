@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   safe_alloc.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:46:51 by xuewang           #+#    #+#             */
-/*   Updated: 2026/01/10 17:37:09 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/19 23:24:23 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	*calloc_s(size_t count, size_t size, t_tracking_scope scope,
 
 void	track_alloc(void *pointer, t_tracking_scope scope, t_shell_context *sh)
 {
-	t_list *new_node;
+	t_list	*new_node;
 
 	if (scope == ALLOC_UNTRACKED)
 		return ;
