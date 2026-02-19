@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_echo.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:46:46 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/16 17:56:38 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/19 17:42:09 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,10 @@ void	output_each_arg(char **strs)
 // buildin, execute in child or pipeline
 // echo -n hello world
 // -n means don't add newline charactor at the output
-// argv[0] = echo
-// argv[1] = xxx ?
 // write each char to standard output and add \n
 // not last one, add space
 // if from 1 -> n-1 no -n
 // write each char to stardard ouput
-// printf("with -n options \n");
-
 int	builtin_echo(char **argv, t_shell_context *sh_ctx)
 {
 	char	**strs;

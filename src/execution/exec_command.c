@@ -155,7 +155,22 @@ int	execve_errno_to_status(int err)
 		return (127);
 	return (126);
 }
+// 这里理论上不应该发生（外面已经判断 is_builtin）
+// 但为了鲁棒性，返回 1 或 0 都行；通常返回 1 更像“内部错误”
+// 注意：builtin 函数自己负责打印错误并返回对应 status
+// execute_builtin 不要 exit（除了 builtin_exit 自己 exit）
 
+int	execute_builtin(t_ast_command *cmd, t_shell_context *sh_ctx)
+{
+	t_builtin_func	func;
+
+	if (!cmd || !cmd->args || !cmd->args[0])
+		return (0);
+	func = lookup_builtin_func(cmd->args[0]);
+	if (!func)
+		return (1);
+	return (func(cmd->args, sh_ctx));
+}
 int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 {
 	int			status;
@@ -227,13 +242,13 @@ int	wait_status_to_shell_status(int wait_status)
 }
 
 void	report_child_termination_signal(int wait_status, const char *cmd_name,
-		t_shell_context *ctx)
+		t_shell_context *sh_ctx)
 {
 	int	sig;
 
 	(void)cmd_name;
 	// only parent / interactive shell should print
-	if (ctx && ctx->in_main_process == false)
+	if (sh_ctx && sh_ctx->in_main_process == false)
 		return ;
 	if (!WIFSIGNALED(wait_status))
 		return ;

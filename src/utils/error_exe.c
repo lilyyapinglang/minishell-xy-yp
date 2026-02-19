@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:34 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/13 21:20:41 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 18:29:42 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,7 @@ static void	print_error(const char *cmd, const char *arg, const char *msg)
 	put_raw(": ");
 	put_segment(cmd);
 	put_segment(arg);
-	if (msg)
-		msg = msg;
-	else
+	if (!msg)
 		msg = "";
 	put_raw(msg);
 	put_raw("\n");

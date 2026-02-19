@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:34:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/13 18:37:38 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 18:39:10 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,15 @@ t_env_var	*env_var_from_node(t_list *node)
 	return ((t_env_var *)node->content);
 }
 
-int	env_mark_exported(t_shell_context *ctx, const char *name)
+int	env_mark_exported(t_shell_context *sh_ctx, const char *name)
 {
 	t_list		*node;
 	t_env_var	*env_var;
 
-	node = env_node_find(ctx->env, name);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&ctx->env, name, NULL, true, ctx);
+		add_new_env_var(&sh_ctx->env, name, NULL, true, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);

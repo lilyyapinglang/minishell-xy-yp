@@ -48,7 +48,8 @@ void							fatal_msg_shell_quit(t_shell_context *sh_ctx,
 									const char *msg);
 
 void							report_child_termination_signal(int wait_status,
-									const char *cmd_name, t_shell_context *ctx);
+									const char *cmd_name,
+									t_shell_context *sh_ctx);
 
 int								wait_status_to_shell_status(int wait_status);
 
@@ -90,8 +91,8 @@ int								read_heredoc_lines(int tmp_file_des,
 									t_shell_context *sh_ctx, bool is_quoted);
 char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
-char							*heredoc_expand_line(const char *line, 
-									t_shell_context *sh);//xueyan added for hdexpander
+char	*heredoc_expand_line(const char *line,
+							t_shell_context *sh); // xueyan added for hdexpander
 
 // executor
 int								execute(t_ast *node,
@@ -109,9 +110,9 @@ int								execute_redirection(t_ast *node,
 int								execute_subshell(t_ast *node,
 									t_shell_context *shell_conetext);
 
-// builtin- new
+// builtin
 typedef int						(*t_builtin_func)(char **argv,
-							t_shell_context *ctx);
+							t_shell_context *sh_ctx);
 typedef enum e_builtin_id
 {
 	BI_NONE = 0,
@@ -131,8 +132,6 @@ typedef struct s_builtin_entry
 	t_builtin_func				func;
 }								t_builtin_entry;
 
-// -----built-in
-
 typedef struct s_builtin
 {
 	char						*name;
@@ -140,10 +139,9 @@ typedef struct s_builtin
 	bool						stateful;
 }								t_builtin;
 
-bool							is_buildtin(char *cmd);
-bool							is_stateful_builtin(char *cmd);
-
 bool							is_builtin(char *cmd);
+bool							is_stateful_builtin(char *cmd);
+t_builtin_func					lookup_builtin_func(const char *name);
 
 int								builtin_cd(char **argv,
 									t_shell_context *sh_ctx);
@@ -155,11 +153,16 @@ int								builtin_exit(char **argv,
 									t_shell_context *sh_ctx);
 int								builtin_echo(char **argv,
 									t_shell_context *sh_ctx);
-int								builtin_pwd(char **argv, t_shell_context *ctx);
-int								builtin_env(char **argv, t_shell_context *ctx);
+int								builtin_pwd(char **argv,
+									t_shell_context *sh_ctx);
+int								builtin_env(char **argv,
+									t_shell_context *sh_ctx);
 int								execute_builtin(t_ast_command *cmd,
-									t_shell_context *ctx);
-
+									t_shell_context *sh_ctx);
+// builtin utils
+int								is_valid_var_name(const char *str);
+int								is_valid_options(char *arg, char *cmd,
+									char *valid_options);
 //-----  signal-----
 
 extern volatile sig_atomic_t	g_latest_signal_status;

@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_cd.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:49:45 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/16 17:56:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/19 18:39:30 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	update_env_pwd(char *oldpwd, char *newpwd, t_shell_context *ctx)
+void	update_env_pwd(char *oldpwd, char *newpwd, t_shell_context *sh_ctx)
 {
 	if (oldpwd)
-		env_set_value(ctx, "OLDPWD", oldpwd, true);
+		env_set_value(sh_ctx, "OLDPWD", oldpwd, true);
 	if (newpwd)
-		env_set_value(ctx, "PWD", newpwd, true);
+		env_set_value(sh_ctx, "PWD", newpwd, true);
 	free(oldpwd);
 	free(newpwd);
 }
@@ -34,7 +34,7 @@ void	update_env_pwd(char *oldpwd, char *newpwd, t_shell_context *ctx)
 // OLDPWD=/home/ylang/code/minishell-github
 // not neccessary to interrupt cd even failed
 
-int	builtin_cd(char **argv, t_shell_context *ctx)
+int	builtin_cd(char **argv, t_shell_context *sh_ctx)
 {
 	const char	*target_dir;
 	char		*oldpwd;
@@ -43,7 +43,7 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 
 	if (!argv[1])
 	{
-		target_dir = env_get_value(ctx->env, "HOME");
+		target_dir = env_get_value(sh_ctx->env, "HOME");
 		if (!target_dir)
 			return (print_msg_n_return(1, "cd", NULL, "HOME not set"));
 	}
@@ -57,6 +57,6 @@ int	builtin_cd(char **argv, t_shell_context *ctx)
 		return (print_errno_n_return(1, "cd", target_dir, errno));
 	}
 	newpwd = getcwd(NULL, 0);
-	update_env_pwd(oldpwd, newpwd, ctx);
+	update_env_pwd(oldpwd, newpwd, sh_ctx);
 	return (0);
 }

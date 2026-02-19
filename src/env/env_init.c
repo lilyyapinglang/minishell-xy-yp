@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:06:19 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/13 20:06:52 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 18:38:49 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	env_set_value(t_shell_context *sh_ctx, const char *name, const char *value,
 	return (0);
 }
 
-char	*appended_value(t_env_var *env_var, char *base, const char append_str,
+char	*appended_value(t_env_var *env_var, char *base, const char *append_str,
 		t_shell_context *sh_ctx)
 {
 	char	*appended_value;
@@ -71,9 +71,7 @@ char	*appended_value(t_env_var *env_var, char *base, const char append_str,
 		base = env_var->value;
 	else
 		base = strdup_s("", ALLOC_UNTRACKED, sh_ctx);
-	if (append_str)
-		append_str = append_str;
-	else
+	if (!append_str)
 		append_str = "";
 	appended_value = strjoin_s(base, append_str, ALLOC_UNTRACKED, sh_ctx);
 	return (appended_value);
@@ -88,6 +86,7 @@ int	env_append_value(t_shell_context *sh_ctx, const char *name,
 	char		*base;
 	char		*new_value;
 
+	base = NULL;
 	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
@@ -143,7 +142,6 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 {
 	t_list	*env_list;
 	char	*equal_sign_loc;
-	char	*name_tmp;
 
 	env_list = NULL;
 	if (!sh_ctx)

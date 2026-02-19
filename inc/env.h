@@ -24,7 +24,7 @@ int			env_set_value(t_shell_context *sh_ctx, const char *name,
 int			env_append_value(t_shell_context *sh_ctx, const char *name,
 				const char *append_str, bool exported);
 int			env_unset(t_shell_context *sh_ctx, const char *name);
-int			env_mark_exported(t_shell_context *ctx, const char *name);
+int			env_mark_exported(t_shell_context *sh_ctx, const char *name);
 t_env_var	*env_var_from_node(t_list *node);
 void		free_env_var(void *content);
 

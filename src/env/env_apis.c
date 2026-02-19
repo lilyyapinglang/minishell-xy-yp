@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:28:37 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/13 20:49:34 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 18:35:10 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void	check_swap_node(t_list *curr, int *swapped)
 		content_tmp = curr->content;
 		curr->content = curr->next->content;
 		curr->next->content = content_tmp;
-		swapped = 1;
+		*swapped = 1;
 	}
 }
 // sorting a double linked list
@@ -114,11 +114,9 @@ void	check_swap_node(t_list *curr, int *swapped)
 
 t_list	*sort_by_lexicographical(t_list *head)
 {
-	t_list		*curr;
-	t_list		*last;
-	t_env_var	*env_var_curr;
-	void		*content_tmp;
-	int			swapped;
+	t_list	*curr;
+	t_list	*last;
+	int		swapped;
 
 	if (head == NULL)
 		return (head);
