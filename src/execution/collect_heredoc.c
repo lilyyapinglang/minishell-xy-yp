@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/13 21:35:22 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 22:38:45 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,8 +202,7 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh_ctx)
 			ALLOC_UNTRACKED, sh_ctx);
 	if (!suffix)
 		return (free(clean_delim), 1);
-	tmp_name = strjoin_s("/tmp/minishell_heredoc_", suffix, ALLOC_PROMPT,
-			sh_ctx);
+	tmp_name = ft_strjoin("/tmp/minishell_heredoc_", suffix);
 	free(suffix);
 	if (!tmp_name)
 		return (free(clean_delim), 1);
