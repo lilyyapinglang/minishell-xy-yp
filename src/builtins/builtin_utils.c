@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 20:50:22 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 18:49:39 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 20:34:01 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ int	is_valid_options(char *arg, char *cmd, char *valid_options)
 	j = 1;
 	while (arg[j])
 	{
-		if (ft_strchr(valid_options, arg[j]))
+		if (!ft_strchr(valid_options, arg[j]))
 			return (print_msg_n_return(2, cmd, arg, "invalid option"));
 		j++;
 	}
