@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:48:12 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/19 20:30:34 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/19 20:37:40 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,19 @@ int	env_unset(t_shell_context *sh_ctx, const char *name)
 int	builtin_unset(char **argv, t_shell_context *sh_ctx)
 {
 	int		i;
-	int		status;
 	char	*arg;
 
 	i = 1;
-	status = 0;
 	if (!argv[1])
-		return (0);
+		return (EXIT_SUCCESS);
 	while (argv[i])
 	{
 		arg = argv[i];
 		if (arg[0] == '-')
 			return (is_valid_options(arg, argv[0], "fvn"));
 		if (is_valid_var_name(argv[i]))
-			status = env_unset(sh_ctx, argv[i]);
+			env_unset(sh_ctx, argv[i]);
 		i++;
 	}
-	return (status);
+	return (EXIT_SUCCESS);
 }
