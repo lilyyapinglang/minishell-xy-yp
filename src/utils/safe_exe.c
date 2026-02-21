@@ -6,11 +6,12 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:40 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/20 19:37:51 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/21 21:11:22 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
+#include "../inc/ms_error.h"
 
 int	open_s(const char *pathname, int flags, mode_t mode,
 		t_shell_context *sh_ctx)

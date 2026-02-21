@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 21:40:16 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/20 21:47:47 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/21 23:47:27 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,76 +24,111 @@ stateful builtin → 不能 fork
 stateless builtin → 可 fork 可不 fork**
 */
 
-void	free_strs(char **envp)
-{
-	int	i;
-
-	i = 0;
-	if (!envp)
-		return ;
-	while (envp[i])
-		free(envp[i++]);
-	free(envp);
-}
-/* 1) count exported */
-/* 2) build envp */
-
-/* rollback */
-
-char	**env_list_to_envp(t_list *env_list)
+int	count_exported_env_vars(t_list *env_list)
 {
 	int			count;
-	int			i;
+	t_env_var	*env_var;
 	t_list		*node;
-	t_env_var	*ev;
-	char		**envp;
-	const char	*val;
-	size_t		name_len;
-	size_t		val_len;
 
-	count = 0;
-	i = 0;
 	node = env_list;
+	count = 0;
 	while (node)
 	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
+		env_var = env_var_from_node(node);
+		if (env_var && env_var->exported && env_var->name)
 			count++;
 		node = node->next;
 	}
-	envp = malloc(sizeof(char *) * (count + 1));
-	if (!envp)
-		return (NULL);
+	return (count);
+}
+
+void	add_one_env(t_env_var *env_var, int i, t_shell_context *sh_ctx,
+		char **envp)
+{
+	int		name_len;
+	int		val_len;
+	char	*val;
+
+	name_len = ft_strlen(env_var->name);
+	if (env_var->value)
+		val = env_var->value;
+	else
+		val = "";
+	val_len = ft_strlen(val);
+	envp[i] = calloc_s(name_len + 1 + val_len + 1, sizeof(char), ALLOC_PROMPT,
+			sh_ctx);
+	ft_memcpy(envp[i], env_var->name, name_len);
+	envp[i][name_len] = '=';
+	ft_memcpy(envp[i] + name_len + 1, val, val_len);
+	envp[i][name_len + 1 + val_len] = '\0';
+}
+/* 1) count exported */
+/* 2) build envp */
+/* rollback */
+
+char	**build_envp_or_fail(t_list *env_list, t_shell_context *sh_ctx)
+{
+	int			i;
+	t_list		*node;
+	t_env_var	*env_var;
+	char		**envp;
+
+	i = 0;
 	node = env_list;
+	envp = calloc_s(count_exported_env_vars(env_list) + 1, sizeof(char *),
+			ALLOC_PROMPT, sh_ctx);
 	while (node)
 	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
-		{
-			name_len = ft_strlen(ev->name);
-			if (ev->value)
-				val = ev->value;
-			else
-				val = "";
-			val_len = ft_strlen(val);
-			envp[i] = malloc(name_len + 1 + val_len + 1);
-			if (!envp[i])
-			{
-				while (i > 0)
-					free(envp[--i]);
-				free(envp);
-				return (NULL);
-			}
-			ft_memcpy(envp[i], ev->name, name_len);
-			envp[i][name_len] = '=';
-			ft_memcpy(envp[i] + name_len + 1, val, val_len);
-			envp[i][name_len + 1 + val_len] = '\0';
-			i++;
-		}
+		env_var = env_var_from_node(node);
+		if (env_var && env_var->exported && env_var->name)
+			add_one_env(env_var, i++, sh_ctx, envp);
 		node = node->next;
 	}
 	envp[i] = NULL;
 	return (envp);
+}
+
+char	*search_path_env(t_list *env)
+{
+	t_env_var	*env_var;
+	char		*path_ptr;
+
+	path_ptr = NULL;
+	while (env)
+	{
+		env_var = env_var_from_node(env);
+		if (!env_var)
+		{
+			env = env->next;
+			continue ;
+		}
+		if (ft_strcmp(env_var->name, "PATH") == 0)
+			path_ptr = env_var->value;
+		env = env->next;
+	}
+	return (path_ptr);
+}
+
+char	*combine_path(char **dirs, t_shell_context *sh_ctx, char *cmd)
+{
+	char	*mid_path;
+	char	*full_path;
+
+	if (!dirs || !cmd)
+		return (NULL);
+	while (*dirs)
+	{
+		mid_path = strjoin_s(*dirs, "/", ALLOC_PROMPT, sh_ctx);
+		if (!mid_path)
+			return (NULL);
+		full_path = strjoin_s(mid_path, cmd, ALLOC_PROMPT, sh_ctx);
+		if (!full_path)
+			return (NULL);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		dirs++;
+	}
+	return (NULL);
 }
 
 // PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:
@@ -108,72 +143,20 @@ char	**env_list_to_envp(t_list *env_list)
 
 char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 {
-	char		**dirs;
-	char		*full_path;
-	char		*path_ptr;
-	char		*mid_path;
-	char		**head_ptr;
-	t_list		*env;
-	t_env_var	*env_var;
+	char	**dirs;
+	char	*path_ptr;
+	char	**head_ptr;
+	t_list	*env;
 
-	path_ptr = NULL;
 	env = sh_ctx->env;
-	while (env)
-	{
-		env_var = env_var_from_node(env);
-		if (!env_var)
-		{
-			env = env->next;
-			continue ;
-		}
-		if (ft_strcmp(env_var->name, "PATH") == 0)
-			path_ptr = env_var->value;
-		env = env->next;
-	}
-	if (!path_ptr)
-	{
-		full_path = ft_strjoin("./", cmd);
-		return (full_path);
-	}
-	if (*path_ptr == '\0')
+	path_ptr = search_path_env(env);
+	if (!path_ptr || *path_ptr == '\0')
 		return (NULL);
-	dirs = ft_split(path_ptr, ':');
-	if (!dirs)
-		return (NULL);
+	dirs = split_s(path_ptr, ':', ALLOC_PROMPT, sh_ctx);
 	head_ptr = dirs;
-	while (*dirs)
-	{
-		mid_path = ft_strjoin(*dirs, "/");
-		if (!mid_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
-		full_path = ft_strjoin(mid_path, cmd);
-		free(mid_path);
-		if (!full_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
-		if (access(full_path, X_OK) == 0)
-		{
-			free_strs(head_ptr);
-			return (full_path);
-		}
-		free(full_path);
-		dirs++;
-	}
-	free_strs(head_ptr);
-	return (NULL);
+	return (combine_path(head_ptr, sh_ctx, cmd));
 }
 
-int	execve_errno_to_status(int err)
-{
-	if (err == ENOENT)
-		return (127);
-	return (126);
-}
 // 这里理论上不应该发生（外面已经判断 is_builtin）
 // 但为了鲁棒性，返回 1 或 0 都行；通常返回 1 更像“内部错误”
 // 注意：builtin 函数自己负责打印错误并返回对应 status
@@ -191,6 +174,51 @@ int	execute_builtin(t_ast_command *cmd, t_shell_context *sh_ctx)
 	return (func(cmd->args, sh_ctx));
 }
 
+int	validate_command(t_ast_command *cmd)
+{
+	char	*name;
+
+	if (!cmd || !cmd->args || !cmd->args[0])
+		return (1);
+	name = cmd->args[0];
+	if (ft_strcmp(name, ".") == 0)
+		return (print_msg_n_return(127, name, NULL,
+				"filename argument required"));
+	if (ft_strcmp(name, "..") == 0 || name[0] == '\0')
+		return (print_msg_n_return(127, name, NULL, "command not found"));
+	return (-1);
+}
+
+char	*resolve_exection_path(char *name, t_shell_context *sh_ctx)
+{
+	char	*path;
+
+	if (ft_strchr(name, '/'))
+		return (name);
+	path = resolve_cmd_path(name, sh_ctx);
+	return (path);
+}
+
+static int	map_exec_errno(int err)
+{
+	if (err == ENOENT)
+		return (127);
+	if (err == EACCES)
+		return (126);
+	if (err == ENOTDIR)
+		return (127);
+	return (126);
+}
+
+int	exec_and_handle(char *path, t_ast_command *cmd, char **envp)
+{
+	int	status;
+
+	execve(path, cmd->args, envp);
+	status = map_exec_errno(errno);
+	return (print_errno_n_return(status, cmd->args[0], NULL, errno));
+}
+
 // cmd->arg[0]=="."
 // cmd->args[0] ==".."
 // cmd->args[0] ==""
@@ -198,72 +226,41 @@ int	execute_builtin(t_ast_command *cmd, t_shell_context *sh_ctx)
 // permission denied
 // the direcotry
 // no / present, so need to search and execute external via PATH,
-
+// case 1: command contains /
+// case 2: command does NOT contain /
 int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 {
-	int			status;
-	char		*path;
-	char		**envp;
-	struct stat	st;
+	int		status;
+	char	*path;
+	char	**envp;
 
-	if (!cmd || !cmd->args || !cmd->args[0])
-		return (0);
-	if (ft_strcmp(cmd->args[0], ".") == 0)
-		return (print_msg_n_return(127, cmd->args[0], NULL,
-				"filename argument required"));
-	if (ft_strcmp(cmd->args[0], "..") == 0)
-		return (print_msg_n_return(127, cmd->args[0], NULL,
-				"command not found"));
-	if (*cmd->args[0] == '\0')
+	status = validate_command(cmd);
+	if (status != -1)
+		return (status);
+	path = resolve_exection_path(cmd->args[0], sh_ctx);
+	if (!path)
 		return (print_msg_n_return(127, cmd->args[0], NULL,
 				"command not found"));
-	if (ft_strchr(cmd->args[0], '/'))
-		path = cmd->args[0];
-	else
-		path = resolve_cmd_path(cmd->args[0], sh_ctx);
-	if (stat(path, &st) == -1)
-	{
-		if (errno == ENOENT)
-			return (print_errno_n_return(127, path, NULL, errno));
-		if (errno == EACCES)
-		{
-			return (print_errno_n_return(126, path, NULL, errno));
-		}
-		if (errno == EISDIR)
-			return (print_errno_n_return(126, path, NULL, errno));
-		if (errno == EFAULT)
-			return (print_msg_n_return(127, cmd->args[0], NULL,
-					"command not found"));
-		return (print_errno_n_return(127, path, NULL, errno));
-	}
-	envp = env_list_to_envp(sh_ctx->env);
+	envp = build_envp_or_fail(sh_ctx->env, sh_ctx);
 	if (!envp)
-		return (print_msg_n_return(1, cmd->args[0], NULL,
-				"fail to convert env_list to envp"));
-	execve(path, cmd->args, envp);
-	status = execve_errno_to_status(errno);
-	free_strs(envp);
-	if (path != cmd->args[0])
-		free(path);
-	return (print_errno_n_return(status, cmd->args[0], NULL, errno));
+		return (1);
+	status = exec_and_handle(path, cmd, envp);
+	return (status);
 }
-// Fallback: should not happen in normal minishell execution
 
+// Fallback: should not happen in normal minishell execution
 int	wait_status_to_shell_status(int wait_status)
 {
 	if (WIFEXITED(wait_status))
 		return (WEXITSTATUS(wait_status));
 	if (WIFSIGNALED(wait_status))
 		return (128 + WTERMSIG(wait_status));
-#ifdef WIFSTOPPED
 	if (WIFSTOPPED(wait_status))
 		return (128 + WSTOPSIG(wait_status));
-#endif
 	return (1);
 }
 
 // only parent / interactive shell should print
-
 void	report_child_termination_signal(int wait_status, const char *cmd_name,
 		t_shell_context *sh_ctx)
 {
@@ -279,14 +276,10 @@ void	report_child_termination_signal(int wait_status, const char *cmd_name,
 		ft_putstr_fd("\n", STDERR_FILENO);
 	else if (sig == SIGQUIT)
 	{
-#ifdef WCOREDUMP
 		if (WCOREDUMP(wait_status))
 			ft_putstr_fd("Quit (core dumped)\n", STDERR_FILENO);
 		else
 			ft_putstr_fd("Quit\n", STDERR_FILENO);
-#else
-		ft_putstr_fd("Quit\n", STDERR_FILENO);
-#endif
 	}
 }
 
@@ -337,33 +330,27 @@ int	fork_and_run_cmd_in_child(t_ast *node, t_shell_context *sh_ctx)
 // stateful builti has to be run in parent ,
 //	otherwise change will not take effect
 // need to fork , parent fork, child exe as run in child, parent wait
-// default folk
+// // Default: fork child for external or stateless builtin
 int	execute_command(t_ast *node, t_exec_context exe_ctx,
 		t_shell_context *sh_ctx)
 {
-	int				status;
 	bool			isbuiltin;
 	t_ast_command	*cmd;
 
+	if (!node)
+		return (EXIT_FAILURE);
 	cmd = &node->u_data.command;
-	status = EXIT_SUCCESS;
-	isbuiltin = false;
 	if (!cmd->args || !cmd->args[0])
 		return (EXIT_SUCCESS);
 	isbuiltin = is_builtin(cmd->args[0]);
 	if (exe_ctx == RUN_IN_CHILD)
 	{
 		if (isbuiltin)
-		{
-			status = execute_builtin(cmd, sh_ctx);
-			return (status);
-		}
+			return (execute_builtin(cmd, sh_ctx));
 		return (execute_external(cmd, sh_ctx));
 	}
 	else if (exe_ctx == RUN_FORK_WAIT)
-	{
 		return (fork_and_run_cmd_in_child(node, sh_ctx));
-	}
 	else if (exe_ctx == RUN_IN_SHELL)
 	{
 		if (isbuiltin && is_stateful_builtin(cmd->args[0]))

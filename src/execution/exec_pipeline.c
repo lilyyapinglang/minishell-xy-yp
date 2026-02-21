@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:29:40 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/20 21:52:15 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/21 23:50:54 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,34 @@ int	execute_one_command(t_list *pipeline, int prev_read_end, int pipe[2],
 		close_s(pipe[WRITE_END], sh_ctx);
 	status = execute((t_ast *)pipeline->content, RUN_IN_CHILD, sh_ctx);
 	exit(status);
-	return (pid);
+}
+
+// setup a pipe if there is next command
+static int	setup_pipe_for_stage(int pipe_fd[2], bool has_next)
+{
+	if (!has_next)
+	{
+		pipe_fd[READ_END] = -1;
+		pipe_fd[WRITE_END] = -1;
+		return (0);
+	}
+	if (pipe(pipe_fd) < 0)
+		return (-1);
+	return (0);
+}
+
+// clean up file descrittorws in the parent after forking a stage
+static void	cleanup_parent_fds(int *prev_read_end, int pipe_fd[2],
+		bool has_next)
+{
+	if (*prev_read_end != -1)
+		close(*prev_read_end);
+	if (has_next)
+		close(pipe_fd[WRITE_END]);
+	if (has_next)
+		*prev_read_end = pipe_fd[READ_END];
+	else
+		*prev_read_end = -1;
 }
 
 // bool	new_line;
@@ -130,48 +157,36 @@ int	wait_for_children(pid_t last_pid, int count_pipeline,
 // close write end in parent
 int	execute_pipeline_commands(t_list *pipeline, t_shell_context *sh_ctx)
 {
-	int		fd[2];
+	int		pipe_fd[2];
 	int		prev_read_end;
 	pid_t	last_pid;
+	t_list	*stage;
 	int		last_cmd_status;
-	int		pipeline_count;
-	bool	has_next;
 
-	pipeline_count = ft_lstsize(pipeline);
 	last_pid = 0;
 	prev_read_end = -1;
-	while (pipeline)
+	stage = pipeline;
+	while (stage)
 	{
-		has_next = (pipeline->next != NULL);
-		if (has_next && pipe(fd) < 0)
-			return (1);
-		if (!has_next)
-		{
-			fd[READ_END] = -1;
-			fd[WRITE_END] = -1;
-		}
-		last_pid = execute_one_command(pipeline, prev_read_end, fd, sh_ctx);
-		if (prev_read_end != -1)
-			close(prev_read_end);
-		if (has_next)
-			close(fd[WRITE_END]);
-		if (has_next)
-			prev_read_end = fd[READ_END];
-		else
-			prev_read_end = -1;
-		pipeline = pipeline->next;
+		if (setup_pipe_for_stage(pipe_fd, stage->next != NULL) < 0)
+			return (print_errno_n_return(1, "pipe", NULL, errno));
+		last_pid = execute_one_command(stage, prev_read_end, pipe_fd, sh_ctx);
+		cleanup_parent_fds(&prev_read_end, pipe_fd, stage->next != NULL);
+		stage = stage->next;
 	}
 	if (prev_read_end != -1)
 		close(prev_read_end);
-	last_cmd_status = wait_for_children(last_pid, pipeline_count, sh_ctx);
-	return (last_cmd_status);
+	last_cmd_status = wait_for_children(last_pid, ft_lstsize(pipeline), sh_ctx);
+	ft_lstclear(&pipeline, NULL);
+	return (wait_for_children(last_pid, ft_lstsize(pipeline), sh_ctx));
 }
-// t_ast_pipeline *pipeline;
 
 int	execute_pipeline(t_ast *pipeline_node, t_shell_context *sh_ctx)
 {
-	t_list	*pipeline;
+	t_list	*pipeline_list;
 
-	pipeline = build_cmd_list(pipeline_node, sh_ctx);
-	return (execute_pipeline_commands(pipeline, sh_ctx));
+	if (!pipeline_node)
+		return (EXIT_FAILURE);
+	pipeline_list = build_cmd_list(pipeline_node, sh_ctx);
+	return (execute_pipeline_commands(pipeline_list, sh_ctx));
 }

@@ -57,6 +57,6 @@ int		open_s(const char *pathname, int flags, mode_t mode,
 			t_shell_context *sh_ctx);
 int		close_s(int fd, t_shell_context *sh_ctx);
 int		dup2_s(int oldfd, int newfd, t_shell_context *sh_ctx);
-int		stat_s(const char *restrict path, struct stat *restrict buf,
-			t_shell_context *sh_ctx);
+// int		stat_s(const char *restrict path, struct stat *restrict buf,
+// 			t_shell_context *sh_ctx);
 #endif

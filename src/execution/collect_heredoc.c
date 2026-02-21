@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/20 21:38:57 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/21 21:19:10 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,16 +132,10 @@ static void	update_quote_state(t_quote_state *mode, char c, bool *is_quoted)
 static bool	should_append(t_quote_state mode, char c)
 {
 	return (mode == QUOTE_NONE || (mode == QUOTE_SINGLE && c != '\'')
-	|| (mode == QUOTE_DOUBLE && c != '"'));
+			|| (mode == QUOTE_DOUBLE && c != '"'));
 }
 
 /* allocate buffer for cleaned delimiter using tracked allocation */
-static char	*alloc_delim_buffer(const char *raw, t_shell_context *sh)
-{
-	return (s_alloc(ft_calloc(ft_strlen(raw) + 1, sizeof(char)),
-			ALLOC_UNTRACKED, sh));
-}
-
 static char	*alloc_delim_buffer(const char *raw, t_shell_context *sh)
 {
 	return (s_alloc(ft_calloc(ft_strlen(raw) + 1, sizeof(char)),
@@ -173,8 +167,8 @@ char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
 		ptr++;
 	}
 	if (mode != QUOTE_NONE)
-		return (free(res_start), print_msg_ret("heredoc", raw,
-				"syntax error (unclosed quote)\n", NULL));
+		return (free(res_start), print_msg("heredoc", raw,
+				"syntax error (unclosed quote)\n"), NULL);
 	*result = '\0';
 	return (res_start);
 }
