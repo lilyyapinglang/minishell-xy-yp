@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:29:40 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/21 23:50:54 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/22 19:50:41 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,8 +177,8 @@ int	execute_pipeline_commands(t_list *pipeline, t_shell_context *sh_ctx)
 	if (prev_read_end != -1)
 		close(prev_read_end);
 	last_cmd_status = wait_for_children(last_pid, ft_lstsize(pipeline), sh_ctx);
-	ft_lstclear(&pipeline, NULL);
-	return (wait_for_children(last_pid, ft_lstsize(pipeline), sh_ctx));
+	// ft_lstclear(&pipeline, NULL);
+	return (last_cmd_status);
 }
 
 int	execute_pipeline(t_ast *pipeline_node, t_shell_context *sh_ctx)

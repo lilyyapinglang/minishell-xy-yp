@@ -1,0 +1,78 @@
+# ---------------- Readline / libtinfo still reachable ----------------
+
+{
+   readline_still_reachable_1
+   Memcheck:Reachable
+   fun:rl_initialize
+   fun:readline
+   fun:_rl_init_terminal_io
+   fun:_nc_setupterm
+   fun:tgetent_sp
+   obj:/usr/lib/x86_64-linux-gnu/libreadline*
+   obj:/usr/lib/x86_64-linux-gnu/libtinfo*
+}
+
+{
+   readline_still_reachable_2
+   Memcheck:Reachable
+   fun:xmalloc
+   fun:xrealloc
+   fun:rl_add_funmap_entry
+   fun:rl_initialize_funmap
+   obj:/usr/lib/x86_64-linux-gnu/libreadline*
+}
+{
+	<readline>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+...
+   fun:readline
+...
+}
+
+{
+   <add_history>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+...
+   fun:add_history
+...
+}
+
+{
+   <textdomain_leak>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:textdomain
+   ...
+}
+{
+   <setlocale_leak>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:setlocale
+   ...
+}
+{
+   <bindtextdomain_leak>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:bindtextdomain
+   ...
+}
+{
+   <nl_load_locale_leak>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_nl_load_locale_from_archive
+   fun:_nl_find_locale
+   fun:setlocale
+   ...
+}

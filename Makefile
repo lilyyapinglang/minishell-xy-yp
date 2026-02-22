@@ -6,6 +6,13 @@ CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 
+# ------------------ Debug / Sanitizers ------------------
+DEBUG ?= 0
+ifeq ($(DEBUG),1)
+  CFLAGS += -g3 -O0 -fsanitize=address -fno-omit-frame-pointer
+  LDFLAGS += -fsanitize=address
+endif
+
 # ------------------ Readline (Homebrew macOS) ------------------
 READLINE_PREFIX := $(shell brew --prefix readline 2>/dev/null)
 ifeq ($(READLINE_PREFIX),)
@@ -230,10 +237,30 @@ run_test_expander: test_expander
 
 run_test: run_test_lexer run_test_parser run_test_expander
 
-val: $(NAME)
-	@if ! [ -f "ignore.supp" ]; then make ignore; fi
-	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
-  
+# ------------------ Valgrind suppression file ------------------
+IGNORE_FILE := ignore.supp
+
+# Create an empty suppression file if missing
+$(IGNORE_FILE):
+	@echo "Generating minimal suppression file $(IGNORE_FILE)"
+	@echo "{" > $(IGNORE_FILE)
+	@echo "   Memcheck:Ignore" >> $(IGNORE_FILE)
+	@echo "   fun:*" >> $(IGNORE_FILE)
+	@echo "}" >> $(IGNORE_FILE)
+
+# ------------------ Valgrind target ------------------
+val: DEBUG=1
+val: re $(IGNORE_FILE)
+	valgrind --suppressions=$$(pwd)/$(IGNORE_FILE) \
+	         --leak-check=full --show-leak-kinds=all \
+	         --track-origins=yes --trace-children=yes \
+	         --track-fds=yes -s ./$(NAME)
+
+# ------------------ Optional ASan run (fast) ------------------
+asan: DEBUG=1
+asan: re
+	./$(NAME)
+
 clean:
 	rm -rf $(BUILD_DIR)
 
