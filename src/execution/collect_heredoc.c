@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/21 21:19:10 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/23 19:43:19 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,10 +206,11 @@ static char	*create_tmp_heredoc(t_shell_context *sh)
 	char	*suffix;
 	char	*tmp_name;
 
-	suffix = s_alloc(ft_itoa(ft_lstsize(sh->temporary_files)), ALLOC_PROMPT,
+	suffix = s_alloc(ft_itoa(ft_lstsize(sh->temporary_files)), ALLOC_UNTRACKED,
 			sh);
-	tmp_name = strjoin_s("/tmp/minishell_heredoc_", suffix, ALLOC_PROMPT, sh);
-	lst_add_front_s(tmp_name, &sh->temporary_files, ALLOC_PROMPT, sh);
+	tmp_name = strjoin_s("/tmp/minishell_heredoc_", suffix, ALLOC_UNTRACKED,
+			sh);
+	lst_add_front_s(tmp_name, &sh->temporary_files, ALLOC_UNTRACKED, sh);
 	return (tmp_name);
 }
 
