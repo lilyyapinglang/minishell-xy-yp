@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 21:40:16 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/21 23:47:27 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/23 22:29:57 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,8 +150,8 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 
 	env = sh_ctx->env;
 	path_ptr = search_path_env(env);
-	if (!path_ptr || *path_ptr == '\0')
-		return (NULL);
+	if (!path_ptr)
+		path_ptr = DEFAULT_PATH;
 	dirs = split_s(path_ptr, ':', ALLOC_PROMPT, sh_ctx);
 	head_ptr = dirs;
 	return (combine_path(head_ptr, sh_ctx, cmd));

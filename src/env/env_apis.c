@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:28:37 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/19 23:06:55 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/23 22:29:31 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ char	*env_get_value(t_list *env, const char *name)
 
 // detele a node from env
 // deal differently with head node, last node and middle node
+
 void	del_node_from_env(t_list *env, t_shell_context *sh_ctx)
 {
 	if (env->prev == NULL)
@@ -106,6 +107,7 @@ void	del_node_from_env(t_list *env, t_shell_context *sh_ctx)
 		env->prev->next = env->next;
 		env->next->prev = env->prev;
 	}
-	free(env->content);
+
+	free_env_var(env->content);
 	free(env);
 }

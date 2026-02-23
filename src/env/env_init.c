@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:06:19 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/19 23:07:29 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/23 22:29:46 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ t_list	*init_env(char **envp, t_shell_context *sh_ctx)
 			add_env_var_with_value(*envp, equal_sign_loc, &env_list, sh_ctx);
 		envp++;
 	}
-	sh_ctx->env = env_list;
 	if (!env_node_find(env_list, "PATH"))
 		add_new_env_var(&env_list, "PATH", DEFAULT_PATH, sh_ctx);
+	sh_ctx->env = env_list;
 	return (env_list);
 }
