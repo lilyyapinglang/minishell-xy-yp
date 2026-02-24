@@ -6,12 +6,13 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 23:11:33 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 23:12:20 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/24 19:51:30 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 #include "ms_readline.h"
+
 // record that sigint happened， this change is to be consumed by main process
 // which is actaully quite current cmd and return to shell.
 // change to new line because it's ugly to start new prompt on the same line
@@ -52,5 +53,7 @@ void	handle_sigint_in_heredoc_mode(int sig_num)
 {
 	(void)sig_num;
 	g_latest_signal_status = SIGINT;
-	write(STDOUT_FILENO, "\n", 1);
+	rl_replace_line("", 0); // 清空当前输入缓冲
+	rl_done = 1;            // 让 readline 立刻返回
+	write(1, "\n", 1);
 }

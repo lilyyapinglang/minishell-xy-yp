@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/23 20:55:21 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/24 20:04:05 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,71 +106,135 @@ REDIR (>)
 //'EOF' "EOF"  E"OF" \EOF E\"OF
 */
 /* update quote state for heredoc delimiter parsing */
-static void	update_quote_state(t_quote_state *mode, char c, bool *is_quoted)
-{
-	if (*mode == QUOTE_NONE)
-	{
-		if (c == '\'')
-		{
-			*mode = QUOTE_SINGLE;
-			if (is_quoted)
-				*is_quoted = true;
-		}
-		else if (c == '"')
-		{
-			*mode = QUOTE_DOUBLE;
-			if (is_quoted)
-				*is_quoted = true;
-		}
-	}
-	else if ((*mode == QUOTE_SINGLE && c == '\'') || (*mode == QUOTE_DOUBLE
-			&& c == '"'))
-		*mode = QUOTE_NONE;
-}
+// static void	update_quote_state(t_quote_state *mode, char c, bool *is_quoted)
+// {
+// 	if (*mode == QUOTE_NONE)
+// 	{
+// 		if (c == '\'')
+// 		{
+// 			*mode = QUOTE_SINGLE;
+// 			if (is_quoted)
+// 				*is_quoted = true;
+// 		}
+// 		else if (c == '"')
+// 		{
+// 			*mode = QUOTE_DOUBLE;
+// 			if (is_quoted)
+// 				*is_quoted = true;
+// 		}
+// 	}
+// 	else if ((*mode == QUOTE_SINGLE && c == '\'') || (*mode == QUOTE_DOUBLE
+// 			&& c == '"'))
+// 		*mode = QUOTE_NONE;
+// }
 
 /* determine if char should be appended to cleaned delimiter */
-static bool	should_append(t_quote_state mode, char c)
-{
-	return (mode == QUOTE_NONE || (mode == QUOTE_SINGLE && c != '\'')
-			|| (mode == QUOTE_DOUBLE && c != '"'));
-}
+// static bool	should_append(t_quote_state mode, char c)
+// {
+// 	return (mode == QUOTE_NONE || (mode == QUOTE_SINGLE && c != '\'')
+// 			|| (mode == QUOTE_DOUBLE && c != '"'));
+// }
 
 /* allocate buffer for cleaned delimiter using tracked allocation */
-static char	*alloc_delim_buffer(const char *raw, t_shell_context *sh)
-{
-	return (s_alloc(ft_calloc(ft_strlen(raw) + 1, sizeof(char)),
-			ALLOC_UNTRACKED, sh));
-}
+// static char	*alloc_delim_buffer(const char *raw, t_shell_context *sh)
+// {
+// 	return (s_alloc(ft_calloc(ft_strlen(raw) + 1, sizeof(char)),
+// 			ALLOC_UNTRACKED, sh));
+// }
 
 /* strip quotes from heredoc delimiter, sets is_quoted if quotes found */
+// char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
+// 		t_shell_context *sh_ctx)
+// {
+// 	t_quote_state	mode;
+// 	char			*ptr;
+// 	char			*result;
+// 	char			*res_start;
+
+// 	if (!raw)
+// 		return (NULL);
+// 	if (is_quoted)
+// 		*is_quoted = false;
+// 	mode = QUOTE_NONE;
+// 	ptr = (char *)raw;
+// 	result = alloc_delim_buffer(raw, sh_ctx);
+// 	res_start = result;
+// 	while (*ptr)
+// 	{
+// 		update_quote_state(&mode, *ptr, is_quoted);
+// 		if (should_append(mode, *ptr))
+// 			*result++ = *ptr;
+// 		ptr++;
+// 	}
+// 	if (mode != QUOTE_NONE)
+// 		return (free(res_start), print_msg("heredoc", raw,
+// 				"syntax error (unclosed quote)\n"), NULL);
+// 	*result = '\0';
+// 	return (res_start);
+// }
+
 char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
 		t_shell_context *sh_ctx)
 {
 	t_quote_state	mode;
 	char			*ptr;
 	char			*result;
-	char			*res_start;
+	char			*result_ptr;
 
+	(void)sh_ctx;
 	if (!raw)
 		return (NULL);
 	if (is_quoted)
 		*is_quoted = false;
 	mode = QUOTE_NONE;
 	ptr = (char *)raw;
-	result = alloc_delim_buffer(raw, sh_ctx);
-	res_start = result;
+	result = malloc(ft_strlen(raw) + 1);
+	if (!result)
+		return (NULL);
+	result_ptr = result;
 	while (*ptr)
 	{
-		update_quote_state(&mode, *ptr, is_quoted);
-		if (should_append(mode, *ptr))
-			*result++ = *ptr;
+		if (mode == QUOTE_NONE)
+		{
+			if (*ptr == '\'')
+			{
+				mode = QUOTE_SINGLE;
+				if (is_quoted)
+					*is_quoted = true;
+			}
+			else if (*ptr == '"')
+			{
+				mode = QUOTE_DOUBLE;
+				if (is_quoted)
+					*is_quoted = true;
+			}
+			else
+				*result++ = *ptr;
+		}
+		else if (mode == QUOTE_SINGLE)
+		{
+			if (*ptr == '\'')
+				mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
+		else if (mode == QUOTE_DOUBLE)
+		{
+			if (*ptr == '"')
+				mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
 		ptr++;
 	}
 	if (mode != QUOTE_NONE)
-		return (free(res_start), print_msg("heredoc", raw,
-				"syntax error (unclosed quote)\n"), NULL);
+	{
+		free(result_ptr);
+		print_msg("heredoc", raw, "syntax error (unclosed quote)\n");
+		return (NULL);
+	}
 	*result = '\0';
-	return (res_start);
+	return (result_ptr);
 }
 
 /*
@@ -224,13 +288,18 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh)
 	char	*tmp_name;
 
 	clean_delim = get_clean_delim(node, sh, &is_quoted);
+	// printf("clean delim is %s, is_quoted is : %d\n", clean_delim, is_quoted);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
 	tmp_name = create_tmp_heredoc(sh);
 	fd = open_s(tmp_name, O_WRONLY | O_CREAT | O_TRUNC, 0600, sh);
+	// printf("fd is %d\n", fd);
 	status = read_heredoc_lines(fd, clean_delim, sh, is_quoted);
+	// printf("read_heredoc_lines status : %d \n", status);
 	close_s(fd, sh);
 	free(clean_delim);
+	if (status == 130)
+		return (130);
 	if (status != EXIT_SUCCESS)
 		return (status);
 	node->u_data.redirection.file_path = tmp_name;
