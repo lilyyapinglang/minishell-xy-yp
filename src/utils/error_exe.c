@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_exe.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/13 21:16:34 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/19 23:27:20 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /*
@@ -20,50 +32,6 @@ bash: syntax error near unexpected token '|'
 我们需要 command 和 argument 两个可选字段。
 */
 // 2 types of print, print and return exit failture to upper level
-
-#ifndef SHELL_NAME
-# define SHELL_NAME "minishell"
-#endif
-
-static void	put_raw(const char *str)
-{
-	if (str && *str)
-		ft_putstr_fd((char *)str, STDERR_FILENO);
-}
-static void	put_segment(const char *str)
-{
-	if (str && *str)
-	{
-		put_raw(str);
-		put_raw(": ");
-	}
-}
-
-/*
-** Bash-like format:
-** minishell : [cmd: ] [arg:] message \n
-*/
-static void	print_error(const char *cmd, const char *arg, const char *msg)
-{
-	put_raw(SHELL_NAME);
-	put_raw(": ");
-	put_segment(cmd);
-	put_segment(arg);
-	put_raw(msg ? msg : "");
-	put_raw("\n");
-}
-
-/* ---------------- public: print only (optional) ---------------- */
-
-void	print_errno(const char *cmd, const char *arg, int errnum)
-{
-	print_error(cmd, arg, strerror(errnum));
-}
-
-void	print_msg(const char *cmd, const char *arg, const char *msg)
-{
-	print_error(cmd, arg, msg);
-}
 
 /* ---------------- public: print + return(code) ---------------- */
 

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec_logical.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/13 21:28:45 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/13 21:29:23 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 
 /*
@@ -17,9 +29,9 @@ int	execute_logical(t_ast *node, t_shell_context *sh_ctx)
 	logical_node = &node->u_data.logical;
 	left_status = execute(logical_node->left, RUN_IN_SHELL, sh_ctx);
 	result_status = left_status;
-	if (logical_node->operator== TOKEN_AND && left_status == 0)
+	if (logical_node->operator == TOKEN_AND && left_status == 0)
 		result_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
-	else if (logical_node->operator== TOKEN_OR && left_status != 0)
+	else if (logical_node->operator == TOKEN_OR && left_status != 0)
 	{
 		result_status = execute(logical_node->right, RUN_IN_SHELL, sh_ctx);
 	}

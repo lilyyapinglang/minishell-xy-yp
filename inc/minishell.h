@@ -29,11 +29,17 @@
 # define M_PROMPT "minishell$ "
 # define ERROR_PROMPT "minishell: "
 
+# ifndef SHELL_NAME
+#  define SHELL_NAME "minishell"
+# endif
+
 /*-----Error-----*/
 
 void							print_errno(const char *cmd, const char *arg,
 									int errnum);
 void							print_msg(const char *cmd, const char *arg,
+									const char *msg);
+void							print_error(const char *cmd, const char *arg,
 									const char *msg);
 int								print_errno_n_return(int code, const char *cmd,
 									const char *arg, int errnum);
@@ -48,7 +54,8 @@ void							fatal_msg_shell_quit(t_shell_context *sh_ctx,
 									const char *msg);
 
 void							report_child_termination_signal(int wait_status,
-									const char *cmd_name, t_shell_context *ctx);
+									const char *cmd_name,
+									t_shell_context *sh_ctx);
 
 int								wait_status_to_shell_status(int wait_status);
 
@@ -83,31 +90,37 @@ typedef enum e_exec_context
 
 // heredocs
 
-	//heredoc_expander to ensure argv <5 xueyan added
+// heredoc_expander to ensure argv <5 xueyan added
 typedef struct s_hd_fillctx
 {
-	char			*out;//buffer for output
-	size_t			j;//current writing-in position
-	t_shell_context	*sh;//to get env and last_status
-	const char		*st; //string for $?
-}	t_hd_fillctx;
-
+	char *out;           // buffer for output
+	size_t j;            // current writing-in position
+	t_shell_context *sh; // to get env and last_status
+	const char *st;      // string for $?
+}								t_hd_fillctx;
 
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
-
+int								collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx,
+									t_ast *node);
+int								collect_one_heredoc(t_ast *node,
+									t_shell_context *sh);
 int								read_heredoc_lines(int tmp_file_des,
 									const char *delimiter,
 									t_shell_context *sh_ctx, bool is_quoted);
 char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
-char							*heredoc_expand_line(const char *line, 
-									t_shell_context *sh);//xueyan added for hdexpander
-size_t							hd_var_name_len(const char *s);//xueyan added for hdexpander
-char							*hd_name_sub(const char *line, size_t i, size_t n,
-									t_shell_context *sh);//xueyan added for hdexpander
-size_t							hd_copy_str(char *out, size_t j, const char *s);//xueyan added for hdexpander
-void							hd_fill_dollar(t_hd_fillctx *ctx, const char *line);//xueyan added for hdexpander
+char	*heredoc_expand_line(const char *line,
+							t_shell_context *sh); // xueyan added for hdexpander
+size_t	hd_var_name_len(const char *s);          // xueyan added for hdexpander
+char							*hd_name_sub(const char *line, size_t i,
+									size_t n, t_shell_context *sh);
+// xueyan added for hdexpander
+size_t							hd_copy_str(char *out, size_t j, const char *s);
+// xueyan added for hdexpander
+void							hd_fill_dollar(t_hd_fillctx *ctx,
+									const char *line);
+// xueyan added for hdexpander
 // executor
 int								execute(t_ast *node,
 									t_exec_context execution_context,
@@ -124,9 +137,9 @@ int								execute_redirection(t_ast *node,
 int								execute_subshell(t_ast *node,
 									t_shell_context *shell_conetext);
 
-// builtin- new
+// builtin
 typedef int						(*t_builtin_func)(char **argv,
-							t_shell_context *ctx);
+							t_shell_context *sh_ctx);
 typedef enum e_builtin_id
 {
 	BI_NONE = 0,
@@ -146,8 +159,6 @@ typedef struct s_builtin_entry
 	t_builtin_func				func;
 }								t_builtin_entry;
 
-// -----built-in
-
 typedef struct s_builtin
 {
 	char						*name;
@@ -155,10 +166,9 @@ typedef struct s_builtin
 	bool						stateful;
 }								t_builtin;
 
-bool							is_buildtin(char *cmd);
-bool							is_stateful_builtin(char *cmd);
-
 bool							is_builtin(char *cmd);
+bool							is_stateful_builtin(char *cmd);
+t_builtin_func					lookup_builtin_func(const char *name);
 
 int								builtin_cd(char **argv,
 									t_shell_context *sh_ctx);
@@ -170,11 +180,16 @@ int								builtin_exit(char **argv,
 									t_shell_context *sh_ctx);
 int								builtin_echo(char **argv,
 									t_shell_context *sh_ctx);
-int								builtin_pwd(char **argv, t_shell_context *ctx);
-int								builtin_env(char **argv, t_shell_context *ctx);
+int								builtin_pwd(char **argv,
+									t_shell_context *sh_ctx);
+int								builtin_env(char **argv,
+									t_shell_context *sh_ctx);
 int								execute_builtin(t_ast_command *cmd,
-									t_shell_context *ctx);
-
+									t_shell_context *sh_ctx);
+// builtin utils
+int								is_valid_var_name(const char *str);
+int								is_valid_options(char *arg, char *cmd,
+									char *valid_options);
 //-----  signal-----
 
 extern volatile sig_atomic_t	g_latest_signal_status;
@@ -190,4 +205,12 @@ void							set_signal_in_exe_child_process(void);
 //---test
 t_ast_command					*build_fake_cmd_table_for_tests(void);
 
+// pipeline
+t_list							*build_cmd_list(t_ast *node,
+									t_shell_context *sh_ctx);
+int								execute_pipeline_commands(t_list *pipeline,
+									t_shell_context *sh_ctx);
+int								wait_for_children(pid_t last_pid,
+									int count_pipeline,
+									t_shell_context *sh_ctx);
 #endif

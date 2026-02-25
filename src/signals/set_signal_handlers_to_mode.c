@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   set_signal_handlers_to_mode.c                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/13 21:26:29 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/19 23:11:43 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 #include "ms_readline.h"
 
@@ -40,81 +52,42 @@ ctrl-d : nothing happens, so ignore
 #include <signal.h>
 
 volatile sig_atomic_t	g_latest_signal_status = 0;
-// Provide a general handler for each mode to call and use
 
+// Provide a general handler for each mode to call and use
+// clean garbage value
+// let calling function to decide if SA_RESTART
 int	set_signal_handler(int sig_num, void (*signal_handler)(int), int flags)
 {
 	struct sigaction	sig_act;
 
-	memset(&sig_act, 0, sizeof(sig_act)); // clean garbage value
+	memset(&sig_act, 0, sizeof(sig_act));
 	sig_act.sa_handler = signal_handler;
-	sig_act.sa_flags = flags; // let calling function to decide if SA_RESTART
+	sig_act.sa_flags = flags;
 	sigemptyset(&sig_act.sa_mask);
 	if (sigaction(sig_num, &sig_act, NULL) == -1)
 		return (-1);
 	return (0);
 }
 
-void	handle_sigint_in_prompt_mode(int sig_num)
-{
-	// record that sigint happened， this change is to be consumed by main process
-	// which is actaully quite current cmd and return to shell.
-	(void)sig_num;
-	g_latest_signal_status = SIGINT;
-	// change to new line because it's ugly to start new prompt on the same line
-	// write is signal safe
-	// write(STDOUT_FILENO, "\n", 1);
-	// write(STDOUT_FILENO, "h", 1);
-	// if (write(1, "\n", 1) == -1)
-	// 	return ;
-	// drop what users has entered into buffer of readline
-	// clear current readline buffer, not adding to history
-	// rl_replace_line("", 0);
-	// // fix readline inernal status, location of cursur, line start info,
-	// //	need to redisplay prompt or not
-	// rl_on_new_line();
-	// // redraw clean prompt
-	// rl_redisplay();
-	rl_done = 1;
-}
-/*
-should stop collecting heredoc immediately, drop content of current heredoc,
-entire cmd will not be executed anymore, shell return to main prompt,
-	set exitcode to 130
-*/
-void	handle_sigint_in_heredoc_mode(int sig_num)
-{
-	// 1/ record signal
-	(void)sig_num;
-	g_latest_signal_status = SIGINT;
-	// 2. output newline, to make it visually clean
-	write(STDOUT_FILENO, "\n", 1);
-	// if (write(1, "\n", 1) == -1)
-	// 	return ;
-	// // 3. let readline exit/finish
-	// rl_replace_line("", 0);
-	// rl_on_new_line();
-	// rl_redisplay();
-}
-
+// set handling behavior for ctrl-c, SIGINT
+// i can not kill shell, i need to clear line and return to prompt
+// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
+//	nothing happens
 void	set_signal_in_main_prompt_mode(void)
 {
-	// set handling behavior for ctrl-c, SIGINT
-	// i can not kill shell, i need to clear line and return to prompt
 	set_signal_handler(SIGINT, handle_sigint_in_prompt_mode, 0);
-	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
-	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
 
+// set handling behavior for ctrl-c, SIGINT
+// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
+//	nothing happens
 void	set_signal_in_heredoc_prompt_mode(void)
 {
-	// set handling behavior for ctrl-c, SIGINT
 	set_signal_handler(SIGINT, handle_sigint_in_heredoc_mode, 0);
-	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
-	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
+
 /* eg : sleep 100
 when pressing ctrl-c, kernel send SIGINT to all foreground processes
 both parent process and child process will received it.
@@ -132,26 +105,25 @@ so for shell/main process itself, correct behavior is i don't respond,
 	i will wait for what kids process returns for me,
 update status, return to prompt  , shell is the manager but not the executor
 */
-
+// set handling behavior for ctrl-c, as parent process ,
+// i do nothing o react to signal, i will waitfor child process
+// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
+//	nothing happens
 void	set_signal_in_exe_main_process(void)
 {
-	// set handling behavior for ctrl-c, as parent process ,
-	// i do nothing o react to signal, i will waitfor child process
 	set_signal_handler(SIGINT, SIG_IGN, 0);
-	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
-	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_IGN, 0);
 }
 
 // after fork child process copied the signal handler from parent as well,
 //	so it is necessary to change the behavior for child process
 // it will perform as default to terminate process like SIG_DFL
+// set handling behavior for ctrl-c, as parent process ,
+// i do nothing o react to signal, i will waitfor child process
+// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
+//	nothing happens
 void	set_signal_in_exe_child_process(void)
 {
-	// set handling behavior for ctrl-c, as parent process ,
-	// i do nothing o react to signal, i will waitfor child process
 	set_signal_handler(SIGINT, SIG_DFL, 0);
-	// set handling behavior for ctrl-d, SIGQUIT, which is ignore,
-	//	nothing happens
 	set_signal_handler(SIGQUIT, SIG_DFL, 0);
 }

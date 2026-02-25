@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:34:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 20:41:27 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/19 23:07:38 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,15 @@ t_env_var	*env_var_from_node(t_list *node)
 	return ((t_env_var *)node->content);
 }
 
-int	env_mark_exported(t_shell_context *ctx, const char *name)
+int	env_mark_exported(t_shell_context *sh_ctx, const char *name)
 {
 	t_list		*node;
 	t_env_var	*env_var;
 
-	node = env_node_find(ctx->env, name);
+	node = env_node_find(sh_ctx->env, name);
 	if (!node)
 	{
-		add_new_env_var(&ctx->env, name, NULL, true, ctx);
+		add_new_env_var(&sh_ctx->env, name, NULL, sh_ctx);
 		return (0);
 	}
 	env_var = env_var_from_node(node);
@@ -47,40 +47,48 @@ int	env_mark_exported(t_shell_context *ctx, const char *name)
 	return (0);
 }
 
-// envp 导出：只导出 exported==true && value!=NULL
-// TODO: garde with malloc_s
-char	**build_envp_from_env_list(t_shell_context *sh_ctx)
+void	check_swap_node(t_list *curr, int *swapped)
 {
-	t_list		*env;
-	int			count_strs;
-	char		**envp;
-	int			i;
-	char		*tmp;
-	t_env_var	*env_var;
+	t_env_var	*env_var_curr;
+	t_env_var	*env_var_next;
+	void		*content_tmp;
 
-	count_strs = 0;
-	i = 0;
-	env = sh_ctx->env;
-	while (env)
+	env_var_curr = env_var_from_node(curr);
+	env_var_next = env_var_from_node(curr->next);
+	if (ft_strcmp(env_var_curr->name, env_var_next->name) > 0)
 	{
-		env_var = env_var_from_node(env);
-		if (env_var->exported && env_var->value)
-			count_strs++;
-		env = env->next;
+		content_tmp = curr->content;
+		curr->content = curr->next->content;
+		curr->next->content = content_tmp;
+		*swapped = 1;
 	}
-	envp = malloc(sizeof(char *) * (count_strs + 1));
-	env = sh_ctx->env;
-	while (env)
+}
+// sorting a double linked list
+// keep going until no swaps occur in a pass
+// traserce through the list and
+// swap adjacent nodes if they are in the wrong order
+// swap pointer, no need to change data i guess
+
+t_list	*sort_by_lexicographical(t_list *head)
+{
+	t_list	*curr;
+	t_list	*last;
+	int		swapped;
+
+	if (head == NULL)
+		return (head);
+	last = NULL;
+	swapped = 1;
+	while (swapped == 1)
 	{
-		env_var = env_var_from_node(env);
-		if (env_var->exported && env_var->value)
+		swapped = 0;
+		curr = head;
+		while (curr->next != last)
 		{
-			tmp = ft_strjoin(env_var->name, "=");
-			envp[i++] = ft_strjoin(tmp, env_var->value);
-			free(tmp);
+			check_swap_node(curr, &swapped);
+			curr = curr->next;
 		}
-		env = env->next;
+		last = curr;
 	}
-	envp[i] = NULL;
-	return (envp);
+	return (head);
 }
