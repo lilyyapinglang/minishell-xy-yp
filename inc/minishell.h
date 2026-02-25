@@ -101,7 +101,10 @@ typedef struct s_hd_fillctx
 
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
-
+int								collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx,
+									t_ast *node);
+int								collect_one_heredoc(t_ast *node,
+									t_shell_context *sh);
 int								read_heredoc_lines(int tmp_file_des,
 									const char *delimiter,
 									t_shell_context *sh_ctx, bool is_quoted);
@@ -202,4 +205,12 @@ void							set_signal_in_exe_child_process(void);
 //---test
 t_ast_command					*build_fake_cmd_table_for_tests(void);
 
+// pipeline
+t_list							*build_cmd_list(t_ast *node,
+									t_shell_context *sh_ctx);
+int								execute_pipeline_commands(t_list *pipeline,
+									t_shell_context *sh_ctx);
+int								wait_for_children(pid_t last_pid,
+									int count_pipeline,
+									t_shell_context *sh_ctx);
 #endif

@@ -117,7 +117,8 @@ SRCS_SAFE := \
   src/safe_functions/safe_alloc.c \
   src/safe_functions/safe_list.c \
   src/safe_functions/safe_libft_yp.c \
-  src/safe_functions/libft_list.c
+  src/safe_functions/libft_list_1.c\
+  src/safe_functions/libft_list_2.c
 
 # 2) Runtime world (only for minishell binary)
 SRCS_RUNTIME := \
@@ -144,10 +145,12 @@ SRCS_RUNTIME := \
   src/builtins/builtin_pwd.c \
   src/builtins/builtin_unset.c \
   src/builtins/builtin_utils.c \
-  src/execution/collect_heredoc.c \
+  src/execution/collect_heredoc_1.c \
+  src/execution/collect_heredoc_2.c \
   src/execution/exec_command.c \
   src/execution/exec_logical.c \
-  src/execution/exec_pipeline.c \
+  src/execution/exec_pipeline_1.c \
+   src/execution/exec_pipeline_2.c \
   src/execution/exec_redirection.c \
   src/execution/exec_subshell.c \
   src/execution/heredoc_expander.c\

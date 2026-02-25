@@ -1,91 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   collect_heredoc.c                                  :+:      :+:    :+:   */
+/*   collect_heredoc_2.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/24 20:04:05 by ylang            ###   ########.fr       */
+/*   Created: 2026/02/25 22:19:31 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/25 22:43:07 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-
-/*
-a function to readline read input from terminal
-heredoc line by line to terminal
-finish read, close the tmp file desciption
-*/
-// i need to know if it is main prompt or if is heredoc prompt,
-/* Ctrl-C: abort heredoc AND cancel whole command line */
-/* FIRST: did Ctrl-C happen? */
-/* EOF: stop heredoc early (optional warning) */
-/*  SECOND: did we hit EOF (Ctrl-D)? */
-// errno("error collecting ");
-/* THIRD: delimiter match */
-/* LAST: write content */
-// how to integrate expander logic here ?
-// need to check for expand
-
-// expande variables, and then write
-// xueyan changed write(tmp_file_des, line,
-// ft_strlen(line)) to write(tmp_file_des, expanded,
-// ft_strlen(expanded))
-
-/* write a single line to fd with newline */
-static int	write_heredoc_line(int fd, const char *line)
-{
-	if (write(fd, line, ft_strlen(line)) == -1)
-		return (EXIT_FAILURE);
-	if (write(fd, "\n", 1) == -1)
-		return (EXIT_FAILURE);
-	return (EXIT_SUCCESS);
-}
-
-/* expand line variables and write to fd */
-static int	write_heredoc_expanded(int fd, const char *line,
-		t_shell_context *sh)
-{
-	char	*expanded;
-	int		ret;
-
-	expanded = heredoc_expand_line(line, sh);
-	if (!expanded)
-		return (EXIT_FAILURE);
-	ret = write_heredoc_line(fd, expanded);
-	free(expanded);
-	return (ret);
-}
-
-/* read heredoc lines from terminal until delimiter */
-
-int	read_heredoc_lines(int fd, const char *delimiter, t_shell_context *sh,
-		bool is_quoted)
-{
-	char	*line;
-	int		ret;
-
-	g_latest_signal_status = 0;
-	while (1)
-	{
-		line = prompt_listener(HEREDOC_PROMPT);
-		if (g_latest_signal_status == SIGINT)
-			return (130);
-		if (!line)
-			return (EXIT_SUCCESS);
-		if (ft_strcmp(line, delimiter) == 0)
-			return (free(line), EXIT_SUCCESS);
-		if (is_quoted)
-			ret = write_heredoc_line(fd, line);
-		else
-			ret = write_heredoc_expanded(fd, line, sh);
-		free(line);
-		if (ret != EXIT_SUCCESS)
-			return (ret);
-	}
-}
-
 /*
 (cat << EOF
 	hello
@@ -279,7 +204,7 @@ static char	*create_tmp_heredoc(t_shell_context *sh)
 	return (tmp_name);
 }
 
-static int	collect_one_heredoc(t_ast *node, t_shell_context *sh)
+int	collect_one_heredoc(t_ast *node, t_shell_context *sh)
 {
 	int		fd;
 	int		status;
@@ -288,14 +213,11 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh)
 	char	*tmp_name;
 
 	clean_delim = get_clean_delim(node, sh, &is_quoted);
-	// printf("clean delim is %s, is_quoted is : %d\n", clean_delim, is_quoted);
 	if (!clean_delim)
 		return (EXIT_FAILURE);
 	tmp_name = create_tmp_heredoc(sh);
 	fd = open_s(tmp_name, O_WRONLY | O_CREAT | O_TRUNC, 0600, sh);
-	// printf("fd is %d\n", fd);
 	status = read_heredoc_lines(fd, clean_delim, sh, is_quoted);
-	// printf("read_heredoc_lines status : %d \n", status);
 	close_s(fd, sh);
 	free(clean_delim);
 	if (status == 130)
@@ -306,17 +228,6 @@ static int	collect_one_heredoc(t_ast *node, t_shell_context *sh)
 	return (EXIT_SUCCESS);
 }
 
-int	collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx, t_ast *node)
-{
-	int	status;
-
-	status = collect_all_heredocs(node->u_data.redirection.exe_child, sh_ctx);
-	if (status != EXIT_SUCCESS)
-		return (status);
-	if (node->u_data.redirection.redir_type == REDIR_HEREDOC)
-		return (collect_one_heredoc(node, sh_ctx));
-	return (EXIT_SUCCESS);
-}
 /*scan from root to collect heredocs */
 /* collect inside first (keeps left-to-right order for nested redirs) */
 /* AST_COMMAND: nothing to collect */

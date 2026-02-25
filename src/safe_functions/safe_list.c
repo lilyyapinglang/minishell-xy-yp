@@ -6,13 +6,14 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:47:00 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/19 23:23:24 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/25 22:30:46 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parse.h"
 #include "parse_error.h"
 #include "safefunctions.h"
+#include "utils.h"
 
 // #include "minishellparse.h"
 
@@ -63,16 +64,6 @@ void	remove_list_node(t_list **node, t_list **head,
 		to_remove->next->prev = to_remove->prev;
 	if (free_node)
 		ft_lstdelone(to_remove, free_function);
-}
-
-int	count_strs(char **argv)
-{
-	int	i;
-
-	i = 0;
-	while (argv && argv[i])
-		i++;
-	return (i);
 }
 
 void	add_arg_to_array(char ***array, char *new_arg, t_shell_context *sh)

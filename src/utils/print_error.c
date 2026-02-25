@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 23:17:32 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 23:26:51 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/25 22:12:50 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ static void	put_segment(const char *str)
 ** Bash-like format:
 ** minishell : [cmd: ] [arg:] message \n
 */
- void	print_error(const char *cmd, const char *arg, const char *msg)
+
+void	print_error(const char *cmd, const char *arg, const char *msg)
 {
 	put_raw(SHELL_NAME);
 	put_raw(": ");

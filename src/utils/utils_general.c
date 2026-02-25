@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:29 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/13 21:16:59 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/25 22:12:21 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,14 @@ int	is_only_n(char *str)
 		str++;
 	}
 	return (1);
+}
+
+int	count_strs(char **argv)
+{
+	int	i;
+
+	i = 0;
+	while (argv && argv[i])
+		i++;
+	return (i);
 }
