@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:19:31 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/26 13:49:46 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/26 18:55:00 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,151 +31,12 @@ REDIR (>)
 	// need to remove quote and escape\
 //'EOF' "EOF"  E"OF" \EOF E\"OF
 */
-/* update quote state for heredoc delimiter parsing */
-// static void	update_quote_state(t_quote_state *mode, char c, bool *is_quoted)
-// {
-// 	if (*mode == QUOTE_NONE)
-// 	{
-// 		if (c == '\'')
-// 		{
-// 			*mode = QUOTE_SINGLE;
-// 			if (is_quoted)
-// 				*is_quoted = true;
-// 		}
-// 		else if (c == '"')
-// 		{
-// 			*mode = QUOTE_DOUBLE;
-// 			if (is_quoted)
-// 				*is_quoted = true;
-// 		}
-// 	}
-// 	else if ((*mode == QUOTE_SINGLE && c == '\'') || (*mode == QUOTE_DOUBLE
-// 			&& c == '"'))
-// 		*mode = QUOTE_NONE;
-// }
-
-/* determine if char should be appended to cleaned delimiter */
-// static bool	should_append(t_quote_state mode, char c)
-// {
-// 	return (mode == QUOTE_NONE || (mode == QUOTE_SINGLE && c != '\'')
-// 			|| (mode == QUOTE_DOUBLE && c != '"'));
-// }
-
-/* allocate buffer for cleaned delimiter using tracked allocation */
-// static char	*alloc_delim_buffer(const char *raw, t_shell_context *sh)
-// {
-// 	return (s_alloc(ft_calloc(ft_strlen(raw) + 1, sizeof(char)),
-// 			ALLOC_UNTRACKED, sh));
-// }
-
-/* strip quotes from heredoc delimiter, sets is_quoted if quotes found */
-// char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
-// 		t_shell_context *sh_ctx)
-// {
-// 	t_quote_state	mode;
-// 	char			*ptr;
-// 	char			*result;
-// 	char			*res_start;
-
-// 	if (!raw)
-// 		return (NULL);
-// 	if (is_quoted)
-// 		*is_quoted = false;
-// 	mode = QUOTE_NONE;
-// 	ptr = (char *)raw;
-// 	result = alloc_delim_buffer(raw, sh_ctx);
-// 	res_start = result;
-// 	while (*ptr)
-// 	{
-// 		update_quote_state(&mode, *ptr, is_quoted);
-// 		if (should_append(mode, *ptr))
-// 			*result++ = *ptr;
-// 		ptr++;
-// 	}
-// 	if (mode != QUOTE_NONE)
-// 		return (free(res_start), print_msg("heredoc", raw,
-// 				"syntax error (unclosed quote)\n"), NULL);
-// 	*result = '\0';
-// 	return (res_start);
-// }
-
-char	*update_result_loc(const char *raw, char *result, t_quote_state *mode,
-		bool *is_quoted)
-{
-	char	*ptr;
-
-	ptr = (char *)raw;
-	while (*ptr)
-	{
-		if (*mode == QUOTE_NONE)
-		{
-			if (*ptr == '\'')
-			{
-				*mode = QUOTE_SINGLE;
-				if (*is_quoted == false)
-					*is_quoted = true;
-			}
-			else if (*ptr == '"')
-			{
-				*mode = QUOTE_DOUBLE;
-				if (*is_quoted == false)
-					*is_quoted = true;
-			}
-			else
-				*result++ = *ptr;
-		}
-		else if (*mode == QUOTE_SINGLE)
-		{
-			if (*ptr == '\'')
-				*mode = QUOTE_NONE;
-			else
-				*result++ = *ptr;
-		}
-		else if (*mode == QUOTE_DOUBLE)
-		{
-			if (*ptr == '"')
-				*mode = QUOTE_NONE;
-			else
-				*result++ = *ptr;
-		}
-		ptr++;
-	}
-	return (result);
-}
-char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
-		t_shell_context *sh_ctx)
-{
-	t_quote_state	mode;
-	char			*result;
-	char			*result_ptr;
-
-	(void)sh_ctx;
-	if (!raw)
-		return (NULL);
-	if (is_quoted)
-		*is_quoted = false;
-	mode = QUOTE_NONE;
-	result = malloc(ft_strlen(raw) + 1);
-	if (!result)
-		return (NULL);
-	result_ptr = result;
-	result = update_result_loc(raw, result, &mode, is_quoted);
-	if (mode != QUOTE_NONE)
-	{
-		free(result_ptr);
-		print_msg("heredoc", raw, "syntax error (unclosed quote)\n");
-		return (NULL);
-	}
-	*result = '\0';
-	return (result_ptr);
-}
 
 /*
 cat << EOF
 hello
 ^C
 minishell$
-
 to turn all cmd << EOF to cmd < /tmp/minishell_heredoc_X.
 Handle current heredocs node, and turn it into temp file input,
 */
@@ -183,9 +44,7 @@ Handle current heredocs node, and turn it into temp file input,
 // todoooo: open_s?
 /* register tmp_name for later unlink+free */
 /* success: replace delimiter with temp file path */
-
 // NULL on error
-
 /* helper: clean delimiter from node */
 static char	*get_clean_delim(t_ast *node, t_shell_context *sh, bool *is_quoted)
 {

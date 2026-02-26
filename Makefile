@@ -147,6 +147,7 @@ SRCS_RUNTIME := \
   src/builtins/builtin_utils.c \
   src/execution/collect_heredoc_1.c \
   src/execution/collect_heredoc_2.c \
+  src/execution/collect_heredoc_delimiter.c \
   src/execution/exec_command.c \
   src/execution/exec_logical.c \
   src/execution/exec_pipeline_1.c \
