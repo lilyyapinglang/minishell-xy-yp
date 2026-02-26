@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/20 18:02:22 by ylang             #+#    #+#             */
+/*   Updated: 2026/02/20 18:02:25 by ylang            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 #include "expander.h"
 
@@ -20,34 +32,24 @@ static int	finalize_status(int status, t_exec_context exe_ctx,
 	AST_SYNTAX_ERROR
 
 */
-// Expand node  should come from expander
+// until till command level we decide we we want
+// this command to return to main shell by return or simply exit
 
 int	execute(t_ast *node, t_exec_context execution_context,
 		t_shell_context *sh_ctx)
 {
-	int status;
-	status = EXIT_SUCCESS;
+	int	status;
 
+	status = EXIT_SUCCESS;
 	if (!node)
 		return (finalize_status(0, execution_context, sh_ctx));
-
-	// 1. only ast_redirection and ast_commdn that actully has content *file and **argv to expand
-	// 2. Other types logicla, pipeline, subshell are just structure ,
-	// they don't have string sto expand
-	// 3. as long as an node is going to be executed,
-	// it guarranteed it will be expanded before actual exection
-	// 4. why not in side exeectuion_redir or execution_cmd ,
-	// to gurantee it will be only expanded once
 	if ((node->type == AST_REDIRECTION || node->type == AST_COMMAND)
 		&& node->is_expanded == false)
 	{
-		// if (node->type == AST_COMMAND)
-		// 	printf("node->type == AST_COMMDN\n");
-		// printf("I entered node->type expander \n");
 		expander(node, sh_ctx);
 		node->is_expanded = true;
-		// printf("haha %s\n", node->u_data.command.args[1]);
 	}
+<<<<<<< HEAD
 	/*
 
 	typedef struct s_ast_logical
@@ -67,27 +69,19 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	struct s_ast		*child;
 	}						t_ast_subshell;
 	*/
+=======
+	if (node->type == AST_LOGICAL)
+		status = execute_logical(node, sh_ctx);
+	else if (node->type == AST_PIPELINE)
+		status = execute_pipeline(node, sh_ctx);
+	else if (node->type == AST_SUBSHELL)
+		status = execute_subshell(node, sh_ctx);
+>>>>>>> main
 	else if (node->type == AST_REDIRECTION)
-		// status = execute_redirection(&(node->u_data.redirection), sh_ctx);
 		status = execute_redirection(node, sh_ctx);
-
-	/*
-	typedef struct s_ast_command
-	{
-	char				**args;
-	}					t_ast_command;
-	*/
-	// until till command level we decide we we want this command to return to main shell by return or simply exit
 	else if (node->type == AST_COMMAND)
-		// status = execute_command(&(node->u_data.command), execution_context,
-		// 		sh_ctx);
 		status = execute_command(node, execution_context, sh_ctx);
 	else
 		return (print_msg_n_return(1, "execute", NULL, "illegal node type"));
-	// should I exit current exection or should i return to main shell prompt
-	// if corrent exection is meanted to be exited, quit this shell
-	// if (exit_or_return == EXITAFTEREXE)
-	// 	quit_child_shell(status, shell);
-	// return (status);
 	return (finalize_status(status, execution_context, sh_ctx));
 }

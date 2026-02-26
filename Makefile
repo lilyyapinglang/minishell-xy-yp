@@ -6,6 +6,15 @@ CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 
+<<<<<<< HEAD
+=======
+# ------------------ Debug / Sanitizers ------------------
+DEBUG ?= 0
+ifeq ($(DEBUG),1)
+  CFLAGS += -g3 -O0 -fsanitize=address -fno-omit-frame-pointer
+  LDFLAGS += -fsanitize=address
+endif
+>>>>>>> main
 
 # ------------------ Readline (Homebrew macOS) ------------------
 READLINE_PREFIX := $(shell brew --prefix readline 2>/dev/null)
@@ -113,7 +122,8 @@ SRCS_SAFE := \
   src/safe_functions/safe_alloc.c \
   src/safe_functions/safe_list.c \
   src/safe_functions/safe_libft_yp.c \
-  src/safe_functions/libft_list.c
+  src/safe_functions/libft_list_1.c\
+  src/safe_functions/libft_list_2.c
 
 # 2) Runtime world (only for minishell binary)
 SRCS_RUNTIME := \
@@ -122,18 +132,29 @@ SRCS_RUNTIME := \
   src/core/shell_init.c \
   src/core/shell_loop.c \
   src/signals/set_signal_handlers_to_mode.c \
+  src/signals/handle_sigint.c\
   src/utils/error_exe.c \
+  src/utils/print_error.c \
   src/utils/ft_list_ops.c \
   src/utils/safe_exe.c \
   src/utils/utils_general.c \
   src/env/env_apis.c \
   src/env/env_init.c\
   src/env/env_utils.c\
-  src/builtins/builtin_cmds.c \
+  src/env/env_export.c\
+  src/builtins/builtin_cd.c \
+  src/builtins/builtin_echo.c \
+  src/builtins/builtin_env.c \
+  src/builtins/builtin_exit.c \
+  src/builtins/builtin_export.c \
+  src/builtins/builtin_pwd.c \
+  src/builtins/builtin_unset.c \
   src/builtins/builtin_utils.c \
-  src/execution/collect_heredoc.c \
+  src/execution/collect_heredoc_1.c \
+  src/execution/collect_heredoc_2.c \
   src/execution/exec_command.c \
-  src/execution/exec_pipeline.c \
+  src/execution/exec_pipeline_1.c \
+   src/execution/exec_pipeline_2.c \
   src/execution/exec_redirection.c \
   src/execution/heredoc_expander.c\
   src/execution/heredoc_expander_utile.c\
@@ -210,10 +231,62 @@ $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $(DEP_DIR)/$*.d)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -MF $(DEP_DIR)/$*.d -c $< -o $@
 
-val: $(NAME)
-	@if ! [ -f "ignore.supp" ]; then make ignore; fi
-	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
-  
+# ------------------ Test targets ------------------
+test: test_lexer test_parser test_expander
+
+test_lexer: $(FTPRINTF_A) $(call make_objs,$(LEXER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(LEXER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/lexer_test
+	@echo "Built: $(TEST_DIR)/lexer_test"
+
+test_parser: $(FTPRINTF_A) $(call make_objs,$(PARSER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(PARSER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/parser_test
+	@echo "Built: $(TEST_DIR)/parser_test"
+
+test_expander: $(FTPRINTF_A) $(call make_objs,$(EXPANDER_TEST_SRCS))
+	@mkdir -p $(TEST_DIR)
+	$(CC) $(CFLAGS) $(call make_objs,$(EXPANDER_TEST_SRCS)) $(FTPRINTF_A) \
+		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/expander_test
+	@echo "Built: $(TEST_DIR)/expander_test"
+
+run_test_lexer: test_lexer
+	./$(TEST_DIR)/lexer_test
+
+run_test_parser: test_parser
+	./$(TEST_DIR)/parser_test
+
+run_test_expander: test_expander
+	./$(TEST_DIR)/expander_test
+
+run_test: run_test_lexer run_test_parser run_test_expander
+
+# ------------------ Valgrind suppression file ------------------
+IGNORE_FILE := ignore.supp
+
+# Create an empty suppression file if missing
+$(IGNORE_FILE):
+	@echo "Generating minimal suppression file $(IGNORE_FILE)"
+	@echo "{" > $(IGNORE_FILE)
+	@echo "   Memcheck:Ignore" >> $(IGNORE_FILE)
+	@echo "   fun:*" >> $(IGNORE_FILE)
+	@echo "}" >> $(IGNORE_FILE)
+
+# ------------------ Valgrind target ------------------
+val: DEBUG=1
+val: re $(IGNORE_FILE)
+	valgrind --suppressions=$$(pwd)/$(IGNORE_FILE) \
+	         --leak-check=full --show-leak-kinds=all \
+	         --track-origins=yes --trace-children=yes \
+	         --track-fds=yes -s ./$(NAME)
+
+# ------------------ Optional ASan run (fast) ------------------
+asan: DEBUG=1
+asan: re
+	./$(NAME)
+
 clean:
 	rm -rf $(BUILD_DIR)
 

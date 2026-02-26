@@ -3,13 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   env_apis.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:28:37 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 20:29:34 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/25 22:10:39 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../lib/libft/libft.h"
 #include "env.h"
@@ -17,19 +16,41 @@
 #include "stdio.h" //testonly
 #include "utils.h"
 
-void	add_new_env_var(t_list **env_list, const char *name, const char *value,
-		bool exported, t_shell_context *sh_ctx)
+void	set_export(bool exported, t_env_var *env_var)
 {
-	t_env_var	*var;
+	if (exported)
+		env_var->exported = true;
+}
 
-	if (!env_list || !name || name[0] == '\0')
-		return ;
-	var = calloc_s(1, sizeof(*var), ALLOC_UNTRACKED, sh_ctx);
-	var->name = strdup_s(name, ALLOC_UNTRACKED, sh_ctx);
-	var->value = value ? strdup_s(value, ALLOC_UNTRACKED, sh_ctx) : strdup_s("",
-			ALLOC_UNTRACKED, sh_ctx);
-	var->exported = exported;
-	lst_add_back_s(var, env_list, ALLOC_UNTRACKED, sh_ctx);
+// set/rewrite value
+int	env_set_value(t_shell_context *sh_ctx, const char *name, const char *value,
+		bool exported)
+{
+	t_env_var	*env_var;
+	t_list		*node;
+	char		*old;
+	char		*new_value;
+
+	if (!sh_ctx || !name || name[0] == '\0')
+		return (1);
+	node = env_node_find(sh_ctx->env, name);
+	if (!node)
+	{
+		add_new_env_var(&sh_ctx->env, name, value, sh_ctx);
+		return (0);
+	}
+	env_var = env_var_from_node(node);
+	set_export(exported, env_var);
+	if (value)
+		new_value = strdup_s(value, ALLOC_UNTRACKED, sh_ctx);
+	else
+		new_value = NULL;
+	if (value && !new_value)
+		return (1);
+	old = env_var->value;
+	env_var->value = new_value;
+	free(old);
+	return (0);
 }
 
 // find a env_node
@@ -65,9 +86,10 @@ char	*env_get_value(t_list *env, const char *name)
 }
 
 // detele a node from env
+// deal differently with head node, last node and middle node
+
 void	del_node_from_env(t_list *env, t_shell_context *sh_ctx)
 {
-	// head node
 	if (env->prev == NULL)
 	{
 		if (env->next)
@@ -78,53 +100,13 @@ void	del_node_from_env(t_list *env, t_shell_context *sh_ctx)
 		else
 			sh_ctx->env = NULL;
 	}
-	// last node
 	else if (env->next == NULL)
 		env->prev->next = NULL;
-	else // middle node
+	else
 	{
 		env->prev->next = env->next;
 		env->next->prev = env->prev;
 	}
-	free(env->content);
+	free_env_var(env->content);
 	free(env);
-}
-
-t_list	*sort_by_lexicographical(t_list *head)
-{
-	int			swapped;
-	t_list		*curr;
-	t_list		*last;
-	t_env_var	*env_var_curr;
-	t_env_var	*env_var_next;
-	void		*content_tmp;
-
-	// sorting a double linked list
-	if (head == NULL)
-		return (head);
-	last = NULL;
-	// keep going until no swaps occur in a pass
-	do
-	{
-		swapped = 0;
-		curr = head;
-		// traserce through the list and swap adjacent nodes if they are in the wrong order
-		while (curr->next != last)
-		{
-			env_var_curr = env_var_from_node(curr);
-			env_var_next = env_var_from_node(curr->next);
-			if (ft_strcmp(env_var_curr->name, env_var_next->name) > 0)
-			{
-				// swap pointer, no need to change data i guess
-				// i need to save a pointer
-				content_tmp = curr->content;
-				curr->content = curr->next->content;
-				curr->next->content = content_tmp;
-				swapped = 1;
-			}
-			curr = curr->next;
-		}
-		last = curr;
-	} while (swapped);
-	return (head);
 }
