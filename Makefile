@@ -149,11 +149,9 @@ SRCS_RUNTIME := \
   src/execution/collect_heredoc_2.c \
   src/execution/collect_heredoc_delimiter.c \
   src/execution/exec_command.c \
-  src/execution/exec_logical.c \
   src/execution/exec_pipeline_1.c \
    src/execution/exec_pipeline_2.c \
   src/execution/exec_redirection.c \
-  src/execution/exec_subshell.c \
   src/execution/heredoc_expander.c\
   src/execution/heredoc_expander_utile.c\
   src/execution/executor.c
@@ -170,6 +168,36 @@ endif
 
 # Never compile tests/backup files into production binary
 SRCS := $(filter-out %_test.c %_tests.c %_backup.c %_old.c,$(SRCS))
+
+#bonus
+
+SRCS_BONUS_REMOVE := \
+  src/execution/executor.c \
+  src/execution/exec_logical.c \
+  src/execution/exec_subshell.c \
+  src/parser/parser.c \
+  src/parser/parser_sub.c \
+  src/parser/parser_redir.c \
+  src/parser/parser_build_node.c \
+  src/parser/parser_tk_type.c \
+  src/lexer/lexer_single_token.c \
+  src/lexer/lexer_utile.c
+
+SRCS_BONUS_ADD := \
+  bonus/executor_bonus.c \
+  bonus/exec_logical.c \
+  bonus/exec_subshell.c \
+  bonus/parser_bonus.c \
+  bonus/parser_sub_bonus.c \
+  bonus/parser_redir_bonus.c \
+  bonus/parser_build_node_bonus.c \
+  bonus/parser_tk_type_bonus.c \
+  bonus/lexer_single_token_bonus.c \
+  bonus/lexer_utile_bonus.c
+
+SRCS_BONUS := $(filter-out $(SRCS_BONUS_REMOVE),$(SRCS))
+SRCS_BONUS += $(SRCS_BONUS_ADD)
+OBJS_BONUS := $(SRCS_BONUS:%.c=$(OBJ_DIR)/%.o)
 
 # ------------------ Tests (standalone) ------------------
 LEXER_TEST_SRC    := tests/unit/lexer_test.c
@@ -209,38 +237,6 @@ $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $(DEP_DIR)/$*.d)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -MF $(DEP_DIR)/$*.d -c $< -o $@
 
-# ------------------ Test targets ------------------
-test: test_lexer test_parser test_expander
-
-test_lexer: $(FTPRINTF_A) $(call make_objs,$(LEXER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(LEXER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/lexer_test
-	@echo "Built: $(TEST_DIR)/lexer_test"
-
-test_parser: $(FTPRINTF_A) $(call make_objs,$(PARSER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(PARSER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/parser_test
-	@echo "Built: $(TEST_DIR)/parser_test"
-
-test_expander: $(FTPRINTF_A) $(call make_objs,$(EXPANDER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(EXPANDER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/expander_test
-	@echo "Built: $(TEST_DIR)/expander_test"
-
-run_test_lexer: test_lexer
-	./$(TEST_DIR)/lexer_test
-
-run_test_parser: test_parser
-	./$(TEST_DIR)/parser_test
-
-run_test_expander: test_expander
-	./$(TEST_DIR)/expander_test
-
-run_test: run_test_lexer run_test_parser run_test_expander
-
 # ------------------ Valgrind suppression file ------------------
 IGNORE_FILE := ignore.supp
 
@@ -274,7 +270,9 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test test_lexer test_parser test_expander \
-        run_test run_test_lexer run_test_parser run_test_expander
+bonus: fclean $(FTPRINTF_A) $(OBJS_BONUS)
+	$(CC) $(CFLAGS) $(OBJS_BONUS) $(FTPRINTF_A) $(LDFLAGS) $(LDLIBS) -o $(NAME)
+
+.PHONY: all clean fclean re bonus
 -include $(DEPS)
 -include $(FTPRINTF_DEPS)

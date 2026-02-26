@@ -6,13 +6,13 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:20:22 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/13 16:13:05 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/26 20:15:54 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
-#include "parse_error.h"   // only if uses set_syntax_error/report_syntax_error
-#include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
+#include "parse_error.h"
+#include "safefunctions.h"
 
 t_ast	*parse_redir(t_list **token, t_shell_context *sh)
 {
@@ -23,7 +23,7 @@ t_ast	*parse_redir(t_list **token, t_shell_context *sh)
 	prefix = parse_redir_list(token, NULL, sh);
 	if (sh->parsing_error)
 		return (NULL);
-	command = parse_subshell(token, sh);
+	command = parse_command(token, sh);
 	suffix = parse_redir_list(token, command, sh);
 	if (sh->parsing_error)
 		return (NULL);
