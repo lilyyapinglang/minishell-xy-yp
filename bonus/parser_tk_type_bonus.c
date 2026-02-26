@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_tk_type.c                                   :+:      :+:    :+:   */
+/*   parser_tk_type_bonus.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:17:19 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/25 21:40:25 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/25 21:40:00 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@ char	*tk_value(t_list *token)
 	if (!token)
 		return (NULL);
 	return (((t_token *)token->content)->value);
+}
+
+int	is_and_or(t_token_type t)
+{
+	return (t == TOKEN_AND || t == TOKEN_OR);
 }
 
 int	is_word(t_token_type t)

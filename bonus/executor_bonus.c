@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor_bonus.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/26 14:32:21 by xuewang           #+#    #+#             */
+/*   Updated: 2026/02/26 14:32:22 by xuewang          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/minishell.h"
 #include "expander.h"
 
@@ -57,8 +69,18 @@ int	execute(t_ast *node, t_exec_context execution_context,
 		struct s_ast	*right;
 	}							t_ast_logical;
 	*/
-	
-	if (node->type == AST_PIPELINE)
+	if (node->type == AST_LOGICAL)
+		// status = execute_logical(&(node->u_data.logical), execution_context,
+		// 		sh_ctx);
+		status = execute_logical(node, sh_ctx);
+	/*
+	typedef struct s_ast_pipeline
+	{
+	struct s_ast		*left;
+	struct s_ast		*right;
+	}					t_ast_pipeline;
+	*/
+	else if (node->type == AST_PIPELINE)
 		status = execute_pipeline(node, sh_ctx);
 
 	/*
@@ -66,6 +88,18 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	{
 	struct s_ast		*child;
 	}						t_ast_subshell;
+	*/
+	else if (node->type == AST_SUBSHELL)
+		// status = execute_subshell(&(node->u_data.subshell), sh_ctx);
+		status = execute_subshell(node, sh_ctx);
+
+	/*
+	typedef struct s_ast_redirection
+	{
+	t_token_type		direction;
+	struct s_ast		*child;
+	char				*file;
+	}			t_ast_redirection;
 	*/
 	else if (node->type == AST_REDIRECTION)
 		// status = execute_redirection(&(node->u_data.redirection), sh_ctx);

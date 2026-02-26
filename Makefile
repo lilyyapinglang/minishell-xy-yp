@@ -6,6 +6,7 @@ CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 
+
 # ------------------ Readline (Homebrew macOS) ------------------
 READLINE_PREFIX := $(shell brew --prefix readline 2>/dev/null)
 ifeq ($(READLINE_PREFIX),)
@@ -21,11 +22,13 @@ CPPFLAGS += $(READLINE_INC)
 LDFLAGS  += $(READLINE_LIB)
 $(NAME): LDLIBS   += $(READLINE_LDLIBS)
 
+
 # ------------------ Readline (Linux/WSL fallback) ------------------
 # If brew readline not found, assume system readline
 ifeq ($(READLINE_PREFIX),)
   LDLIBS += -lreadline -lhistory -lncurses
 endif
+
 
 # ------------------ Build dirs ------------------
 BUILD_DIR := build
@@ -130,10 +133,8 @@ SRCS_RUNTIME := \
   src/builtins/builtin_utils.c \
   src/execution/collect_heredoc.c \
   src/execution/exec_command.c \
-  src/execution/exec_logical.c \
   src/execution/exec_pipeline.c \
   src/execution/exec_redirection.c \
-  src/execution/exec_subshell.c \
   src/execution/heredoc_expander.c\
   src/execution/heredoc_expander_utile.c\
   src/execution/executor.c
@@ -151,15 +152,35 @@ endif
 # Never compile tests/backup files into production binary
 SRCS := $(filter-out %_test.c %_tests.c %_backup.c %_old.c,$(SRCS))
 
-# ------------------ Tests (standalone) ------------------
-LEXER_TEST_SRC    := tests/unit/lexer_test.c
-PARSER_TEST_SRC   := tests/unit/parser_test.c
-EXPANDER_TEST_SRC := tests/unit/expander_test.c
+#bonus
 
-# For tests, do NOT link runtime modules by default
-LEXER_TEST_SRCS    := $(SRCS_LEXER) $(SRCS_SAFE) $(LEXER_TEST_SRC)
-PARSER_TEST_SRCS   := $(SRCS_LEXER) $(SRCS_PARSER) $(SRCS_SAFE) $(PARSER_TEST_SRC)
-EXPANDER_TEST_SRCS := $(SRCS_LEXER) $(SRCS_EXPANDER) $(SRCS_SAFE) $(EXPANDER_TEST_SRC)
+SRCS_BONUS_REMOVE := \
+  src/execution/executor.c \
+  src/execution/exec_logical.c \
+  src/execution/exec_subshell.c \
+  src/parser/parser.c \
+  src/parser/parser_sub.c \
+  src/parser/parser_redir.c \
+  src/parser/parser_build_node.c \
+  src/parser/parser_tk_type.c \
+  src/lexer/lexer_single_token.c \
+  src/lexer/lexer_utile.c
+
+SRCS_BONUS_ADD := \
+  bonus/executor_bonus.c \
+  bonus/exec_logical.c \
+  bonus/exec_subshell.c \
+  bonus/parser_bonus.c \
+  bonus/parser_sub_bonus.c \
+  bonus/parser_redir_bonus.c \
+  bonus/parser_build_node_bonus.c \
+  bonus/parser_tk_type_bonus.c \
+  bonus/lexer_single_token_bonus.c \
+  bonus/lexer_utile_bonus.c
+
+SRCS_BONUS := $(filter-out $(SRCS_BONUS_REMOVE),$(SRCS))
+SRCS_BONUS += $(SRCS_BONUS_ADD)
+OBJS_BONUS := $(SRCS_BONUS:%.c=$(OBJ_DIR)/%.o)
 
 # ------------------ Objects / deps ------------------
 OBJS := $(SRCS:%.c=$(OBJ_DIR)/%.o)
@@ -189,38 +210,6 @@ $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $(DEP_DIR)/$*.d)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MMD -MP -MF $(DEP_DIR)/$*.d -c $< -o $@
 
-# ------------------ Test targets ------------------
-test: test_lexer test_parser test_expander
-
-test_lexer: $(FTPRINTF_A) $(call make_objs,$(LEXER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(LEXER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/lexer_test
-	@echo "Built: $(TEST_DIR)/lexer_test"
-
-test_parser: $(FTPRINTF_A) $(call make_objs,$(PARSER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(PARSER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/parser_test
-	@echo "Built: $(TEST_DIR)/parser_test"
-
-test_expander: $(FTPRINTF_A) $(call make_objs,$(EXPANDER_TEST_SRCS))
-	@mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) $(call make_objs,$(EXPANDER_TEST_SRCS)) $(FTPRINTF_A) \
-		$(LDFLAGS) $(LDLIBS) -o $(TEST_DIR)/expander_test
-	@echo "Built: $(TEST_DIR)/expander_test"
-
-run_test_lexer: test_lexer
-	./$(TEST_DIR)/lexer_test
-
-run_test_parser: test_parser
-	./$(TEST_DIR)/parser_test
-
-run_test_expander: test_expander
-	./$(TEST_DIR)/expander_test
-
-run_test: run_test_lexer run_test_parser run_test_expander
-
 val: $(NAME)
 	@if ! [ -f "ignore.supp" ]; then make ignore; fi
 	@valgrind --suppressions=$$(pwd)/ignore.supp --leak-check=full --show-leak-kinds=all --track-origins=yes --trace-children=yes --track-fds=yes -s ./$(NAME)
@@ -234,7 +223,9 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test test_lexer test_parser test_expander \
-        run_test run_test_lexer run_test_parser run_test_expander
+bonus: fclean $(FTPRINTF_A) $(OBJS_BONUS)
+	$(CC) $(CFLAGS) $(OBJS_BONUS) $(FTPRINTF_A) $(LDFLAGS) $(LDLIBS) -o $(NAME)
+
+.PHONY: all clean fclean re test bonus
+
 -include $(DEPS)
--include $(FTPRINTF_DEPS)

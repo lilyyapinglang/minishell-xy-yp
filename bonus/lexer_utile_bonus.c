@@ -1,16 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer_utile.c                                      :+:      :+:    :+:   */
+/*   lexer_utile_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 00:48:40 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/02/25 21:02:08 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/25 21:10:56 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "safefunctions.h"
+//#include "parse.h"
+//#include "minishellparse.h"
 #include "lexer.h"
 
 int	ft_isspace(int c)
@@ -23,7 +25,7 @@ int	ft_isspace(int c)
 
 int	ft_istoken(int c)
 {
-	if (c == '<' || c == '>' || c == '&' || c == '|')
+	if (c == '(' || c == ')' || c == '<' || c == '>' || c == '&' || c == '|')
 		return (1);
 	return (0);
 }

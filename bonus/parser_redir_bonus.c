@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser_redir.c                                     :+:      :+:    :+:   */
+/*   parser_redir_bonus.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:20:22 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/25 21:31:55 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/25 21:31:00 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ t_ast	*parse_redir(t_list **token, t_shell_context *sh)
 	prefix = parse_redir_list(token, NULL, sh);
 	if (sh->parsing_error)
 		return (NULL);
-	command = parse_command(token, sh);
+	command = parse_subshell(token, sh);
 	suffix = parse_redir_list(token, command, sh);
 	if (sh->parsing_error)
 		return (NULL);
