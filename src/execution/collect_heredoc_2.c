@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc_2.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:19:31 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/25 22:43:07 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/26 13:49:46 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
+
 /*
 (cat << EOF
 	hello
@@ -98,11 +99,53 @@ REDIR (>)
 // 	return (res_start);
 // }
 
+char	*update_result_loc(const char *raw, char *result, t_quote_state *mode,
+		bool *is_quoted)
+{
+	char	*ptr;
+
+	ptr = (char *)raw;
+	while (*ptr)
+	{
+		if (*mode == QUOTE_NONE)
+		{
+			if (*ptr == '\'')
+			{
+				*mode = QUOTE_SINGLE;
+				if (*is_quoted == false)
+					*is_quoted = true;
+			}
+			else if (*ptr == '"')
+			{
+				*mode = QUOTE_DOUBLE;
+				if (*is_quoted == false)
+					*is_quoted = true;
+			}
+			else
+				*result++ = *ptr;
+		}
+		else if (*mode == QUOTE_SINGLE)
+		{
+			if (*ptr == '\'')
+				*mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
+		else if (*mode == QUOTE_DOUBLE)
+		{
+			if (*ptr == '"')
+				*mode = QUOTE_NONE;
+			else
+				*result++ = *ptr;
+		}
+		ptr++;
+	}
+	return (result);
+}
 char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
 		t_shell_context *sh_ctx)
 {
 	t_quote_state	mode;
-	char			*ptr;
 	char			*result;
 	char			*result_ptr;
 
@@ -112,46 +155,11 @@ char	*heredoc_delimiter_strip(const char *raw, bool *is_quoted,
 	if (is_quoted)
 		*is_quoted = false;
 	mode = QUOTE_NONE;
-	ptr = (char *)raw;
 	result = malloc(ft_strlen(raw) + 1);
 	if (!result)
 		return (NULL);
 	result_ptr = result;
-	while (*ptr)
-	{
-		if (mode == QUOTE_NONE)
-		{
-			if (*ptr == '\'')
-			{
-				mode = QUOTE_SINGLE;
-				if (is_quoted)
-					*is_quoted = true;
-			}
-			else if (*ptr == '"')
-			{
-				mode = QUOTE_DOUBLE;
-				if (is_quoted)
-					*is_quoted = true;
-			}
-			else
-				*result++ = *ptr;
-		}
-		else if (mode == QUOTE_SINGLE)
-		{
-			if (*ptr == '\'')
-				mode = QUOTE_NONE;
-			else
-				*result++ = *ptr;
-		}
-		else if (mode == QUOTE_DOUBLE)
-		{
-			if (*ptr == '"')
-				mode = QUOTE_NONE;
-			else
-				*result++ = *ptr;
-		}
-		ptr++;
-	}
+	result = update_result_loc(raw, result, &mode, is_quoted);
 	if (mode != QUOTE_NONE)
 	{
 		free(result_ptr);
