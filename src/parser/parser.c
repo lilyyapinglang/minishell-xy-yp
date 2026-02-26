@@ -6,7 +6,7 @@
 /*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/30 13:17:58 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/13 16:13:15 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/26 19:56:14 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int	parser(t_list *token_list, t_ast **ast, t_shell_context *sh)
 {
 	const char	*tok = tk_value(token_list);
 
-	*ast = parse_and_or(&token_list, sh);
+	*ast = parse_pipeline(&token_list, sh);
 	if (!sh->parsing_error && token_list && peek_list(token_list) != TOKEN_EOF)
 	{
 		if (!tok)

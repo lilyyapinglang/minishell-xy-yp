@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 18:02:22 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/20 18:02:25 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/26 19:48:31 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,8 @@ int	execute(t_ast *node, t_exec_context execution_context,
 		expander(node, sh_ctx);
 		node->is_expanded = true;
 	}
-	if (node->type == AST_LOGICAL)
-		status = execute_logical(node, sh_ctx);
-	else if (node->type == AST_PIPELINE)
+	if (node->type == AST_PIPELINE)
 		status = execute_pipeline(node, sh_ctx);
-	else if (node->type == AST_SUBSHELL)
-		status = execute_subshell(node, sh_ctx);
 	else if (node->type == AST_REDIRECTION)
 		status = execute_redirection(node, sh_ctx);
 	else if (node->type == AST_COMMAND)
