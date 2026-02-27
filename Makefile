@@ -137,6 +137,7 @@ SRCS_RUNTIME := \
   src/env/env_init.c\
   src/env/env_utils.c\
   src/env/env_export.c\
+  src/env/env_envp.c\
   src/builtins/builtin_cd.c \
   src/builtins/builtin_echo.c \
   src/builtins/builtin_env.c \
@@ -149,6 +150,8 @@ SRCS_RUNTIME := \
   src/execution/collect_heredoc_2.c \
   src/execution/collect_heredoc_delimiter.c \
   src/execution/exec_command.c \
+  src/execution/exec_command_ext.c \
+  src/execution/exec_command_path.c \
   src/execution/exec_pipeline_1.c \
    src/execution/exec_pipeline_2.c \
   src/execution/exec_redirection.c \

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:07:43 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/26 20:07:44 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/27 17:47:07 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,4 +43,6 @@ int			env_mark_exported(t_shell_context *sh_ctx, const char *name);
 t_env_var	*env_var_from_node(t_list *node);
 void		free_env_var(void *content);
 
+// build envp from t_list env
+char		**env_list_to_envp(t_list *env_list);
 #endif
