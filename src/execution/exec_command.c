@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_command.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:06:28 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/25 22:09:25 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/27 16:55:31 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,42 +36,48 @@ void	free_strs(char **envp)
 		free(envp[i++]);
 	free(envp);
 }
+
+int	count_exported_env_vars(t_list *node)
+{
+	t_env_var	*env_var;
+	int			count;
+
+	count = 0;
+	while (node)
+	{
+		env_var = env_var_from_node(node);
+		if (env_var && env_var->exported && env_var->name)
+			count++;
+		node = node->next;
+	}
+	return (count);
+}
 /* 1) count exported */
 /* 2) build envp */
 /* rollback */
-
 char	**env_list_to_envp(t_list *env_list)
 {
-	int			count;
 	int			i;
 	t_list		*node;
-	t_env_var	*ev;
+	t_env_var	*env_var;
 	char		**envp;
 	const char	*val;
 	size_t		name_len;
 	size_t		val_len;
 
-	count = 0;
 	i = 0;
 	node = env_list;
-	while (node)
-	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
-			count++;
-		node = node->next;
-	}
-	envp = malloc(sizeof(char *) * (count + 1));
+	envp = malloc(sizeof(char *) * (count_exported_env_vars(node) + 1));
 	if (!envp)
 		return (NULL);
 	node = env_list;
 	while (node)
 	{
-		ev = env_var_from_node(node);
-		if (ev && ev->exported && ev->name)
+		env_var = env_var_from_node(node);
+		if (env_var&& env_var->exported && env_var->name)
 		{
-			name_len = ft_strlen(ev->name);
-			val = ev->value ? ev->value : "";
+			name_len = ft_strlen(env_var->name);
+			val = env_var->value ? env_var->value : "";
 			val_len = ft_strlen(val);
 			envp[i] = malloc(name_len + 1 + val_len + 1);
 			if (!envp[i])
@@ -81,7 +87,7 @@ char	**env_list_to_envp(t_list *env_list)
 				free(envp);
 				return (NULL);
 			}
-			ft_memcpy(envp[i], ev->name, name_len);
+			ft_memcpy(envp[i], env_var->name, name_len);
 			envp[i][name_len] = '=';
 			ft_memcpy(envp[i] + name_len + 1, val, val_len);
 			envp[i][name_len + 1 + val_len] = '\0';
@@ -97,7 +103,6 @@ char	**env_list_to_envp(t_list *env_list)
 // check for execution permission
 // free dirs up to now
 // free strs too
-
 char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 {
 	char		**dirs;
@@ -166,22 +171,8 @@ int	execve_errno_to_status(int err)
 		return (127);
 	return (126);
 }
-
-// cmd->arg[0]=="."
-// cmd->args[0] ==".."
-// cmd->args[0] ==""
-// contains '/', search for cmd from current directory
-// permission denied
-// the direcotry
-// no / present, so need to search and execute external via PATH,
-
-int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
+int	validate_command(t_ast_command *cmd)
 {
-	int			status;
-	char		*path;
-	char		**envp;
-	struct stat	st;
-
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return (0);
 	if (ft_strcmp(cmd->args[0], ".") == 0)
@@ -193,10 +184,13 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 	if (*cmd->args[0] == '\0')
 		return (print_msg_n_return(127, cmd->args[0], NULL,
 				"command not found"));
-	if (ft_strchr(cmd->args[0], '/'))
-		path = cmd->args[0];
-	else
-		path = resolve_cmd_path(cmd->args[0], sh_ctx);
+	return (-1);
+}
+
+int	check_valid_path(char *path, char *cmd_name)
+{
+	struct stat	st;
+
 	if (stat(path, &st) == -1)
 	{
 		if (errno == ENOENT)
@@ -206,10 +200,36 @@ int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
 		if (errno == EISDIR)
 			return (print_errno_n_return(126, path, NULL, errno));
 		if (errno == EFAULT)
-			return (print_msg_n_return(127, cmd->args[0], NULL,
+			return (print_msg_n_return(127, cmd_name, NULL,
 					"command not found"));
 		return (print_errno_n_return(127, path, NULL, errno));
 	}
+	return (-1);
+}
+
+// cmd->arg[0]=="."
+// cmd->args[0] ==".."
+// cmd->args[0] ==""
+// contains '/', search for cmd from current directory
+// permission denied
+// the direcotry
+// no / present, so need to search and execute external via PATH,
+int	execute_external(t_ast_command *cmd, t_shell_context *sh_ctx)
+{
+	int		status;
+	char	*path;
+	char	**envp;
+
+	status = validate_command(cmd);
+	if (status != -1)
+		return (status);
+	if (ft_strchr(cmd->args[0], '/'))
+		path = cmd->args[0];
+	else
+		path = resolve_cmd_path(cmd->args[0], sh_ctx);
+	status = check_valid_path(path, cmd->args[0]);
+	if (status != -1)
+		return (status);
 	envp = env_list_to_envp(sh_ctx->env);
 	if (!envp)
 		return (print_msg_n_return(1, cmd->args[0], NULL,
@@ -257,8 +277,8 @@ void	report_child_termination_signal(int wait_status, const char *cmd_name,
 		ft_putstr_fd("Quit\n", STDERR_FILENO);
 	}
 }
-// int		status;
 
+// int		status;
 /// reuse run in child logic
 // status = execute(node, RUN_IN_CHILD, sh_ctx);
 // printf("i'm in fork_and_run_in_child, before execute \n");
@@ -328,12 +348,10 @@ int	execute_builtin(t_ast_command *cmd, t_shell_context *ctx)
 int	execute_command(t_ast *node, t_exec_context exe_ctx,
 		t_shell_context *sh_ctx)
 {
-	int				status;
 	bool			isbuiltin;
 	t_ast_command	*cmd;
 
 	cmd = &node->u_data.command;
-	status = EXIT_SUCCESS;
 	isbuiltin = false;
 	if (!cmd->args || !cmd->args[0])
 		return (EXIT_SUCCESS);
@@ -341,10 +359,7 @@ int	execute_command(t_ast *node, t_exec_context exe_ctx,
 	if (exe_ctx == RUN_IN_CHILD)
 	{
 		if (isbuiltin)
-		{
-			status = execute_builtin(cmd, sh_ctx);
-			return (status);
-		}
+			return (execute_builtin(cmd, sh_ctx));
 		return (execute_external(cmd, sh_ctx));
 	}
 	else if (exe_ctx == RUN_FORK_WAIT)
