@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 16:55:30 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/26 17:04:24 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/27 17:54:38 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,11 @@ void	hanlde_quote_none(char *ptr, t_quote_state *mode, bool *is_quoted,
 		*(*result)++ = *ptr;
 }
 
-char	*update_result_loc(const char *raw, char *result, t_quote_state *mode, bool *is_quoted)
+char	*update_result_loc(const char *raw, char *result, t_quote_state *mode,
+		bool *is_quoted)
 {
-    char    *ptr;
-	
+	char	*ptr;
+
 	ptr = (char *)raw;
 	while (*ptr)
 	{

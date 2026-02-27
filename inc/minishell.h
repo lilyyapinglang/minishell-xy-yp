@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/26 20:08:03 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/27 17:46:18 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,9 +139,12 @@ int								execute(t_ast *node,
 									t_shell_context *shell_conetext);
 int								execute_logical(t_ast *node,
 									t_shell_context *sh_ctx);
+int								execute_external(t_ast_command *cmd,
+									t_shell_context *sh_ctx);
 int								execute_command(t_ast *node,
 									t_exec_context exe_ctx,
 									t_shell_context *sh_ctx);
+
 int								execute_pipeline(t_ast *pipeline_node,
 									t_shell_context *shell_conetext);
 int								execute_redirection(t_ast *node,
@@ -224,5 +227,8 @@ int								execute_pipeline_commands(t_list *pipeline,
 									t_shell_context *sh_ctx);
 int								wait_for_children(pid_t last_pid,
 									int count_pipeline,
+									t_shell_context *sh_ctx);
+// external commands
+char							*resolve_cmd_path(char *cmd,
 									t_shell_context *sh_ctx);
 #endif

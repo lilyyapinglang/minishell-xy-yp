@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_general.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:29 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/25 22:12:21 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/27 17:50:14 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,16 @@ int	count_strs(char **argv)
 	while (argv && argv[i])
 		i++;
 	return (i);
+}
+
+void	free_strs(char **envp)
+{
+	int	i;
+
+	i = 0;
+	if (!envp)
+		return ;
+	while (envp[i])
+		free(envp[i++]);
+	free(envp);
 }
