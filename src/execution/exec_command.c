@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:06:28 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/27 16:55:31 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/27 17:31:18 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,40 @@ int	count_exported_env_vars(t_list *node)
 	}
 	return (count);
 }
+
+char	*build_env_entry(t_env_var *env_var)
+{
+	size_t	name_len;
+	size_t	val_len;
+	char	*val;
+	char	*entry;
+
+	if (!env_var || !env_var->name)
+		return (NULL);
+	name_len = ft_strlen(env_var->name);
+	if (env_var->value)
+		val = env_var->value;
+	else
+		val = "";
+	val_len = ft_strlen(val);
+	entry = malloc(name_len + 1 + val_len + 1);
+	if (!entry)
+		return (NULL);
+	ft_memcpy(entry, env_var->name, name_len);
+	entry[name_len] = '=';
+	ft_memcpy(entry + name_len + 1, val, val_len);
+	entry[name_len + 1 + val_len] = '\0';
+	return (entry);
+}
+
+char	**free_partial_envp(char **envp, int i)
+{
+	while (i > 0)
+		free(envp[--i]);
+	free(envp);
+	return (NULL);
+}
+
 /* 1) count exported */
 /* 2) build envp */
 /* rollback */
@@ -61,9 +95,6 @@ char	**env_list_to_envp(t_list *env_list)
 	t_list		*node;
 	t_env_var	*env_var;
 	char		**envp;
-	const char	*val;
-	size_t		name_len;
-	size_t		val_len;
 
 	i = 0;
 	node = env_list;
@@ -74,23 +105,11 @@ char	**env_list_to_envp(t_list *env_list)
 	while (node)
 	{
 		env_var = env_var_from_node(node);
-		if (env_var&& env_var->exported && env_var->name)
+		if (env_var && env_var->exported && env_var->name)
 		{
-			name_len = ft_strlen(env_var->name);
-			val = env_var->value ? env_var->value : "";
-			val_len = ft_strlen(val);
-			envp[i] = malloc(name_len + 1 + val_len + 1);
+			envp[i] = build_env_entry(env_var);
 			if (!envp[i])
-			{
-				while (i > 0)
-					free(envp[--i]);
-				free(envp);
-				return (NULL);
-			}
-			ft_memcpy(envp[i], env_var->name, name_len);
-			envp[i][name_len] = '=';
-			ft_memcpy(envp[i] + name_len + 1, val, val_len);
-			envp[i][name_len + 1 + val_len] = '\0';
+				return (free_partial_envp(envp, i));
 			i++;
 		}
 		node = node->next;
@@ -98,23 +117,10 @@ char	**env_list_to_envp(t_list *env_list)
 	envp[i] = NULL;
 	return (envp);
 }
-// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-// try ./cmd
-// check for execution permission
-// free dirs up to now
-// free strs too
-char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
+char	*search_path_value(t_list *env)
 {
-	char		**dirs;
-	char		*full_path;
-	char		*path_ptr;
-	char		*mid_path;
-	char		**head_ptr;
-	t_list		*env;
 	t_env_var	*env_var;
 
-	path_ptr = NULL;
-	env = sh_ctx->env;
 	while (env)
 	{
 		env_var = env_var_from_node(env);
@@ -124,45 +130,57 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 			continue ;
 		}
 		if (ft_strcmp(env_var->name, "PATH") == 0)
-			path_ptr = env_var->value;
+			return (env_var->value);
 		env = env->next;
 	}
-	if (!path_ptr)
+	return (NULL);
+}
+static char	*find_executable(char **dirs, char *cmd)
+{
+	char	*mid_path;
+	char	*full_path;
+
+	while (*dirs)
 	{
-		full_path = ft_strjoin("./", cmd);
-		return (full_path);
+		mid_path = ft_strjoin(*dirs, "/");
+		if (!mid_path)
+			return (NULL);
+		full_path = ft_strjoin(mid_path, cmd);
+		free(mid_path);
+		if (!full_path)
+			return (NULL);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		free(full_path);
+		dirs++;
 	}
+	return (NULL);
+}
+// PATH=/home/ylang/bin:/home/ylang/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+// try ./cmd
+// check for execution permission
+// free dirs up to now
+// free strs too
+char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
+{
+	char	**dirs;
+	char	*path_ptr;
+	t_list	*env;
+	char	*result;
+
+	path_ptr = NULL;
+	env = sh_ctx->env;
+	path_ptr = search_path_value(env);
+	if (!path_ptr)
+		return (ft_strjoin("./", cmd));
 	if (*path_ptr == '\0')
 		return (NULL);
 	dirs = ft_split(path_ptr, ':');
 	if (!dirs)
 		return (NULL);
-	head_ptr = dirs;
-	while (*dirs)
-	{
-		mid_path = ft_strjoin(*dirs, "/");
-		if (!mid_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
-		full_path = ft_strjoin(mid_path, cmd);
-		free(mid_path);
-		if (!full_path)
-		{
-			free_strs(head_ptr);
-			return (NULL);
-		}
-		if (access(full_path, X_OK) == 0)
-		{
-			free_strs(head_ptr);
-			return (full_path);
-		}
-		free(full_path);
-		dirs++;
-	}
-	free_strs(head_ptr);
-	return (NULL);
+	result = find_executable(dirs, cmd);
+	free_strs(dirs);
+	return (result);
 }
 
 int	execve_errno_to_status(int err)
@@ -171,6 +189,7 @@ int	execve_errno_to_status(int err)
 		return (127);
 	return (126);
 }
+
 int	validate_command(t_ast_command *cmd)
 {
 	if (!cmd || !cmd->args || !cmd->args[0])
