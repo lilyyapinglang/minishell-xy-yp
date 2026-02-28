@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   list.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:07:58 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/26 20:07:59 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/28 21:48:35 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MS_LIST_H
-# define MS_LIST_H
+#ifndef LIST_H
+# define LIST_H
 
 /**
  * Doubly linked list node.
@@ -26,8 +26,8 @@
 
 typedef struct s_list
 {
-	void *content;       // user-owned data
-	struct s_list *next; // next node
-	struct s_list *prev; // previous node
-}	t_list;
+	void			*content;
+	struct s_list	*next;
+	struct s_list	*prev;
+}					t_list;
 #endif

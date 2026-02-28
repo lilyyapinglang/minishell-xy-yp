@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/27 17:46:18 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/02/28 21:51:18 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-// define a comman table as a result of parsing and as a execution plan for execution
 # include "../lib/libft/libft.h"
 # include "env.h"
 # include "lexer.h"
@@ -58,12 +57,12 @@ int								print_errno_n_return(int code, const char *cmd,
 int								print_msg_n_return(int code, const char *cmd,
 									const char *arg, const char *msg);
 
-void							fatal_errno_shell_quit(t_shell_context *sh_ctx,
-									int code, const char *cmd, const char *arg,
-									int errnum);
-void							fatal_msg_shell_quit(t_shell_context *sh_ctx,
-									int code, const char *cmd, const char *arg,
-									const char *msg);
+// void							fatal_errno_shell_quit(t_shell_context *sh_ctx,
+// 									int code, const char *cmd, const char *arg,
+// 									int errnum);
+// void							fatal_msg_shell_quit(t_shell_context *sh_ctx,
+// 									int code, const char *cmd, const char *arg,
+// 									const char *msg);
 
 void							report_child_termination_signal(int wait_status,
 									const char *cmd_name,
@@ -85,13 +84,12 @@ void							shell_clear_iteration(t_shell_context *sh_ctx);
 void							shell_exit(t_shell_context *sh_ctx, int status);
 
 // -----Execution-----
+// EXEC_PARENT: must run in current shell process, do NOT fork, do NOT exit
+// EXEC_FORK  : current shell should fork and wait
+// EXEC_CHILD : already in child process, must not return, must exit
+
 typedef enum e_exec_context
-
 {
-	// EXEC_PARENT: must run in current shell process, do NOT fork, do NOT exit
-	// EXEC_FORK  : current shell should fork and wait
-	// EXEC_CHILD : already in child process, must not return, must exit
-
 	RUN_IN_SHELL,
 	RUN_FORK_WAIT,
 	RUN_IN_CHILD
@@ -103,12 +101,16 @@ typedef enum e_exec_context
 // heredocs
 
 // heredoc_expander to ensure argv <5 xueyan added
+// buffer for output
+// current writing-in position
+// to get env and last_status
+// string for $?
 typedef struct s_hd_fillctx
 {
-	char *out;           // buffer for output
-	size_t j;            // current writing-in position
-	t_shell_context *sh; // to get env and last_status
-	const char *st;      // string for $?
+	char						*out;
+	size_t						j;
+	t_shell_context				*sh;
+	const char					*st;
 }								t_hd_fillctx;
 
 int								collect_all_heredocs(t_ast *root,
@@ -122,17 +124,16 @@ int								read_heredoc_lines(int tmp_file_des,
 									t_shell_context *sh_ctx, bool is_quoted);
 char							*heredoc_delimiter_strip(const char *raw,
 									bool *quoted, t_shell_context *sh_ctx);
-char	*heredoc_expand_line(const char *line,
-							t_shell_context *sh); // xueyan added for hdexpander
-size_t	hd_var_name_len(const char *s);          // xueyan added for hdexpander
+char							*heredoc_expand_line(const char *line,
+									t_shell_context *sh);
+size_t							hd_var_name_len(const char *s);
 char							*hd_name_sub(const char *line, size_t i,
 									size_t n, t_shell_context *sh);
-// xueyan added for hdexpander
+
 size_t							hd_copy_str(char *out, size_t j, const char *s);
-// xueyan added for hdexpander
+
 void							hd_fill_dollar(t_hd_fillctx *ctx,
 									const char *line);
-// xueyan added for hdexpander
 // executor
 int								execute(t_ast *node,
 									t_exec_context execution_context,

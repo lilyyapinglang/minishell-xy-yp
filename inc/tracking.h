@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   tracking.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:47 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/26 20:08:48 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/28 21:47:32 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MS_TRACKING_H
-# define MS_TRACKING_H
+#ifndef TRACKING_H
+# define TRACKING_H
 
 /**
  * Allocation tracking group.
@@ -32,9 +32,9 @@
 
 typedef enum e_tracking_scope
 {
-	ALLOC_UNTRACKED, // not tracked; freed manually
-	ALLOC_SHELL,     // lifetime: whole shell
-	ALLOC_PROMPT     // lifetime: one REPL iteration / one command line
-}								t_tracking_scope;
+	ALLOC_UNTRACKED,
+	ALLOC_SHELL,
+	ALLOC_PROMPT
+}	t_tracking_scope;
 
 #endif
