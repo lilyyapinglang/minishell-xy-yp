@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:34 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 23:27:20 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/28 17:39:12 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,16 +50,16 @@ int	print_msg_n_return(int code, const char *cmd, const char *arg,
 
 /* ---------------- public: fatal in shell (rare) ---------------- */
 
-void	fatal_errno_shell_quit(t_shell_context *sh_ctx, int code,
-		const char *cmd, const char *arg, int errnum)
-{
-	print_error(cmd, arg, strerror(errnum));
-	shell_exit(sh_ctx, code);
-}
+// void	fatal_errno_shell_quit(t_shell_context *sh_ctx, int code,
+// 		const char *cmd, const char *arg, int errnum)
+// {
+// 	print_error(cmd, arg, strerror(errnum));
+// 	shell_exit(sh_ctx, code);
+// }
 
-void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code, const char *cmd,
-		const char *arg, const char *msg)
-{
-	print_error(cmd, arg, msg);
-	shell_exit(sh_ctx, code);
-}
+// void	fatal_msg_shell_quit(t_shell_context *sh_ctx, int code, const char *cmd,
+// 		const char *arg, const char *msg)
+// {
+// 	print_error(cmd, arg, msg);
+// 	shell_exit(sh_ctx, code);
+// }

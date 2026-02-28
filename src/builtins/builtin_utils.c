@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 20:50:22 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 20:34:01 by ylang            ###   ########.fr       */
+/*   Updated: 2026/02/28 17:57:39 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,12 +71,17 @@ bool	is_stateful_builtin(char *cmd)
 
 t_builtin_func	lookup_builtin_func(const char *name)
 {
-	static const t_builtin_entry	table[] = {{"echo", BI_ECHO, builtin_echo},
-			{"pwd", BI_PWD, builtin_pwd}, {"env", BI_ENV, builtin_env}, {"cd",
-			BI_CD, builtin_cd}, {"export", BI_EXPORT, builtin_export}, {"unset",
-			BI_UNSET, builtin_unset}, {"exit", BI_EXIT, builtin_exit}, {NULL,
-			BI_NONE, NULL}};
 	int								i;
+	static const t_builtin_entry	table[] = {
+	{"echo", BI_ECHO, builtin_echo},
+	{"pwd", BI_PWD, builtin_pwd},
+	{"env", BI_ENV, builtin_env},
+	{"cd", BI_CD, builtin_cd},
+	{"export", BI_EXPORT, builtin_export},
+	{"unset", BI_UNSET, builtin_unset},
+	{"exit", BI_EXIT, builtin_exit},
+	{NULL, BI_NONE, NULL}
+	};
 
 	i = 0;
 	if (!name)
