@@ -12,7 +12,7 @@
 
 #include "lexer.h"
 #include "parse.h"
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h"
 
 t_token_type	scan_next_token(char *input, size_t *len, t_shell_context *sh)

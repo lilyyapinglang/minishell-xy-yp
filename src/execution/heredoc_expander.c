@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_expander.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 11:17:13 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/13 16:34:53 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
-static size_t	hd_value_len_at(const char *line, size_t i,
-	t_shell_context *sh, const char *st)
+static size_t	hd_value_len_at(const char *line, size_t i, t_shell_context *sh,
+		const char *st)
 {
 	size_t	n;
 	char	*name;
@@ -26,7 +26,7 @@ static size_t	hd_value_len_at(const char *line, size_t i,
 		return (ft_strlen(st));
 	name = hd_name_sub(line, i, n, sh);
 	if (!name)
-		return ((size_t) - 1);
+		return ((size_t)-1);
 	val = env_get_value(sh->env, name);
 	free(name);
 	if (!val)
@@ -35,7 +35,7 @@ static size_t	hd_value_len_at(const char *line, size_t i,
 }
 
 static size_t	hd_compute_len(const char *line, t_shell_context *sh,
-								const char *st)
+		const char *st)
 {
 	size_t	i;
 	size_t	len;
@@ -53,8 +53,8 @@ static size_t	hd_compute_len(const char *line, t_shell_context *sh,
 		else
 		{
 			add = hd_value_len_at(line, i, sh, st);
-			if (add == (size_t) - 1)
-				return ((size_t) - 1);
+			if (add == (size_t)-1)
+				return ((size_t)-1);
 			len += add;
 			i += 1 + hd_var_name_len(line + i + 1);
 		}
@@ -62,8 +62,8 @@ static size_t	hd_compute_len(const char *line, t_shell_context *sh,
 	return (len);
 }
 
-static void	hd_fill(char *out, const char *line,
-	t_shell_context *sh, const char *st)
+static void	hd_fill(char *out, const char *line, t_shell_context *sh,
+		const char *st)
 {
 	size_t			i;
 	t_hd_fillctx	ctx;

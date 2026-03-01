@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc_expander_utile.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 21:27:26 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/02/13 16:34:58 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
 /*
 ** first == 1 : first char after '$' => '_' or alpha

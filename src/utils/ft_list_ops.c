@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_list_ops.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:37 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/13 21:16:38 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
 // To be done by yaping lang
 

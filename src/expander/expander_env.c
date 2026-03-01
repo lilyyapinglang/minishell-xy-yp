@@ -13,7 +13,7 @@
 #include "../libft/libft.h"
 #include "env.h"
 #include "expander.h"
-#include "ms_error.h"
+#include "error.h"
 #include "parse.h"
 #include "safefunctions.h"
 #include "shell_context.h"

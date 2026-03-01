@@ -15,6 +15,8 @@
 
 # include "../lib/libft/libft.h"
 # include "env.h"
+# include "error.h"
+# include "expander.h"
 # include "lexer.h"
 # include "list.h"
 # include "parse.h"

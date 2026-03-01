@@ -12,7 +12,7 @@
 
 #include "minishell.h"   // defines t_shell_context (parsing_error)
 #include "parse.h"       // AST/token types (may already be in minishell.h)
-#include "parse_error.h" // set_syntax_error, report_syntax_error
+#include "error.h" // set_syntax_error, report_syntax_error
 #include "parser.h"      // (if you create it) parse_and_or/peek_list etc
 
 int	parser(t_list *token_list, t_ast **ast, t_shell_context *sh)

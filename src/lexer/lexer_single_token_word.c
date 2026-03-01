@@ -12,7 +12,7 @@
 
 #include "lexer.h"
 #include "parse.h"
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h"
 
 static void	update_quote_state(char cur, bool *in_quote, char *quote_c)

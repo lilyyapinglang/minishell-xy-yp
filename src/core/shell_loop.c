@@ -6,14 +6,14 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 19:57:38 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 20:36:30 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/lexer.h"
-#include "../inc/minishell.h"
+#include "../include/lexer.h"
+#include "../include/minishell.h"
 #include "get_next_line.h"
-#include "ms_readline.h"
+#include "shell_context.h"
 #include "parser.h"
 #include <errno.h>
 #include <stdio.h>

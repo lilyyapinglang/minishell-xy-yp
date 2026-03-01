@@ -13,7 +13,7 @@
 #include "../libft/libft.h" // ft_substr (adjust path to your real libft header)
 #include "lexer.h"          // (you’ll create this)
 #include "parse.h"          // t_token, t_token_type
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h" // calloc_s, s_alloc, lst_add_back_s
 #include "tracking.h"      // PROMPT_S and t_tracking_scope
 #include <stdlib.h>        // EXIT_SUCCESS

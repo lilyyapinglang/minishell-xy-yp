@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../lib/libft/libft.h"
-#include "ms_error.h"
+#include "error.h"
 #include "safefunctions.h"
 #include "shell_context.h"
 #include <errno.h>

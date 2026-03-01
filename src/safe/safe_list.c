@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "parse.h"
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h"
 #include "utils.h"
 

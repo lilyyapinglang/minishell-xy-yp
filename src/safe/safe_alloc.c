@@ -13,7 +13,7 @@
 // #include "minishellparse.h"
 #include "../lib/libft/libft.h"
 #include "parse.h"
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h"
 
 void	*s_alloc(void *pointer, t_tracking_scope scope, t_shell_context *sh)

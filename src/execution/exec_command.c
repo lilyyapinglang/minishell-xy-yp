@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:06:28 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/27 17:51:46 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
 /*
 

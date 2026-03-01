@@ -14,6 +14,9 @@
 # define SHELL_CONTEXT_H
 
 # include "list.h"
+# include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "tracking.h"
 # include <stdbool.h>
 

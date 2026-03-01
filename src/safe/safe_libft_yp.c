@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   safe_libft_yp.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 23:22:41 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/19 23:23:48 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:14 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
-#include "parse_error.h"
+#include "../include/minishell.h"
+#include "error.h"
 
 char	*strjoin_s(char const *s1, char const *s2, t_tracking_scope scope,
 		t_shell_context *sh)

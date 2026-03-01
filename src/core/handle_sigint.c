@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   handle_sigint.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 23:11:33 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/25 22:13:58 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:14 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
-#include "ms_readline.h"
+#include "../include/minishell.h"
+#include "shell_context.h"
 
 // record that sigint happened， this change is to be consumed by main process
 // which is actaully quite current cmd and return to shell.

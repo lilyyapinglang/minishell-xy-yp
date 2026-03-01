@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "parser.h"
-#include "parse_error.h"
+#include "error.h"
 #include "safefunctions.h"
 
 t_ast	*parse_redir(t_list **token, t_shell_context *sh)

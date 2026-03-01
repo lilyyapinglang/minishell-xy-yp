@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include "ms_readline.h"
+#include "shell_context.h"
 
 /*
 increment shell level at each initiation

@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 16:55:30 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/27 17:54:38 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
 void	hanlde_quote_none(char *ptr, t_quote_state *mode, bool *is_quoted,
 		char **result)

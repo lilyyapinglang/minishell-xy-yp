@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "parser.h"
-#include "parse_error.h"   // only it uses set_syntax_error/report_syntax_error
+#include "error.h"   // only it uses set_syntax_error/report_syntax_error
 #include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 t_ast	*parse_and_or(t_list **token, t_shell_context *sh)

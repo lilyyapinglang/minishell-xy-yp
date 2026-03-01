@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "parser.h"
-#include "parse_error.h"   // only if uses set_syntax_error/report_syntax_error
+#include "error.h"   // only if uses set_syntax_error/report_syntax_error
 #include "safefunctions.h" // only if it calls calloc_s/s_alloc/track_alloc/etc
 
 void	init_ast_node(t_ast **node, t_ast_type type,

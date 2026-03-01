@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   exec_logical.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:28:45 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/13 21:29:23 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/01 11:43:14 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../include/minishell.h"
 
 /*
 此时 execute_logical 的策略（概念上）是：

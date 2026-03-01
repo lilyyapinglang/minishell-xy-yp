@@ -2,7 +2,7 @@ NAME := minishell
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
-CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
+CPPFLAGS := -Iinclude -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 
@@ -112,13 +112,13 @@ SRCS_EXPANDER := \
   src/expander/expander_var.c
 
 SRCS_SAFE := \
-  src/safe_functions/error.c \
-  src/safe_functions/quitshell.c \
-  src/safe_functions/safe_alloc.c \
-  src/safe_functions/safe_list.c \
-  src/safe_functions/safe_libft_yp.c \
-  src/safe_functions/libft_list_1.c\
-  src/safe_functions/libft_list_2.c
+  src/safe/error.c \
+  src/safe/quitshell.c \
+  src/safe/safe_alloc.c \
+  src/safe/safe_list.c \
+  src/safe/safe_libft_yp.c \
+  src/safe/libft_list_1.c\
+  src/safe/libft_list_2.c
 
 # 2) Runtime world (only for minishell binary)
 SRCS_RUNTIME := \
@@ -126,8 +126,8 @@ SRCS_RUNTIME := \
   src/core/shell_cleanup.c \
   src/core/shell_init.c \
   src/core/shell_loop.c \
-  src/signals/set_signal_handlers_to_mode.c \
-  src/signals/handle_sigint.c\
+  src/core/set_signal_handlers_to_mode.c \
+  src/core/handle_sigint.c\
   src/utils/error_exe.c \
   src/utils/print_error.c \
   src/utils/ft_list_ops.c \
@@ -187,16 +187,16 @@ SRCS_BONUS_REMOVE := \
   src/lexer/lexer_utile.c
 
 SRCS_BONUS_ADD := \
-  bonus/executor_bonus.c \
-  bonus/exec_logical.c \
-  bonus/exec_subshell.c \
-  bonus/parser_bonus.c \
-  bonus/parser_sub_bonus.c \
-  bonus/parser_redir_bonus.c \
-  bonus/parser_build_node_bonus.c \
-  bonus/parser_tk_type_bonus.c \
-  bonus/lexer_single_token_bonus.c \
-  bonus/lexer_utile_bonus.c
+  src/bonus/executor_bonus.c \
+  src/bonus/exec_logical.c \
+  src/bonus/exec_subshell.c \
+  src/bonus/parser_bonus.c \
+  src/bonus/parser_sub_bonus.c \
+  src/bonus/parser_redir_bonus.c \
+  src/bonus/parser_build_node_bonus.c \
+  src/bonus/parser_tk_type_bonus.c \
+  src/bonus/lexer_single_token_bonus.c \
+  src/bonus/lexer_utile_bonus.c
 
 SRCS_BONUS := $(filter-out $(SRCS_BONUS_REMOVE),$(SRCS))
 SRCS_BONUS += $(SRCS_BONUS_ADD)
