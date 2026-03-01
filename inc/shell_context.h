@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shell_context.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:42 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/26 20:08:43 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/02/28 21:46:05 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,24 +35,27 @@ typedef struct s_env_var
  *
  * This structure is shared across parsing, execution, and signal handling.
  */
+/* ---------- Environment ---------- */
+// environment variables (KEY=VALUE)
+/* ---------- Memory / Resource Tracking ---------- */
+//// categorized allocation tracking (lifetime-based cleanup)
+// heredoc files or other temp resources to unlink on exit
+/* ---------- Parsing / Execution State ---------- */
+// error message produced during parsing
+// true: interactive shell process
+// false: forked child (pipeline stage / subshell)
+// true: interactive shell process
+// false: forked child (pipeline stage / subshell)
+// exit status of the last executed command ($?)
 
 typedef struct s_shell_context
 {
-	/* ---------- Environment ---------- */
-	t_list *env; // environment variables (KEY=VALUE)
-	// char *home;  // cached $HOME value
-	/* ---------- Memory / Resource Tracking ---------- */
+	t_list	*env;
 	t_list	*allocated_pointers[3];
-	//// categorized allocation tracking (lifetime-based cleanup)
 	t_list	*temporary_files;
-	// heredoc files or other temp resources to unlink on exit
-	/* ---------- Parsing / Execution State ---------- */
-	char *parsing_error; // error message produced during parsing
+	char	*parsing_error;
 	bool	in_main_process;
-	// true: interactive shell process
-	// false: forked child (pipeline stage / subshell)
 	int		last_status;
-	// exit status of the last executed command ($?)
 }			t_shell_context;
 
 typedef enum s_prompt_mode
