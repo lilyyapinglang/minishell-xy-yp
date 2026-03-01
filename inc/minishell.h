@@ -81,6 +81,7 @@ int								prompt_execution(char *line,
 									t_shell_context *sh_ctx);
 
 void							shell_clear_iteration(t_shell_context *sh_ctx);
+void							shell_destroy(t_shell_context *sh_ctx);
 
 void							shell_exit(t_shell_context *sh_ctx, int status);
 

@@ -18,7 +18,10 @@ static int	finalize_status(int status, t_exec_context exe_ctx,
 {
 	sh_ctx->last_status = status;
 	if (exe_ctx == RUN_IN_CHILD)
+	{
+		shell_destroy(sh_ctx);
 		exit(status);
+	}
 	return (status);
 }
 
