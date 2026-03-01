@@ -6,12 +6,12 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:40 by ylang             #+#    #+#             */
-/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:01 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
-#include "../include/error.h"
+#include "../inc/error.h"
+#include "../inc/minishell.h"
 
 int	open_s(const char *pathname, int flags, mode_t mode,
 		t_shell_context *sh_ctx)

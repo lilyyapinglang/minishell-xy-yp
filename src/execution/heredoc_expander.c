@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/25 11:17:13 by xuewang           #+#    #+#             */
-/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:01 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../inc/minishell.h"
 
 static size_t	hd_value_len_at(const char *line, size_t i, t_shell_context *sh,
 		const char *st)

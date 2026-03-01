@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 21:16:37 by ylang             #+#    #+#             */
-/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:01 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../inc/minishell.h"
 
 // To be done by yaping lang
 
@@ -58,9 +58,7 @@
 // 	cur->next = new;
 // }
 
-void	del(void)
-{
-}
+void	del(void) {}
 // delete one node
 // TODO
 // void	ft_lstdelone(t_list *lst, void (*del)(void *));

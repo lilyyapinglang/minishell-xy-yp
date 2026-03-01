@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 21:27:26 by xueyan_wang       #+#    #+#             */
-/*   Updated: 2026/03/01 11:43:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:01 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../inc/minishell.h"
 
 /*
 ** first == 1 : first char after '$' => '_' or alpha

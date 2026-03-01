@@ -6,11 +6,11 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 20:04:04 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/01 11:42:35 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:26 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../inc/minishell.h"
 
 // current at main process, main prompt, set ctrl-c, ctrl-d , ctrl-\-
 // set signal first

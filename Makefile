@@ -2,7 +2,7 @@ NAME := minishell
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
-CPPFLAGS := -Iinclude -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
+CPPFLAGS := -Iinc -Ilib/ft_printf -Ilib/libft -Ilib/get_next_line
 LDFLAGS :=
 LDLIBS :=
 

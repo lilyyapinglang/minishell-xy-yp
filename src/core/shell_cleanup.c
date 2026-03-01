@@ -6,12 +6,12 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 19:47:20 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/01 11:42:51 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/01 11:49:01 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
-#include "../include/safefunctions.h"
+#include "../inc/minishell.h"
+#include "../inc/safefunctions.h"
 #include "env.h"
 #include "get_next_line.h"
 
