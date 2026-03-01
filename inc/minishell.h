@@ -145,10 +145,13 @@ int								execute_external(t_ast_command *cmd,
 int								execute_command(t_ast *node,
 									t_exec_context exe_ctx,
 									t_shell_context *sh_ctx);
+int								fork_and_run_cmd_in_child(t_ast *node,
+									t_shell_context *sh_ctx);
 
 int								execute_pipeline(t_ast *pipeline_node,
 									t_shell_context *shell_conetext);
 int								execute_redirection(t_ast *node,
+									t_exec_context exe_ctx,
 									t_shell_context *sh_ctx);
 int								execute_subshell(t_ast *node,
 									t_shell_context *shell_conetext);

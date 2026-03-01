@@ -12,6 +12,7 @@
 
 #include "../inc/minishell.h"
 #include "../inc/safefunctions.h"
+#include "get_next_line.h"
 #include "env.h"
 
 static void	cleanup_temp_files(t_shell_context *sh_ctx)
@@ -55,6 +56,7 @@ void	shell_destroy(t_shell_context *sh_ctx)
 	if (!sh_ctx)
 		return ;
 	shell_clear_iteration(sh_ctx);
+	gnl_clear_static_buffer();
 	ft_lstclear(&sh_ctx->env, free_env_var);
 	ft_lstclear(&sh_ctx->allocated_pointers[ALLOC_SHELL], free);
 }

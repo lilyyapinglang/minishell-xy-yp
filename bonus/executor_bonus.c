@@ -56,7 +56,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	else if (node->type == AST_SUBSHELL)
 		status = execute_subshell(node, sh_ctx);
 	else if (node->type == AST_REDIRECTION)
-		status = execute_redirection(node, sh_ctx);
+		status = execute_redirection(node, execution_context, sh_ctx);
 	else if (node->type == AST_COMMAND)
 		status = execute_command(node, execution_context, sh_ctx);
 	else
