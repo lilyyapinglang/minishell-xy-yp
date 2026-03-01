@@ -18,7 +18,10 @@ static int	finalize_status(int status, t_exec_context exe_ctx,
 {
 	sh_ctx->last_status = status;
 	if (exe_ctx == RUN_IN_CHILD)
+	{
+		shell_destroy(sh_ctx);
 		exit(status);
+	}
 	return (status);
 }
 
@@ -52,7 +55,7 @@ int	execute(t_ast *node, t_exec_context execution_context,
 	if (node->type == AST_PIPELINE)
 		status = execute_pipeline(node, sh_ctx);
 	else if (node->type == AST_REDIRECTION)
-		status = execute_redirection(node, sh_ctx);
+		status = execute_redirection(node, execution_context, sh_ctx);
 	else if (node->type == AST_COMMAND)
 		status = execute_command(node, execution_context, sh_ctx);
 	else
