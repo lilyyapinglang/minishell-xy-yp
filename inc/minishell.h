@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/03/03 17:56:30 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/03 18:03:12 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,7 +216,6 @@ int								is_valid_var_name(const char *str);
 int								is_valid_options(char *arg, char *cmd,
 									char *valid_options);
 //-----  signal-----
-
 extern volatile sig_atomic_t	g_latest_signal_status;
 int								set_signal_handler(int sig_num,
 									void (*signal_handler)(int), int flags);

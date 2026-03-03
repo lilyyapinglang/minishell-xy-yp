@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_redirection_fd.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/03 17:55:15 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/03 17:58:58 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/03 18:01:06 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int	restore_fd(int saved_fd, int std_fd)
 	return (EXIT_SUCCESS);
 }
 
- bool	should_fork_on_redirection(t_ast_redirection *redir, t_exec_context ctx)
+bool	should_fork_on_redirection(t_ast_redirection *redir, t_exec_context ctx)
 {
 	t_ast_command	*cmd;
 
@@ -44,11 +44,11 @@ static int	restore_fd(int saved_fd, int std_fd)
 			|| !is_stateful_builtin(cmd->args[0])));
 }
 
-int redirect_and_execute(t_ast_redirection *node, t_redir_exec redir,
-	t_exec_context exe_ctx, t_shell_context *sh_ctx)
+int	redirect_and_execute(t_ast_redirection *node, t_redir_exec redir,
+		t_exec_context exe_ctx, t_shell_context *sh_ctx)
 {
-	int status;
-	int original_fd;
+	int	status;
+	int	original_fd;
 
 	if (exe_ctx == RUN_IN_CHILD)
 	{
