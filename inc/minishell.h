@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/03/03 18:03:12 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 18:30:46 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,8 @@ typedef struct s_hd_fillctx
 
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
-int								collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx,
+int								collect_all_heredocs_from_redir_node(
+									t_shell_context *sh_ctx,
 									t_ast *node);
 int								collect_one_heredoc(t_ast *node,
 									t_shell_context *sh);
@@ -244,6 +245,7 @@ char							*resolve_cmd_path(char *cmd,
 int								redirect_and_execute(t_ast_redirection *node,
 									t_redir_exec redir, t_exec_context exe_ctx,
 									t_shell_context *sh_ctx);
-bool							should_fork_on_redirection(t_ast_redirection *redir,
+bool							should_fork_on_redirection(
+									t_ast_redirection *redir,
 									t_exec_context ctx);
 #endif
