@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:48:27 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/03 14:50:22 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 15:25:56 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ int	append_value(char *arg, char *plus_eq, char *equal_sign_loc,
 	status = 0;
 	name = s_alloc(ft_substr(arg, 0, (size_t)(plus_eq - arg)), ALLOC_PROMPT,
 			sh_ctx);
-	// name = ft_substr(arg, 0, (size_t)(plus_eq - arg));
 	val = equal_sign_loc + 1;
 	if (!name || !is_valid_var_name(name))
 	{
@@ -32,7 +31,6 @@ int	append_value(char *arg, char *plus_eq, char *equal_sign_loc,
 	}
 	else if (env_append_value(sh_ctx, name, val, true) != 0)
 		status = 1;
-	// free(name);
 	return (status);
 }
 
@@ -43,7 +41,6 @@ int	set_new_value(char *arg, char *equal_sign_loc, t_shell_context *sh_ctx)
 	int		status;
 
 	status = 0;
-	// name = ft_substr(arg, 0, (size_t)(equal_sign_loc - arg));
 	name = s_alloc(ft_substr(arg, 0, (size_t)(equal_sign_loc - arg)),
 			ALLOC_PROMPT, sh_ctx);
 	val = equal_sign_loc + 1;
@@ -54,7 +51,6 @@ int	set_new_value(char *arg, char *equal_sign_loc, t_shell_context *sh_ctx)
 	}
 	else if (env_set_value(sh_ctx, name, val, true) != 0)
 		status = 1;
-	// free(name);
 	return (status);
 }
 

@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/16 17:45:08 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/03 14:47:24 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 16:45:23 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,7 @@ t_ast	*new_ast_command(char **args, t_shell_context *sh_ctx)
 {
 	t_ast	*node;
 
-	// node = malloc(sizeof(t_ast));
 	node = calloc_s(1, sizeof(t_ast), ALLOC_PROMPT, sh_ctx);
-	if (!node)
-		return (NULL);
 	node->type = AST_COMMAND;
 	node->u_data.command.args = args;
 	node->is_expanded = false;
@@ -45,10 +42,7 @@ int	builtin_env(char **argv, t_shell_context *sh_ctx)
 	else
 	{
 		cmd_node = new_ast_command(&argv[1], sh_ctx);
-		// if (!cmd_node)
-		// 	return (EXIT_FAILURE);
 		status = execute_command(cmd_node, RUN_IN_CHILD, sh_ctx);
-		// free(cmd_node);
 		return (status);
 	}
 }

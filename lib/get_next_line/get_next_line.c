@@ -6,37 +6,12 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 21:23:21 by ylang             #+#    #+#             */
-/*   Updated: 2025/06/15 16:33:23 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 16:42:53 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
-
-static char	**gnl_currentstr_ref(void)
-{
-	static char	*currentstr;
-
-	return (&currentstr);
-}
-
-char	*eof_no_nl_empty_or_readerror(char **currentstr_addr)
-{
-	if (*currentstr_addr)
-		free(*currentstr_addr);
-	*currentstr_addr = NULL;
-	return (NULL);
-}
-
-char	*eof_no_nl_notempty(char **currentstr_addr)
-{
-	char	*line;
-
-	line = ft_strdup(*currentstr_addr);
-	free(*currentstr_addr);
-	*currentstr_addr = NULL;
-	return (line);
-}
 
 char	*find_nl_getline(char *nlchar_pos, char **currentstr_addr)
 {
@@ -53,7 +28,7 @@ char	*find_nl_getline(char *nlchar_pos, char **currentstr_addr)
 }
 
 int	read_until_nl(int fd, char **nlchar_pos_addr, char **currentstr_addr,
-		char **buffer_addr)
+	char **buffer_addr)
 {
 	char	*temp;
 	int		bytesread;
@@ -78,11 +53,18 @@ int	read_until_nl(int fd, char **nlchar_pos_addr, char **currentstr_addr,
 	return (1);
 }
 
+static char	**gnl_currentstr_ref(void)
+{
+	static char	*currentstr;
+
+	return (&currentstr);
+}
+
 char	*get_next_line(int fd)
 {
-	char		**currentstr;
-	char		*buffer;
-	char		*nlchar_pos;
+	char	**currentstr;
+	char	*buffer;
+	char	*nlchar_pos;
 
 	currentstr = gnl_currentstr_ref();
 	if (fd < 0 || BUFFER_SIZE <= 0)

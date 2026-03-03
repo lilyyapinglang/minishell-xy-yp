@@ -84,7 +84,8 @@ GNL_DIR := lib/get_next_line
 
 GNL_SRCS := \
   $(GNL_DIR)/get_next_line.c \
-  $(GNL_DIR)/get_next_line_utils.c
+  $(GNL_DIR)/get_next_line_utils.c\
+   $(GNL_DIR)/get_next_line_eof.c
 
 # ------------------ Project SRCS ------------------
 # 1) Parse world (used by minishell and tests)
