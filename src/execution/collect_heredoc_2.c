@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc_2.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:19:31 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/26 18:55:00 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/03 14:07:24 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,11 @@ static char	*create_tmp_heredoc(t_shell_context *sh)
 	char	*suffix;
 	char	*tmp_name;
 
-	suffix = s_alloc(ft_itoa(ft_lstsize(sh->temporary_files)), ALLOC_UNTRACKED,
+	suffix = s_alloc(ft_itoa(ft_lstsize(sh->temporary_files)), ALLOC_PROMPT,
 			sh);
 	tmp_name = strjoin_s("/tmp/minishell_heredoc_", suffix, ALLOC_UNTRACKED,
 			sh);
-	free(suffix);
+	// free(suffix);
 	lst_add_front_s(tmp_name, &sh->temporary_files, ALLOC_UNTRACKED, sh);
 	return (tmp_name);
 }

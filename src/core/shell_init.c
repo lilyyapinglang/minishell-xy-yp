@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shell_init.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 18:43:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/11 19:46:16 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/03 14:38:12 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ void	increment_shlvl(t_shell_context *sh_ctx)
 		if (env_var && env_var->value)
 			level = ft_atoi(env_var->value);
 	}
-	temp = s_alloc(ft_itoa(level + 1), ALLOC_UNTRACKED, sh_ctx);
-	if (!temp)
-		return ;
+	temp = s_alloc(ft_itoa(level + 1), ALLOC_PROMPT, sh_ctx);
+	// if (!temp)
+	// 	return ;
 	env_set_value(sh_ctx, "SHLVL", temp, true);
-	free(temp);
+	// free(temp);
 }
 
 int	readline_hack(void)
