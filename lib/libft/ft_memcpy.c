@@ -3,17 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 19:33:04 by xuewang           #+#    #+#             */
-/*   Updated: 2025/05/12 17:30:42 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/03/03 09:19:50 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
-//#include<string.h>
-//#include<stdlib.h>
-//#include<stdio.h>
+#include "libft.h"
 
 void	*ft_memcpy(void *dest, const void *src, size_t n)
 {

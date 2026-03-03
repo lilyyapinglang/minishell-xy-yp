@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 14:36:36 by xuewang           #+#    #+#             */
-/*   Updated: 2025/05/15 14:43:04 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/03/03 09:21:00 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
-#include<stdio.h>
+#include "libft.h"
+#include <stdio.h>
 
 int	str_count(char const *str, char c)
 {

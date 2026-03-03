@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xuewang <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 12:49:04 by xuewang           #+#    #+#             */
-/*   Updated: 2025/05/15 14:53:12 by xuewang          ###   ########.fr       */
+/*   Updated: 2026/03/03 09:34:35 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
 
-# include<stdlib.h>
-# include<unistd.h>
-# include<limits.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <limits.h>
 # include <stdint.h>
 
 /* bonus*/

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:30 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/28 21:52:08 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 09:32:16 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ t_ast			*create_ast_redir(t_token_type direction, t_list *tk_filename,
 					t_ast *child, t_shell_context *sh);
 t_ast			*create_ast_pipeline(t_ast *left, t_ast *right,
 					t_shell_context *sh);
-t_ast			*create_ast_and_or(t_ast *left, t_token_type operator, t_ast
-					* right, t_shell_context *sh);
+t_ast			*create_ast_and_or(t_ast *left, t_token_type operator,
+					t_ast *right, t_shell_context *sh);
 
 /*basic actions*/
 t_token_type	peek_list(t_list *tok);
