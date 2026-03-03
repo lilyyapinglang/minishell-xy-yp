@@ -156,6 +156,7 @@ SRCS_RUNTIME := \
   src/execution/exec_pipeline_1.c \
    src/execution/exec_pipeline_2.c \
   src/execution/exec_redirection.c \
+  src/execution/exec_redirection_fd.c\
   src/execution/heredoc_expander.c\
   src/execution/heredoc_expander_utile.c\
   src/execution/executor.c
