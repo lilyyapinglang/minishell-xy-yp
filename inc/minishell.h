@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/03/03 09:23:38 by xueyan_wang      ###   ########.fr       */
+/*   Updated: 2026/03/03 18:03:12 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,6 @@ typedef enum e_exec_context
 # define WRITE_END 1
 
 // heredocs
-
 // heredoc_expander to ensure argv <5 xueyan added
 // buffer for output
 // current writing-in position
@@ -116,8 +115,8 @@ typedef struct s_hd_fillctx
 
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
-int								collect_all_heredocs_from_redir_node(
-									t_shell_context *sh_ctx, t_ast *node);
+int								collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx,
+									t_ast *node);
 int								collect_one_heredoc(t_ast *node,
 									t_shell_context *sh);
 int								read_heredoc_lines(int tmp_file_des,
@@ -136,6 +135,12 @@ size_t							hd_copy_str(char *out, size_t j, const char *s);
 void							hd_fill_dollar(t_hd_fillctx *ctx,
 									const char *line);
 // executor
+typedef struct s_redir_exec
+{
+	int							new_fd;
+	int							std_fd;
+}								t_redir_exec;
+
 int								execute(t_ast *node,
 									t_exec_context execution_context,
 									t_shell_context *shell_conetext);
@@ -211,7 +216,6 @@ int								is_valid_var_name(const char *str);
 int								is_valid_options(char *arg, char *cmd,
 									char *valid_options);
 //-----  signal-----
-
 extern volatile sig_atomic_t	g_latest_signal_status;
 int								set_signal_handler(int sig_num,
 									void (*signal_handler)(int), int flags);
@@ -236,4 +240,10 @@ int								wait_for_children(pid_t last_pid,
 // external commands
 char							*resolve_cmd_path(char *cmd,
 									t_shell_context *sh_ctx);
+// redir
+int								redirect_and_execute(t_ast_redirection *node,
+									t_redir_exec redir, t_exec_context exe_ctx,
+									t_shell_context *sh_ctx);
+bool							should_fork_on_redirection(t_ast_redirection *redir,
+									t_exec_context ctx);
 #endif
