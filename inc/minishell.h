@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xueyan_wang <xueyan_wang@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:08:02 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/28 21:51:18 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 09:23:38 by xueyan_wang      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,8 @@ typedef struct s_hd_fillctx
 
 int								collect_all_heredocs(t_ast *root,
 									t_shell_context *sh_ctx);
-int								collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx,
-									t_ast *node);
+int								collect_all_heredocs_from_redir_node(
+									t_shell_context *sh_ctx, t_ast *node);
 int								collect_one_heredoc(t_ast *node,
 									t_shell_context *sh);
 int								read_heredoc_lines(int tmp_file_des,
