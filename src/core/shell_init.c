@@ -6,7 +6,7 @@
 /*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 18:43:47 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/03 14:38:12 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 15:13:42 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ void	increment_shlvl(t_shell_context *sh_ctx)
 			level = ft_atoi(env_var->value);
 	}
 	temp = s_alloc(ft_itoa(level + 1), ALLOC_PROMPT, sh_ctx);
-	// if (!temp)
-	// 	return ;
 	env_set_value(sh_ctx, "SHLVL", temp, true);
-	// free(temp);
 }
 
 int	readline_hack(void)
