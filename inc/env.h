@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: xuewang <xuewang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/26 20:07:43 by xuewang           #+#    #+#             */
-/*   Updated: 2026/02/28 21:47:59 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/03 18:28:39 by xuewang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 # include "list.h"
 # include "shell_context.h"
 
-# define DEFAULT_PATH \
-	"/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
+# define DEFAULT_PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin\
 :/usr/local/sbin:/opt/bin:/opt/sbin"
 
 t_list		*init_env(char **envp, t_shell_context *sh_ctx);
