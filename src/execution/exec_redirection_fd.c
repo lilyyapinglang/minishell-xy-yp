@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_redirection_fd.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/03 17:55:15 by lilypad           #+#    #+#             */
-/*   Updated: 2026/03/03 18:01:06 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/04 23:12:32 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,27 @@ static int	restore_fd(int saved_fd, int std_fd)
 	return (EXIT_SUCCESS);
 }
 
+static t_ast	*find_terminal_cmd(t_ast_redirection *redir)
+{
+	t_ast	*node;
+
+	node = redir->exe_child;
+	while (node && node->type == AST_REDIRECTION)
+		node = node->u_data.redirection.exe_child;
+	return (node);
+}
+
 bool	should_fork_on_redirection(t_ast_redirection *redir, t_exec_context ctx)
 {
+	t_ast			*terminal;
 	t_ast_command	*cmd;
 
-	if (ctx != RUN_IN_SHELL || !redir || !redir->exe_child
-		|| redir->exe_child->type != AST_COMMAND)
+	if (ctx != RUN_IN_SHELL || !redir || !redir->exe_child)
 		return (false);
-	cmd = &redir->exe_child->u_data.command;
+	terminal = find_terminal_cmd(redir);
+	if (!terminal || terminal->type != AST_COMMAND)
+		return (false);
+	cmd = &terminal->u_data.command;
 	return (cmd->args && cmd->args[0] && (!is_builtin(cmd->args[0])
 			|| !is_stateful_builtin(cmd->args[0])));
 }
