@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 17:44:57 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/27 17:51:21 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/04 18:11:59 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,12 +64,18 @@ char	*resolve_cmd_path(char *cmd, t_shell_context *sh_ctx)
 	char	*path_ptr;
 	t_list	*env;
 	char	*result;
+	char	*tmp;
 
 	path_ptr = NULL;
 	env = sh_ctx->env;
 	path_ptr = search_path_value(env);
 	if (!path_ptr)
-		return (ft_strjoin("./", cmd));
+	{
+		tmp = strjoin_s("./", cmd, ALLOC_PROMPT, sh_ctx);
+		if (access(tmp, X_OK) != 0)
+			return (NULL);
+		return (tmp);
+	}
 	if (*path_ptr == '\0')
 		return (NULL);
 	dirs = ft_split(path_ptr, ':');
