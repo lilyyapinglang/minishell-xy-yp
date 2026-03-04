@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handle_sigint.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 23:11:33 by ylang             #+#    #+#             */
-/*   Updated: 2026/03/04 16:11:36 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/04 16:46:52 by ylang            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,11 @@ void	handle_sigint_in_prompt_mode(int sig_num)
 	(void)sig_num;
 	g_latest_signal_status = SIGINT;
 	// reset readline buffer
-	write(STDOUT_FILENO, "\n", 1);
+	// write(STDOUT_FILENO, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
-	// rl_done = 1;
+	rl_done = 1;
 }
 
 /*
