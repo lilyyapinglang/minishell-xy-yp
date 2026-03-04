@@ -6,7 +6,7 @@
 /*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/25 22:06:28 by ylang             #+#    #+#             */
-/*   Updated: 2026/02/27 17:51:46 by lilypad          ###   ########.fr       */
+/*   Updated: 2026/03/04 17:46:28 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ void	report_child_termination_signal(int wait_status, const char *cmd_name,
 			ft_putstr_fd("Quit (core dumped)\n", STDERR_FILENO);
 		else
 			ft_putstr_fd("Quit\n", STDERR_FILENO);
-		ft_putstr_fd("Quit\n", STDERR_FILENO);
 	}
 }
 
