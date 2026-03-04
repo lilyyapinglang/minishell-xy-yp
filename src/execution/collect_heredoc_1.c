@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   collect_heredoc_1.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ylang <ylang@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lilypad <lilypad@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/07 19:06:06 by lilypad           #+#    #+#             */
-/*   Updated: 2026/02/25 22:28:00 by ylang            ###   ########.fr       */
+/*   Updated: 2026/03/04 23:49:54 by lilypad          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,10 +88,11 @@ int	collect_all_heredocs_from_redir_node(t_shell_context *sh_ctx, t_ast *node)
 {
 	int	status;
 
-	status = collect_all_heredocs(node->u_data.redirection.exe_child, sh_ctx);
-	if (status != EXIT_SUCCESS)
-		return (status);
 	if (node->u_data.redirection.redir_type == REDIR_HEREDOC)
-		return (collect_one_heredoc(node, sh_ctx));
-	return (EXIT_SUCCESS);
+	{
+		status = collect_one_heredoc(node, sh_ctx);
+		if (status != EXIT_SUCCESS)
+			return (status);
+	}
+	return (collect_all_heredocs(node->u_data.redirection.exe_child, sh_ctx));
 }
